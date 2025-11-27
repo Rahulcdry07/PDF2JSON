@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Search Results - {{ search_term }}</title>
+    <style>
+      .match { background-color: #ffff99; padding: 2px 4px; margin: 2px 0; }
+      .filename { font-weight: bold; color: #0066cc; }
+      .total { color: #666; font-size: 0.9em; }
+    </style>
+  </head>
+  <body>
+    <h1>Search Results for "{{ search_term }}"</h1>
+    <p><a href="/">Back to Home</a></p>
+
+    {% if results %}
+      <h2>Found in {{ results|length }} file(s)</h2>
+      {% for result in results %}
+        <div style="margin-bottom: 20px;">
+          <h3 class="filename">
+            <a href="/view/{{ result.filename }}">{{ result.filename }}</a>
+            <span class="total">({{ result.total_matches }} matches)</span>
+          </h3>
+          <div>
+            {% for match_idx, match_text in result.matches %}
+              <div class="match">
+                <a href="/view/{{ result.filename }}?highlight={{ search_term }}&match_idx={{ match_idx }}" style="text-decoration: none; color: inherit;">{{ match_text }}</a>
+              </div>
+            {% endfor %}
+            {% if result.total_matches > result.matches|length %}
+              <div style="color: #666; font-style: italic;">... and {{ result.total_matches - result.matches|length }} more matches</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No matches found for "{{ search_term }}"</p>
+    {% endif %}
+  </body>
+</html>

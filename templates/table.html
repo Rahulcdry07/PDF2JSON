@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Table {{ index }} in {{ xmlname }}</title>
+    <style>table, th, td { border: 1px solid #333; border-collapse: collapse; padding:4px; }</style>
+  </head>
+  <body>
+    <h1>Table {{ index }} — {{ xmlname }}</h1>
+    <p><a href="/view/{{ xmlname }}">Back to tables</a></p>
+    <table>
+      {% for r in rows %}
+      <tr>
+        {% for c in r %}
+        <td>{{ c }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
