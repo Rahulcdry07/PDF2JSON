@@ -30,6 +30,11 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 def markdown_filter(text):
     return Markup(markdown.markdown(text, extensions=['tables']))
 
+# Add basename filter
+@app.template_filter('basename')
+def basename_filter(path):
+    return Path(path).name
+
 ALLOWED_EXT = {'.pdf'}
 
 
@@ -181,16 +186,19 @@ def view_json(filepath):
         return render_template('view_markdown.html', filename=json_path.name, md_content=md_content)
     
     elif file_extension == '.json':
-        # Handle JSON files
-        search_term = request.args.get('search', '').strip()
-        
+        # Handle JSON files - check if it's a matched rates file
         with json_path.open('r', encoding='utf-8') as f:
             data = json.load(f)
         
-        json_content = json.dumps(data, indent=2, ensure_ascii=False)
-        
-        # Search highlighting is handled by JavaScript on the client side
-        return render_template('view.html', jsonname=json_path.name, json_content=json_content, highlight_term=search_term)
+        # If it's a matched rates file, show it in a formatted table
+        if 'matched_items' in data and 'summary' in data:
+            return render_template('view_report.html',
+                                 report=data,
+                                 filename=json_path.name)
+        else:
+            # For other JSON files, show raw JSON
+            json_content = json.dumps(data, indent=2, ensure_ascii=False)
+            return f"<html><head><title>{json_path.name}</title></head><body><pre>{json_content}</pre></body></html>"
     
     else:
         flash('Unsupported file type')
