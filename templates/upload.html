@@ -6,9 +6,19 @@
   </head>
   <body>
     <h1>Upload PDF</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="color: red; margin: 10px 0;">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <p><strong>Maximum file size:</strong> 100 MB</p>
     <form method="post" enctype="multipart/form-data">
-      <input type="file" name="file" accept="application/pdf" />
-      <button type="submit">Upload</button>
+      <input type="file" name="pdf" accept="application/pdf" required />
+      <button type="submit">Upload & Convert</button>
     </form>
     <p><a href="/">Back</a></p>
   </body>

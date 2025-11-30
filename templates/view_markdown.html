@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ filename }} - Markdown View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        .back-link {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .back-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .view-toggle {
+            margin-bottom: 20px;
+        }
+        .toggle-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+        .toggle-btn.active {
+            background-color: #28a745;
+        }
+        .md-content {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .md-rendered {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .md-rendered h1, .md-rendered h2, .md-rendered h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .md-rendered h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .md-rendered table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .md-rendered th, .md-rendered td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .md-rendered th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .md-rendered ul, .md-rendered ol {
+            padding-left: 20px;
+        }
+        .md-rendered code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ filename }}</h1>
+            <a href="{{ url_for('index') }}" class="back-link">← Back to Files</a>
+        </div>
+        
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="showRendered()">Rendered View</button>
+            <button class="toggle-btn" onclick="showRaw()">Raw Markdown</button>
+        </div>
+        
+        <div id="rendered-view" class="md-rendered">
+            {{ md_content | markdown | safe }}
+        </div>
+        
+        <div id="raw-view" class="md-content hidden">{{ md_content }}</div>
+    </div>
+
+    <script>
+        function showRendered() {
+            document.getElementById('rendered-view').classList.remove('hidden');
+            document.getElementById('raw-view').classList.add('hidden');
+            document.querySelector('.toggle-btn:nth-child(1)').classList.add('active');
+            document.querySelector('.toggle-btn:nth-child(2)').classList.remove('active');
+        }
+        
+        function showRaw() {
+            document.getElementById('rendered-view').classList.add('hidden');
+            document.getElementById('raw-view').classList.remove('hidden');
+            document.querySelector('.toggle-btn:nth-child(1)').classList.remove('active');
+            document.querySelector('.toggle-btn:nth-child(2)').classList.add('active');
+        }
+    </script>
+</body>
+</html>

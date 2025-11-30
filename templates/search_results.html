@@ -18,13 +18,13 @@
       {% for result in results %}
         <div style="margin-bottom: 20px;">
           <h3 class="filename">
-            <a href="/view/{{ result.filename }}">{{ result.filename }}</a>
+            <a href="/view/{{ result.filepath }}">{{ result.filename }}</a>
             <span class="total">({{ result.total_matches }} matches)</span>
           </h3>
           <div>
             {% for match_idx, match_text in result.matches %}
               <div class="match">
-                <a href="/view/{{ result.filename }}?highlight={{ search_term }}&match_idx={{ match_idx }}" style="text-decoration: none; color: inherit;">{{ match_text }}</a>
+                <a href="/view/{{ result.filepath }}?search={{ search_term }}" style="text-decoration: none; color: inherit;">{{ match_text }}</a>
               </div>
             {% endfor %}
             {% if result.total_matches > result.matches|length %}

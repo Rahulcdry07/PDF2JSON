@@ -2,20 +2,231 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>PDF2JSON</title>
+    <title>PDF2JSON - File Manager</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333;
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+      }
+      .upload-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 30px;
+        border: 2px dashed #007bff;
+      }
+      .upload-section h2 {
+        margin-top: 0;
+        color: #007bff;
+      }
+      .file-input {
+        margin: 10px 0;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 300px;
+      }
+      .submit-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-left: 10px;
+      }
+      .submit-btn:hover {
+        background-color: #0056b3;
+      }
+      .files-section {
+        margin-top: 30px;
+      }
+      .file-category {
+        margin-bottom: 25px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .category-header {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 20px;
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .category-header.input { background-color: #28a745; }
+      .category-header.output { background-color: #fd7e14; }
+      .category-header.reference { background-color: #6f42c1; }
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .file-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 0;
+      }
+      .file-item:last-child {
+        border-bottom: none;
+      }
+      .file-link {
+        display: block;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+      .file-link:hover {
+        background-color: #f8f9fa;
+        color: #007bff;
+      }
+      .file-icon {
+        margin-right: 8px;
+        font-weight: bold;
+      }
+      .json-icon { color: #ffc107; }
+      .csv-icon { color: #28a745; }
+      .md-icon { color: #17a2b8; }
+      .pdf-icon { color: #dc3545; }
+      .empty-message {
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+      }
+      .flash-messages {
+        margin-bottom: 20px;
+      }
+      .flash-message {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+    </style>
   </head>
   <body>
-    <h1>PDF2JSON</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <input type="file" name="pdf" accept=".pdf" required />
-      <input type="submit" value="Convert to JSON" />
-    </form>
+    <div class="container">
+      <h1>PDF2JSON - File Manager</h1>
+      
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for message in messages %}
+              <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      
+      <div class="upload-section">
+        <h2>📄 Upload New PDF</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+          <input type="file" name="pdf" accept=".pdf" class="file-input" required />
+          <input type="submit" value="Convert to JSON" class="submit-btn" />
+        </form>
+      </div>
 
-    <h2>Converted JSON Files</h2>
-    <ul>
-      {% for json_file in json_files %}
-      <li><a href="/view/{{ json_file }}">{{ json_file }}</a></li>
-      {% endfor %}
-    </ul>
+      <div class="upload-section" style="border-color: #28a745;">
+        <h2 style="color: #28a745;">🔍 Search Files</h2>
+        <form action="/search" method="post">
+          <input type="text" name="search_term" placeholder="Enter search term..." class="file-input" required />
+          <input type="submit" value="Search" class="submit-btn" style="background-color: #28a745;" />
+        </form>
+      </div>
+
+      <div class="upload-section" style="border-color: #fd7e14;">
+        <h2 style="color: #fd7e14;">💰 DSR Cost Estimation</h2>
+        <p>Match DSR items with reference rates and calculate project cost estimation</p>
+        <a href="/cost-estimation" class="submit-btn" style="background-color: #fd7e14; text-decoration: none; display: inline-block;">
+          Calculate Cost Estimation
+        </a>
+      </div>
+
+      <div class="files-section">
+        {% if files.input or files.output or files.reference %}
+          
+          {% if files.input %}
+          <div class="file-category">
+            <h3 class="category-header input">📥 Input Files ({{ files.input|length }})</h3>
+            <ul class="file-list">
+              {% for file in files.input %}
+              <li class="file-item">
+                <a href="/view/input_files/{{ file.name }}" class="file-link">
+                  <span class="file-icon {{ file.type }}-icon">
+                    {% if file.type == 'json' %}📋{% elif file.type == 'pdf' %}📄{% else %}📎{% endif %}
+                  </span>
+                  {{ file.name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if files.output %}
+          <div class="file-category">
+            <h3 class="category-header output">📤 Output Reports ({{ files.output|length }})</h3>
+            <ul class="file-list">
+              {% for file in files.output %}
+              <li class="file-item">
+                <a href="/view/output_reports/{{ file.name }}" class="file-link">
+                  <span class="file-icon {{ file.type }}-icon">
+                    {% if file.type == 'json' %}📋{% elif file.type == 'csv' %}📊{% elif file.type == 'md' %}📝{% else %}📎{% endif %}
+                  </span>
+                  {{ file.name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if files.reference %}
+          <div class="file-category">
+            <h3 class="category-header reference">📚 Reference Files ({{ files.reference|length }})</h3>
+            <ul class="file-list">
+              {% for file in files.reference %}
+              <li class="file-item">
+                <a href="/view/reference_files/{{ file.name }}" class="file-link">
+                  <span class="file-icon {{ file.type }}-icon">
+                    {% if file.type == 'json' %}📋{% elif file.type == 'xml' %}🔖{% else %}📎{% endif %}
+                  </span>
+                  {{ file.name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+        {% else %}
+          <div class="file-category">
+            <div class="empty-message">
+              No files found. Upload a PDF to get started!
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
   </body>
 </html>

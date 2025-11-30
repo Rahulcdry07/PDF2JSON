@@ -10,11 +10,7 @@ class PDFToXMLConverter:
     """Convert PDF files to XML format."""
 
     def __init__(self, pdf_path: str):
-        """Initialize converter with PDF file path.
-        
-        Args:
-            pdf_path: Path to the PDF file
-        """
+        """Initialize with PDF file path."""
         self.pdf_path = Path(pdf_path)
         if not self.pdf_path.exists():
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
@@ -23,14 +19,7 @@ class PDFToXMLConverter:
     
     @staticmethod
     def _is_valid_xml_char(char: str) -> bool:
-        """Check if a character is valid in XML 1.0.
-        
-        Args:
-            char: Character to check
-            
-        Returns:
-            True if character is valid in XML
-        """
+        """Check if character is valid in XML 1.0."""
         codepoint = ord(char)
         return (
             0x20 <= codepoint <= 0xD7FF or
@@ -40,17 +29,9 @@ class PDFToXMLConverter:
         )
     
     def _detect_tables(self, page: fitz.Page) -> List[Dict]:
-        """Detect tables in a page using text positioning analysis.
-        
-        Args:
-            page: PyMuPDF page object
-            
-        Returns:
-            List of detected tables with their structure
-        """
+        """Detect tables using text positioning analysis."""
         tables = []
         
-        # Try to find tables using PyMuPDF's table detection
         tabs = page.find_tables()
         
         if tabs and tabs.tables:
@@ -63,7 +44,6 @@ class PDFToXMLConverter:
                     'col_count': 0
                 }
                 
-                # Extract table content
                 try:
                     table_extract = table.extract()
                     if table_extract:
@@ -72,7 +52,6 @@ class PDFToXMLConverter:
                         table_data['col_count'] = len(table_extract[0]) if table_extract else 0
                         tables.append(table_data)
                 except Exception:
-                    # Skip tables that can't be extracted
                     continue
         
         return tables

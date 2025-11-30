@@ -28,18 +28,13 @@ from .converter import PDFToXMLConverter
     help="Disable pretty-printing of XML"
 )
 def main(pdf_file: str, output: str, include_metadata: bool, extract_tables: bool, no_pretty: bool):
-    """Convert PDF files to JSON format.
-    
-    PDF_FILE: Path to the PDF file to convert
-    """
+    """Convert PDF to JSON format."""
     try:
-        # Determine output path
         if not output:
             output = Path(pdf_file).with_suffix(".json")
         
         click.echo(f"Converting {pdf_file} to JSON...")
         
-        # Convert PDF to JSON
         with PDFToXMLConverter(pdf_file) as converter:
             converter.save_json(
                 output,

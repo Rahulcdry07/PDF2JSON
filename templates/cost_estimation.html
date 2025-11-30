@@ -1,0 +1,323 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DSR Cost Estimation - PDF2JSON</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333;
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+      }
+      .form-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 30px;
+        border: 2px solid #007bff;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+      }
+      .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .checkbox-group {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: white;
+      }
+      .checkbox-item {
+        margin-bottom: 8px;
+      }
+      .checkbox-item input {
+        margin-right: 8px;
+      }
+      .submit-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .submit-btn:hover {
+        background-color: #0056b3;
+      }
+      .back-btn {
+        background-color: #6c757d;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+      }
+      .back-btn:hover {
+        background-color: #545b62;
+      }
+      .results-section {
+        margin-top: 30px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .results-header {
+        background-color: #28a745;
+        color: white;
+        padding: 15px 20px;
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .summary-item {
+        text-align: center;
+        padding: 15px;
+        background-color: white;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+      }
+      .summary-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .summary-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0;
+      }
+      .items-table th,
+      .items-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .items-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #333;
+      }
+      .items-table tr:hover {
+        background-color: #f8f9fa;
+      }
+      .match-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .match-exact { background-color: #d4edda; color: #155724; }
+      .match-partial { background-color: #fff3cd; color: #856404; }
+      .match-not-found { background-color: #f8d7da; color: #721c24; }
+      .amount-cell {
+        text-align: right;
+        font-weight: bold;
+      }
+      .amount-positive {
+        color: #28a745;
+      }
+      .amount-zero {
+        color: #6c757d;
+      }
+      .flash-messages {
+        margin-bottom: 20px;
+      }
+      .flash-message {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .flash-message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+      }
+      .description-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back-btn">← Back to Files</a>
+      
+      <h1>💰 DSR Cost Estimation</h1>
+      
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for message in messages %}
+              <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      
+      <div class="form-section">
+        <h2>📋 Select Files for Cost Estimation</h2>
+        
+        <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 12px; margin-bottom: 20px; color: #0c5460;">
+          <strong>💡 TIP:</strong> For best accuracy, convert your input file to structured format first:
+          <br>
+          <code style="background-color: #fff; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 5px;">
+            python3 scripts/input_file_converter.py -i your_file.json
+          </code>
+          <br>
+          <small>Structured files give 100% extraction accuracy vs ~70% with unstructured files.</small>
+        </div>
+        
+        <form method="post">
+          <div class="form-group">
+            <label for="input_file">Input File (Items to be priced):</label>
+            <select name="input_file" id="input_file" class="form-control" required>
+              <option value="">-- Select Input File --</option>
+              {% for file in input_files %}
+                <option value="{{ file.path }}">{{ file.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Reference Files (DSR Rate Databases):</label>
+            <div class="checkbox-group">
+              {% if reference_files %}
+                {% for file in reference_files %}
+                  <div class="checkbox-item">
+                    <input type="checkbox" name="reference_files" value="{{ file.path }}" id="ref_{{ loop.index }}">
+                    <label for="ref_{{ loop.index }}">{{ file.name }}</label>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p style="color: #666; font-style: italic;">No reference files available. Please upload DSR reference files first.</p>
+              {% endif %}
+            </div>
+          </div>
+          
+          <button type="submit" class="submit-btn">🚀 Calculate Cost Estimation</button>
+        </form>
+      </div>
+      
+      {% if result and result.success %}
+      <div class="results-section">
+        <h3 class="results-header">📊 Cost Estimation Results</h3>
+        
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-value">{{ result.summary.total_items }}</div>
+            <div class="summary-label">Total Items</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">{{ result.summary.matched_items }}</div>
+            <div class="summary-label">Matched Items</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">{{ result.summary.unmatched_items }}</div>
+            <div class="summary-label">Unmatched Items</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" style="color: #28a745;">₹{{ "%.2f"|format(result.total_amount) }}</div>
+            <div class="summary-label">Total Amount</div>
+          </div>
+        </div>
+        
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>DSR Code</th>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>Rate (₹)</th>
+              <th>Amount (₹)</th>
+              <th>Match</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in result.matched_items %}
+            <tr>
+              <td><strong>{{ item.dsr_code }}</strong></td>
+              <td class="description-cell" title="{{ item.description }}">{{ item.description }}</td>
+              <td>{{ item.quantity }} {{ item.unit }}</td>
+              <td class="amount-cell">{{ "%.2f"|format(item.rate) if item.rate else '-' }}</td>
+              <td class="amount-cell {% if item.amount > 0 %}amount-positive{% else %}amount-zero{% endif %}">
+                {{ "%.2f"|format(item.amount) if item.amount else '-' }}
+              </td>
+              <td>
+                {% if item.match_type == 'exact' or item.match_type == 'exact_with_description_match' %}
+                  <span class="match-badge match-exact">{{ item.match_type.replace('_', ' ') }}</span>
+                {% elif item.match_type == 'exact_first_duplicate' %}
+                  <span class="match-badge match-partial">{{ item.match_type.replace('_', ' ') }}</span>
+                {% else %}
+                  <span class="match-badge match-not-found">{{ item.match_type.replace('_', ' ') }}</span>
+                {% endif %}
+              </td>
+              <td>{{ item.volume }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <div style="padding: 20px; text-align: center; background-color: #f8f9fa;">
+          <p><strong>Results saved to:</strong> {{ result.result_file }}</p>
+          <a href="/view/output_reports/{{ result.result_file }}" class="submit-btn" style="text-decoration: none;">
+            📄 View Detailed Report
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
