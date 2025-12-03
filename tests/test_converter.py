@@ -4,8 +4,8 @@ import pytest
 from pathlib import Path
 import tempfile
 import fitz  # PyMuPDF
-import xml.etree.ElementTree as ET
-from src.pdf2xml.converter import PDFToXMLConverter
+import json
+from src.pdf2json.converter import PDFToXMLConverter
 
 
 @pytest.fixture
@@ -87,43 +87,44 @@ def test_converter_nonexistent_file():
 
 
 def test_convert_to_xml(sample_pdf):
-    """Test PDF to XML conversion."""
+    """Test PDF to JSON conversion."""
     with PDFToXMLConverter(sample_pdf) as converter:
-        root = converter.convert()
+        result = converter.convert()
         
-        assert root.tag == "document"
-        assert root.get("pages") == "1"
+        assert "document" in result
+        doc = result["document"]
+        assert doc["pages"] == 1
         
         # Check for page elements
-        pages = root.findall("page")
+        pages = doc["pages_data"]
         assert len(pages) == 1
-        assert pages[0].get("number") == "1"
+        assert pages[0]["number"] == 1
 
 
 def test_convert_with_metadata(sample_pdf):
-    """Test PDF to XML conversion with metadata."""
+    """Test PDF to JSON conversion with metadata."""
     with PDFToXMLConverter(sample_pdf) as converter:
-        root = converter.convert(include_metadata=True)
+        result = converter.convert(include_metadata=True)
         
         # Check for metadata element
-        metadata = root.find("metadata")
-        assert metadata is not None
+        doc = result["document"]
+        assert "metadata" in doc
 
 
 def test_save_xml(sample_pdf):
-    """Test saving XML to file."""
-    with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as f:
+    """Test saving JSON to file."""
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         output_path = f.name
     
     try:
         with PDFToXMLConverter(sample_pdf) as converter:
-            converter.save_xml(output_path)
+            converter.save_json(output_path)
         
-        # Verify file exists and is valid XML
+        # Verify file exists and is valid JSON
         assert Path(output_path).exists()
-        tree = ET.parse(output_path)
-        root = tree.getroot()
-        assert root.tag == "document"
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        assert "document" in data
         
     finally:
         Path(output_path).unlink(missing_ok=True)
@@ -141,58 +142,55 @@ def test_context_manager(sample_pdf):
 def test_table_extraction(sample_pdf_with_table):
     """Test table detection and extraction."""
     with PDFToXMLConverter(sample_pdf_with_table) as converter:
-        root = converter.convert(extract_tables=True)
+        result = converter.convert(extract_tables=True)
         
         # Check for tables element
-        pages = root.findall("page")
+        doc = result["document"]
+        pages = doc["pages_data"]
         assert len(pages) == 1
         
-        tables = pages[0].find("tables")
-        if tables is not None:  # Tables detected
-            table_elements = tables.findall("table")
-            assert len(table_elements) > 0
+        if "tables" in pages[0]:  # Tables detected
+            tables = pages[0]["tables"]
+            assert len(tables) > 0
             
             # Check table structure
-            table = table_elements[0]
-            assert table.get("index") is not None
-            assert table.get("rows") is not None
-            assert table.get("cols") is not None
+            table = tables[0]
+            assert "index" in table
+            assert "rows" in table
+            assert "row_count" in table
+            assert "col_count" in table
             
             # Check rows
-            rows = table.findall("row")
+            rows = table["rows"]
             assert len(rows) > 0
-            
-            # Check cells in first row
-            cells = rows[0].findall("cell")
-            assert len(cells) > 0
 
 
 def test_convert_without_tables(sample_pdf_with_table):
     """Test that tables are not extracted when flag is False."""
     with PDFToXMLConverter(sample_pdf_with_table) as converter:
-        root = converter.convert(extract_tables=False)
+        result = converter.convert(extract_tables=False)
         
-        pages = root.findall("page")
-        tables = pages[0].find("tables")
+        doc = result["document"]
+        pages = doc["pages_data"]
         
         # Tables should not be present
-        assert tables is None
+        assert "tables" not in pages[0]
 
 
 def test_save_xml_with_tables(sample_pdf_with_table):
-    """Test saving XML with table extraction."""
-    with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as f:
+    """Test saving JSON with table extraction."""
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         output_path = f.name
     
     try:
         with PDFToXMLConverter(sample_pdf_with_table) as converter:
-            converter.save_xml(output_path, extract_tables=True)
+            converter.save_json(output_path, extract_tables=True)
         
-        # Verify file exists and is valid XML
+        # Verify file exists and is valid JSON
         assert Path(output_path).exists()
-        tree = ET.parse(output_path)
-        root = tree.getroot()
-        assert root.tag == "document"
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        assert "document" in data
         
     finally:
         Path(output_path).unlink(missing_ok=True)

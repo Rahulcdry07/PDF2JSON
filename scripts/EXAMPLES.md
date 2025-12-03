@@ -182,7 +182,7 @@ python3 create_alternative_formats.py
 for project in project1 project2 project3; do
   python3 match_dsr_rates_sqlite.py \
     -i "../projects/${project}/items.json" \
-    -d ../examples/reference_files/DSR_combined.db \
+    -d ../reference_files/DSR_combined.db \
     -o "../projects/${project}/results"
 done
 ```

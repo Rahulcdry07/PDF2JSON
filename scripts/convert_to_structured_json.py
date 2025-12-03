@@ -87,7 +87,7 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  # Convert with default file names in examples/reference_files/
+  # Convert with default file names in reference_files/
   python3 convert_to_structured_json.py
   
   # Convert specific volumes (one or more)

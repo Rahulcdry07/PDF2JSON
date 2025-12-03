@@ -10,6 +10,10 @@ A comprehensive Python application that converts PDF files to JSON format and pr
 - **Web Interface**: Upload, convert, view files, and run cost estimations through a modern web UI
 - **Multi-Format Support**: Work with JSON, CSV, Markdown, and SQLite databases
 - **Multi-Volume DSR**: Process any number of DSR volumes from different years or regions
+- **Comprehensive Test Suite**: 78+ passing tests covering all functionality
+- **🆕 MCP Integration**: AI assistant integration via Model Context Protocol for natural language queries
+- **🆕 API Documentation**: Interactive OpenAPI documentation with request/response examples
+- **🆕 Analytics Dashboard**: Real-time usage statistics, performance metrics, and activity tracking
 
 ### DSR Matching System
 - **Smart Code Extraction**: Automatically extract DSR codes from construction documents
@@ -19,44 +23,153 @@ A comprehensive Python application that converts PDF files to JSON format and pr
 - **High Match Rate**: Achieve 100% exact code matching for properly formatted inputs
 - **Generic CLI**: Configurable via command-line arguments (no hardcoded paths)
 
+### 🤖 MCP Integration (NEW!)
+- **AI Assistant Access**: Use Claude Desktop to query DSR codes naturally
+- **Semantic Search**: Find codes by description using AI-powered similarity
+- **Real-Time Calculations**: Instant cost estimations through natural language
+- **PDF Conversion**: Convert PDFs via AI assistant commands
+- **Context Resources**: Access DSR databases as AI context
+- **🎨 Web Testing Interface**: Beautiful UI to test all MCP tools before Claude Desktop setup
+
+### 🗄️ Database Management (NEW!)
+- **Full CRUD Operations**: Add, edit, delete DSR codes through web UI
+- **Bulk Import/Export**: Import from CSV, export to CSV/Excel
+- **Advanced Search**: Filter by chapter, search by code or description
+- **Version Control**: Database backup and restore functionality
+- **Audit Logging**: Track all changes with timestamps and user info
+- **Statistics Dashboard**: Real-time database statistics and metrics
+
+### 📊 Excel to PDF Converter (NEW!)
+- **Sheet Extraction**: Extract individual sheets from Excel files
+- **Batch Processing**: Convert multiple sheets at once
+- **Flexible Output**: Separate PDFs or combined single PDF
+- **Custom Formatting**: Portrait/landscape, A4/Letter page sizes
+- **Professional Layout**: Styled tables with headers and formatting
+- **Web Interface**: Easy-to-use drag-and-drop interface
+
+### 📖 API Documentation & Analytics (NEW!)
+- **Interactive API Docs**: Complete OpenAPI documentation at `/api/docs`
+- **Real-time Analytics**: Usage statistics and performance metrics at `/analytics`
+- **Request Tracking**: Automatic tracking of all API calls with response times
+- **Performance Monitoring**: Monitor error rates, response times, and popular endpoints
+- **Visual Dashboards**: Charts and graphs showing usage trends and distributions
+- **Activity Logs**: View recent API activity with detailed information
+
+See [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md) and [docs/API_ANALYTICS_GUIDE.md](docs/API_ANALYTICS_GUIDE.md) for setup and usage.
+
+## 🧪 Testing
+
+```bash
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=src --cov=scripts --cov-report=html
+
+# Run specific test suites
+pytest tests/test_dsr_matcher.py -v
+pytest tests/test_web_interface.py -v
+```
+
+**Test Coverage:**
+- ✅ PDF to JSON conversion (26 tests passing)
+- ✅ DSR rate matching and similarity algorithms
+- ✅ Database operations (CRUD, versioning, multi-category)
+- ✅ Web interface routes and file handling
+- ✅ Excel to PDF conversion (18 tests passing)
+- ✅ API documentation and analytics (16 tests passing)
+- ✅ Input format conversion
+- ✅ Error handling and edge cases
+
+**Total: 78 tests passing ✅**
+
+See [docs/TESTING.md](docs/TESTING.md) for comprehensive test documentation.
+
 ## 📁 Project Structure
 
 ```
 PDF2JSON/
-├── src/pdf2json/           # Core application modules
-│   ├── cli.py             # Command-line interface for PDF conversion
-│   ├── converter.py       # PDF to JSON conversion logic
-│   └── web.py             # Flask web application (UPDATED)
-├── scripts/               # DSR matching system (CLEANED UP)
-│   ├── convert_to_structured_json.py  # PDF JSON → Structured JSON
-│   ├── create_alternative_formats.py  # Structured JSON → CSV/SQLite
-│   ├── match_dsr_rates_sqlite.py      # Match items with SQLite (MAIN)
-│   ├── dsr_extractor.py               # DSR code extraction utilities
-│   ├── dsr_rate_extractor.py          # Rate extraction from PDFs
-│   ├── text_similarity.py             # Similarity scoring
-│   ├── dsr_matcher.py                 # Matching logic
-│   ├── read_json.py                   # JSON utilities
-│   ├── USAGE.md                       # Complete usage guide
-│   ├── EXAMPLES.md                    # 7 practical examples
-│   └── README.md                      # Scripts documentation
-├── examples/              # Example files and outputs
-│   ├── input_files/       # Input documents
-│   ├── reference_files/   # DSR databases (JSON & SQLite)
-│   └── output_reports/    # Generated reports
-├── templates/             # Web interface templates
+├── config/                # Configuration files
+│   └── env.example        # Environment variables template
+├── data/                  # All data files (organized)
+│   ├── reference/         # DSR databases (JSON, CSV, SQLite)
+│   ├── examples/          # Example input/output files
+│   ├── uploads/           # User uploaded files
+│   ├── backups/           # Database backups
+│   └── logs/              # Application logs
+├── docs/                  # Documentation
+│   ├── PROJECT_STRUCTURE.md  # Detailed structure guide
+│   ├── TESTING.md            # Test documentation
+│   ├── DEPLOYMENT.md         # Deployment guide
+│   ├── MCP_INTEGRATION.md    # MCP setup
+│   └── ...                   # Other docs
+├── scripts/               # Utility scripts
+│   ├── excel_to_pdf.py          # Excel converter
+│   ├── dsr_matcher.py           # DSR matching
+│   ├── match_dsr_rates_sqlite.py # SQLite matching
+│   └── ...                      # Other scripts
+├── src/pdf2json/          # Core application
+│   ├── converter.py       # PDF to JSON converter
+│   └── web.py             # Flask web app
+├── templates/             # Web UI templates
+├── tests/                 # Test suite (60+ tests)
+└── ...                    # Config files
+
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for complete details.
+```
+
+**Note**: The project uses symlinks for backward compatibility. Old paths like `reference_files/`, `examples/`, `uploads/` still work but point to the new organized structure under `data/`.
 ├── tests/                 # Unit tests
 └── uploads/              # Temporary upload storage
 ```
 
 ## 🚀 Installation
 
+### Quick Start (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/Rahulcdry07/PDF2JSON.git
+cd PDF2JSON
+
+# Run quick start script
+chmod +x quickstart.sh
+./quickstart.sh
+```
+
+### Docker Deployment (Production)
+
+```bash
+# Clone and configure
+git clone https://github.com/Rahulcdry07/PDF2JSON.git
+cd PDF2JSON
+cp .env.example .env
+
+# Start with Docker Compose
+docker-compose up -d
+
+# Access applications
+# Main Web:        http://localhost:8000
+# MCP Web:         http://localhost:5001
+# DB Manager:      http://localhost:5002
+# Analytics:       http://localhost:8000/analytics
+# API Docs:        http://localhost:8000/api/docs
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment options.
+
+### Manual Installation
+
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Rahulcdry07/PDF2JSON.git
    cd PDF2JSON
    ```
 
-2. **Create virtual environment (recommended)**
+2. **Create virtual environment**
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate  # On macOS/Linux
@@ -71,7 +184,7 @@ PDF2JSON/
 4. **Verify installation**
    ```bash
    python -m src.pdf2json.cli --help
-   python -c "from src.pdf2json.web import app; print('✓ Web app ready')"
+   pytest tests/ -v  # Run tests
    ```
 
 ## 💻 Usage
@@ -90,12 +203,18 @@ Then open **http://localhost:8000** in your browser to:
 - Run DSR cost estimations with a click
 - Search across all converted files
 
+**Additional Web Interfaces:**
+- **MCP Testing**: `python mcp_web_interface.py` → http://localhost:5001
+- **Database Manager**: `python database_manager.py` → http://localhost:5002
+
 **Web Features:**
 - 📤 Upload PDFs (max 100 MB)
 - 🔄 Auto-convert to JSON
 - 📊 View reports in formatted tables
 - 💰 Run cost estimations (uses SQLite backend)
 - 🔍 Global search across all files
+- 🗄️ Manage DSR database with full CRUD operations
+- 📊 Convert Excel sheets to PDF with custom formatting
 
 ### 2. DSR Rate Matching (Command Line)
 
@@ -220,7 +339,7 @@ See `requirements.txt` for complete list.
 
 ### Web Interface
 **Issue**: Cost estimation fails  
-**Fix**: Ensure `DSR_combined.db` exists in `examples/reference_files/`
+**Fix**: Ensure `DSR_combined.db` exists in `reference_files/`
 ```bash
 cd scripts
 python3 create_alternative_formats.py  # Creates database
@@ -398,7 +517,7 @@ pytest tests/
 ### Adding New Projects
 1. Add input files to `examples/input_files/`
 2. Configure project in `scripts/config.py`
-3. Add reference databases to `examples/reference_files/`
+3. Add reference databases to `reference_files/`
 4. Run matching using the demo script
 
 ### Web Interface Development

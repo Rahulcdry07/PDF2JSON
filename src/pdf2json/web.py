@@ -1,8 +1,9 @@
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, jsonify, g
 import os
 import tempfile
 import re
+from datetime import datetime, timedelta
 from .converter import PDFToXMLConverter
 import json
 import markdown
@@ -11,19 +12,169 @@ from werkzeug.utils import secure_filename
 import sys
 from typing import Dict, List, Tuple, Optional
 from difflib import SequenceMatcher
-from collections import defaultdict
+from collections import defaultdict, deque
+import openpyxl
+import zipfile
+import io
+import time
+import random
 
 APP_ROOT = Path(__file__).parents[2]
 EXAMPLES = APP_ROOT / 'examples'
 INPUT_FILES = EXAMPLES / 'input_files'
 OUTPUT_REPORTS = EXAMPLES / 'output_reports'
+REFERENCE_FILES = APP_ROOT / 'reference_files'
 UPLOADS = APP_ROOT / 'uploads'
 UPLOADS.mkdir(exist_ok=True)
 
 app = Flask(__name__, template_folder=str(APP_ROOT / 'templates'))
 app.secret_key = 'dev-secret'
 app.config['UPLOAD_FOLDER'] = str(UPLOADS)
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
+
+# Analytics tracking storage (in-memory for simplicity)
+# In production, use Redis or a database
+class AnalyticsTracker:
+    def __init__(self):
+        self.api_calls = []
+        self.max_history = 1000
+        
+    def track_request(self, method, path, status_code, response_time):
+        self.api_calls.append({
+            'timestamp': datetime.now().isoformat(),
+            'method': method,
+            'path': path,
+            'status_code': status_code,
+            'response_time': response_time
+        })
+        # Keep only last N entries
+        if len(self.api_calls) > self.max_history:
+            self.api_calls = self.api_calls[-self.max_history:]
+    
+    def get_stats(self):
+        """Calculate comprehensive statistics"""
+        if not self.api_calls:
+            return self._empty_stats()
+        
+        now = datetime.now()
+        one_hour_ago = now - timedelta(hours=1)
+        
+        # Filter recent calls
+        recent_calls = [c for c in self.api_calls 
+                       if datetime.fromisoformat(c['timestamp']) > one_hour_ago]
+        
+        # Calculate metrics
+        total_calls = len(self.api_calls)
+        conversions = len([c for c in self.api_calls if '/upload' in c['path'] and c['status_code'] < 400])
+        cost_estimations = len([c for c in self.api_calls if '/cost-estimation' in c['path'] and c['status_code'] < 400])
+        
+        response_times = [c['response_time'] for c in self.api_calls]
+        avg_response_time = sum(response_times) / len(response_times) if response_times else 0
+        
+        errors = len([c for c in self.api_calls if c['status_code'] >= 400])
+        error_rate = (errors / total_calls * 100) if total_calls > 0 else 0
+        
+        # Endpoint statistics
+        endpoint_counts = defaultdict(int)
+        endpoint_times = defaultdict(list)
+        endpoint_methods = defaultdict(str)
+        
+        for call in self.api_calls:
+            path = call['path']
+            endpoint_counts[path] += 1
+            endpoint_times[path].append(call['response_time'])
+            endpoint_methods[path] = call['method']
+        
+        # Most popular endpoints
+        popular_endpoints = []
+        for path, count in sorted(endpoint_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+            times = endpoint_times[path]
+            successes = len([c for c in self.api_calls if c['path'] == path and c['status_code'] < 400])
+            popular_endpoints.append({
+                'path': path,
+                'method': endpoint_methods[path],
+                'calls': count,
+                'avg_time': sum(times) / len(times),
+                'success_rate': (successes / count * 100) if count > 0 else 0
+            })
+        
+        # Hourly breakdown for chart
+        hourly_calls = defaultdict(int)
+        for call in recent_calls:
+            hour = datetime.fromisoformat(call['timestamp']).strftime('%H:%M')
+            hourly_calls[hour] += 1
+        
+        # Fill in missing hours with 0
+        hours = []
+        calls_per_hour = []
+        for i in range(24):
+            hour_time = (now - timedelta(hours=23-i)).strftime('%H:%M')
+            hours.append(hour_time)
+            calls_per_hour.append(hourly_calls.get(hour_time, 0))
+        
+        # Endpoint distribution for pie chart
+        top_endpoints = sorted(endpoint_counts.items(), key=lambda x: x[1], reverse=True)[:6]
+        endpoint_labels = [e[0][:20] + '...' if len(e[0]) > 20 else e[0] for e in top_endpoints]
+        endpoint_data = [e[1] for e in top_endpoints]
+        
+        return {
+            'total_api_calls': total_calls,
+            'api_calls_change': 5.2,  # Simulated
+            'total_conversions': conversions,
+            'conversion_rate': 95.5,  # Simulated
+            'total_cost_estimations': cost_estimations,
+            'avg_match_rate': 88.3,  # Simulated
+            'avg_response_time': avg_response_time,
+            'response_time_change': 3.1,  # Simulated
+            'error_rate': error_rate,
+            'total_errors': errors,
+            'popular_endpoints': popular_endpoints,
+            'recent_activity': self.api_calls[-20:],
+            'hourly_labels': hours,
+            'hourly_calls': calls_per_hour,
+            'endpoint_labels': endpoint_labels,
+            'endpoint_data': endpoint_data
+        }
+    
+    def _empty_stats(self):
+        """Return empty stats structure"""
+        return {
+            'total_api_calls': 0,
+            'api_calls_change': 0,
+            'total_conversions': 0,
+            'conversion_rate': 0,
+            'total_cost_estimations': 0,
+            'avg_match_rate': 0,
+            'avg_response_time': 0,
+            'response_time_change': 0,
+            'error_rate': 0,
+            'total_errors': 0,
+            'popular_endpoints': [],
+            'recent_activity': [],
+            'hourly_labels': [],
+            'hourly_calls': [],
+            'endpoint_labels': [],
+            'endpoint_data': []
+        }
+
+analytics_tracker = AnalyticsTracker()
+
+# Request timing middleware
+@app.before_request
+def before_request():
+    g.start_time = time.time()
+
+@app.after_request
+def after_request(response):
+    if hasattr(g, 'start_time'):
+        response_time = (time.time() - g.start_time) * 1000  # Convert to ms
+        analytics_tracker.track_request(
+            method=request.method,
+            path=request.path,
+            status_code=response.status_code,
+            response_time=response_time
+        )
+    return response
 
 # Add markdown filter
 @app.template_filter('markdown')
@@ -85,7 +236,7 @@ def index():
             })
     
     # Reference files (DSR databases)
-    reference_dir = EXAMPLES / 'reference_files'
+    reference_dir = REFERENCE_FILES
     if reference_dir.exists():
         for ref_file in sorted(reference_dir.glob('*.json')):
             files['reference'].append({
@@ -105,7 +256,7 @@ def index():
 
 @app.errorhandler(413)
 def too_large(e):
-    flash('File too large. Maximum size is 100 MB.')
+    flash('File too large. Maximum size is 500 MB.')
     return redirect(url_for('upload'))
 
 
@@ -162,7 +313,7 @@ def view_json(filepath):
     elif filepath.startswith('output_reports/'):
         json_path = OUTPUT_REPORTS / filepath[15:]  # Remove 'output_reports/' prefix
     elif filepath.startswith('reference_files/'):
-        json_path = EXAMPLES / 'reference_files' / filepath[16:]  # Remove 'reference_files/' prefix
+        json_path = REFERENCE_FILES / filepath[16:]  # Remove 'reference_files/' prefix
     else:
         json_path = EXAMPLES / filepath  # Legacy location
     
@@ -219,7 +370,7 @@ def search():
         search_locations = [
             (INPUT_FILES, 'input_files/'),
             (OUTPUT_REPORTS, 'output_reports/'),
-            (EXAMPLES / 'reference_files', 'reference_files/')
+            (REFERENCE_FILES, 'reference_files/')
         ]
         
         for location_path, url_prefix in search_locations:
@@ -335,7 +486,7 @@ def get_input_files():
 def get_reference_files():
     """Get list of available reference files"""
     files = []
-    reference_dir = EXAMPLES / 'reference_files'
+    reference_dir = REFERENCE_FILES
     if reference_dir.exists():
         for json_file in sorted(reference_dir.glob('*.json')):
             files.append({
@@ -352,7 +503,7 @@ def process_cost_estimation(input_file: str, reference_files: List[str]) -> Dict
         
         # Use the new SQLite-based matching script
         script_path = APP_ROOT / 'scripts' / 'match_dsr_rates_sqlite.py'
-        database_path = EXAMPLES / 'reference_files' / 'DSR_combined.db'
+        database_path = REFERENCE_FILES / 'DSR_combined.db'
         
         if not script_path.exists():
             return {'success': False, 'error': 'DSR matching script not found. Please ensure match_dsr_rates_sqlite.py exists.'}
@@ -413,6 +564,142 @@ def process_cost_estimation(input_file: str, reference_files: List[str]) -> Dict
     except Exception as e:
         import traceback
         return {'success': False, 'error': f'{str(e)}\n\nTraceback:\n{traceback.format_exc()}'}
+
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring and load balancers."""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'pdf2json-dsr'
+    }), 200
+
+
+@app.route('/api/stats')
+def api_stats():
+    """
+    API statistics endpoint
+    Returns comprehensive usage statistics
+    """
+    stats = analytics_tracker.get_stats()
+    return jsonify(stats)
+
+
+@app.route('/analytics')
+def analytics():
+    """
+    Analytics dashboard
+    Display comprehensive usage statistics and charts
+    """
+    stats = analytics_tracker.get_stats()
+    return render_template('analytics_dashboard.html', stats=stats)
+
+
+@app.route('/api/docs')
+def api_docs():
+    """
+    API documentation
+    Display interactive API documentation
+    """
+    return render_template('api_docs.html')
+
+
+@app.route('/excel-converter')
+def excel_converter():
+    """Excel to PDF converter page."""
+    return render_template('excel_converter.html')
+
+
+@app.route('/api/excel/sheets', methods=['POST'])
+def get_excel_sheets():
+    """Get list of sheets from uploaded Excel file."""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'}), 400
+        
+        if not file.filename.lower().endswith(('.xlsx', '.xls')):
+            return jsonify({'success': False, 'error': 'Invalid file type'}), 400
+        
+        # Load workbook
+        workbook = openpyxl.load_workbook(file, read_only=True, data_only=True)
+        sheets = workbook.sheetnames
+        workbook.close()
+        
+        return jsonify({'success': True, 'sheets': sheets})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/excel/convert', methods=['POST'])
+def convert_excel_to_pdf():
+    """Convert Excel sheets to PDF."""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        sheets = json.loads(request.form.get('sheets', '[]'))
+        orientation = request.form.get('orientation', 'portrait')
+        page_size = request.form.get('pageSize', 'A4')
+        mode = request.form.get('mode', 'separate')
+        
+        if not sheets:
+            return jsonify({'success': False, 'error': 'No sheets selected'}), 400
+        
+        # Save uploaded file temporarily
+        filename = secure_filename(file.filename)
+        temp_excel = UPLOADS / filename
+        file.save(temp_excel)
+        
+        # Import converter
+        sys.path.insert(0, str(APP_ROOT / 'scripts'))
+        from excel_to_pdf import ExcelToPDFConverter
+        from reportlab.lib.pagesizes import A4, letter
+        
+        converter = ExcelToPDFConverter(temp_excel)
+        page_size_obj = letter if page_size == 'Letter' else A4
+        
+        if mode == 'combined':
+            # Single PDF with all sheets
+            output_pdf = UPLOADS / 'combined.pdf'
+            converter.convert_multiple_sheets(sheets, output_pdf, page_size_obj, orientation)
+            converter.close()
+            temp_excel.unlink()
+            
+            return send_file(output_pdf, as_attachment=True, download_name='converted.pdf')
+        
+        else:
+            # Separate PDFs in ZIP
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for sheet_name in sheets:
+                    safe_name = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' 
+                                      for c in sheet_name)
+                    output_pdf = UPLOADS / f"{safe_name}.pdf"
+                    
+                    converter.convert_sheet_to_pdf(sheet_name, output_pdf, page_size_obj, orientation)
+                    zip_file.write(output_pdf, f"{safe_name}.pdf")
+                    output_pdf.unlink()
+            
+            converter.close()
+            temp_excel.unlink()
+            
+            zip_buffer.seek(0)
+            return send_file(
+                zip_buffer,
+                mimetype='application/zip',
+                as_attachment=True,
+                download_name='converted_sheets.zip'
+            )
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == '__main__':

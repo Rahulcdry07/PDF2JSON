@@ -131,7 +131,7 @@ python3 input_file_converter.py -i ../examples/input_files/Lko_Office_Repair_rev
 # 2. Match with structured input (RECOMMENDED)
 python3 match_dsr_rates_sqlite.py \
   -i ../examples/input_files/Lko_Office_Repair_revise_structured.json \
-  -d ../examples/reference_files/DSR_combined.db
+  -d ../reference_files/DSR_combined.db
 ```
 
 ### Verification

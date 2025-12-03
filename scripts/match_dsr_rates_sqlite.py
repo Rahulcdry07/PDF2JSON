@@ -258,8 +258,8 @@ Examples:
     parser.add_argument(
         '-d', '--database',
         type=str,
-        default='../examples/reference_files/DSR_combined.db',
-        help='Path to SQLite DSR database (default: ../examples/reference_files/DSR_combined.db)'
+        default='../reference_files/DSR_combined.db',
+        help='Path to SQLite DSR database (default: ../reference_files/DSR_combined.db)'
     )
     
     parser.add_argument(

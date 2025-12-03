@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSR Database Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        select, input, button {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.success {
+            background: #28a745;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #667eea;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+
+        .file-upload-area:hover {
+            background: #f9f9ff;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+            }
+            
+            .controls-row > * {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗄️ DSR Database Manager</h1>
+            <p class="subtitle">Manage your DSR codes with full CRUD operations, bulk import, and audit logging</p>
+        </header>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="stat-codes">-</h3>
+                <p>Total Codes</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-chapters">-</h3>
+                <p>Chapters</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-avg-rate">-</h3>
+                <p>Average Rate</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="stat-changes">-</h3>
+                <p>Recent Changes</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="controls-row">
+                <select id="category-select">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat|title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" id="search-input" placeholder="Search by code or description...">
+                <select id="chapter-filter">
+                    <option value="">All Chapters</option>
+                </select>
+                <button onclick="loadCodes()">🔍 Search</button>
+                <button class="success" onclick="showAddModal()">➕ Add Code</button>
+                <button class="secondary" onclick="showImportModal()">📥 Import CSV</button>
+                <button class="secondary" onclick="exportCodes()">📤 Export CSV</button>
+                <button class="secondary" onclick="backupDatabase()">💾 Backup</button>
+                <button class="secondary" onclick="showAuditLog()">📋 Audit Log</button>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <table id="codes-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Unit</th>
+                        <th>Rate (₹)</th>
+                        <th>Chapter</th>
+                        <th>Volume</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="codes-tbody">
+                    <tr>
+                        <td colspan="7" class="loading">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add DSR Code</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="code-form" onsubmit="saveCode(event)">
+                <div class="form-group">
+                    <label>Code *</label>
+                    <input type="text" id="form-code" required>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="form-description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Unit *</label>
+                    <input type="text" id="form-unit" required>
+                </div>
+                <div class="form-group">
+                    <label>Rate (₹) *</label>
+                    <input type="number" step="0.01" id="form-rate" required>
+                </div>
+                <div class="form-group">
+                    <label>Chapter</label>
+                    <input type="text" id="form-chapter">
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <input type="text" id="form-section">
+                </div>
+                <div class="form-group">
+                    <label>Volume</label>
+                    <input type="text" id="form-volume">
+                </div>
+                <div class="form-group">
+                    <label>Page</label>
+                    <input type="text" id="form-page">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="success">💾 Save</button>
+                    <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import DSR Codes from CSV</h2>
+                <span class="close" onclick="closeImportModal()">&times;</span>
+            </div>
+            <div class="file-upload-area" onclick="document.getElementById('csv-file').click()">
+                <input type="file" id="csv-file" accept=".csv">
+                <p>📄 Click to select CSV file</p>
+                <p id="csv-filename" style="color: #667eea; margin-top: 10px;"></p>
+            </div>
+            <p style="margin: 15px 0; color: #666;">
+                <strong>CSV Format:</strong> code,description,unit,rate,chapter,section,volume,page
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="success" onclick="importCSV()">📥 Import</button>
+                <button class="secondary" onclick="closeImportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Log Modal -->
+    <div id="audit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Audit Log</h2>
+                <span class="close" onclick="closeAuditModal()">&times;</span>
+            </div>
+            <div id="audit-content" style="max-height: 400px; overflow-y: auto;">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCategory = '{{ categories[0] if categories else "civil" }}';
+        let currentPage = 1;
+        let editingCode = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            currentCategory = document.getElementById('category-select').value;
+            loadStats();
+            loadChapters();
+            loadCodes();
+            
+            document.getElementById('category-select').addEventListener('change', function() {
+                currentCategory = this.value;
+                currentPage = 1;
+                loadStats();
+                loadChapters();
+                loadCodes();
+            });
+
+            document.getElementById('csv-file').addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name;
+                if (fileName) {
+                    document.getElementById('csv-filename').textContent = '✓ ' + fileName;
+                }
+            });
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`/api/stats/${currentCategory}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('stat-codes').textContent = data.stats.total_codes;
+                    document.getElementById('stat-chapters').textContent = data.stats.total_chapters;
+                    document.getElementById('stat-avg-rate').textContent = '₹' + data.stats.avg_rate;
+                    document.getElementById('stat-changes').textContent = data.stats.recent_changes;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadChapters() {
+            try {
+                const response = await fetch(`/api/chapters/${currentCategory}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('chapter-filter');
+                    select.innerHTML = '<option value="">All Chapters</option>';
+                    data.chapters.forEach(chapter => {
+                        const option = document.createElement('option');
+                        option.value = chapter.name;
+                        option.textContent = `${chapter.name} (${chapter.count})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chapters:', error);
+            }
+        }
+
+        async function loadCodes() {
+            const search = document.getElementById('search-input').value;
+            const chapter = document.getElementById('chapter-filter').value;
+            
+            const tbody = document.getElementById('codes-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading...</td></tr>';
+            
+            try {
+                const response = await fetch(
+                    `/api/codes/${currentCategory}?page=${currentPage}&search=${search}&chapter=${chapter}`
+                );
+                const data = await response.json();
+                
+                if (data.success) {
+                    tbody.innerHTML = '';
+                    
+                    if (data.codes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No codes found</td></tr>';
+                        return;
+                    }
+                    
+                    data.codes.forEach(code => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>${code.code}</strong></td>
+                            <td>${code.description.substring(0, 60)}${code.description.length > 60 ? '...' : ''}</td>
+                            <td>${code.unit}</td>
+                            <td>₹${code.rate}</td>
+                            <td>${code.chapter}</td>
+                            <td>${code.volume}</td>
+                            <td class="actions">
+                                <button class="btn-sm" onclick="editCode('${code.code}')">✏️ Edit</button>
+                                <button class="btn-sm danger" onclick="deleteCode('${code.code}')">🗑️ Delete</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                    // Pagination
+                    renderPagination(data.total_pages);
+                }
+            } catch (error) {
+                showAlert('Error loading codes: ' + error.message, 'error');
+            }
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = i === currentPage ? 'active' : '';
+                btn.onclick = () => {
+                    currentPage = i;
+                    loadCodes();
+                };
+                pagination.appendChild(btn);
+            }
+        }
+
+        function showAddModal() {
+            editingCode = null;
+            document.getElementById('modal-title').textContent = 'Add DSR Code';
+            document.getElementById('code-form').reset();
+            document.getElementById('form-code').readOnly = false;
+            document.getElementById('edit-modal').classList.add('show');
+        }
+
+        async function editCode(code) {
+            try {
+                const response = await fetch(`/api/code/${currentCategory}/${code}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    editingCode = code;
+                    document.getElementById('modal-title').textContent = 'Edit DSR Code';
+                    document.getElementById('form-code').value = data.code.code;
+                    document.getElementById('form-code').readOnly = true;
+                    document.getElementById('form-description').value = data.code.description;
+                    document.getElementById('form-unit').value = data.code.unit;
+                    document.getElementById('form-rate').value = data.code.rate;
+                    document.getElementById('form-chapter').value = data.code.chapter || '';
+                    document.getElementById('form-section').value = data.code.section || '';
+                    document.getElementById('form-volume').value = data.code.volume || '';
+                    document.getElementById('form-page').value = data.code.page || '';
+                    document.getElementById('edit-modal').classList.add('show');
+                }
+            } catch (error) {
+                showAlert('Error loading code: ' + error.message, 'error');
+            }
+        }
+
+        async function saveCode(event) {
+            event.preventDefault();
+            
+            const codeData = {
+                code: document.getElementById('form-code').value,
+                description: document.getElementById('form-description').value,
+                unit: document.getElementById('form-unit').value,
+                rate: document.getElementById('form-rate').value,
+                chapter: document.getElementById('form-chapter').value,
+                section: document.getElementById('form-section').value,
+                volume: document.getElementById('form-volume').value,
+                page: document.getElementById('form-page').value
+            };
+            
+            try {
+                const url = editingCode 
+                    ? `/api/code/${currentCategory}/${editingCode}`
+                    : `/api/code/${currentCategory}`;
+                    
+                const method = editingCode ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(codeData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    closeModal();
+                    loadStats();
+                    loadCodes();
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error saving code: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteCode(code) {
+            if (!confirm(`Are you sure you want to delete code ${code}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/code/${currentCategory}/${code}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadStats();
+                    loadCodes();
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error deleting code: ' + error.message, 'error');
+            }
+        }
+
+        function showImportModal() {
+            document.getElementById('csv-file').value = '';
+            document.getElementById('csv-filename').textContent = '';
+            document.getElementById('import-modal').classList.add('show');
+        }
+
+        async function importCSV() {
+            const fileInput = document.getElementById('csv-file');
+            if (!fileInput.files[0]) {
+                showAlert('Please select a CSV file', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch(`/api/import/${currentCategory}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`Imported: ${data.imported}, Skipped: ${data.skipped}`, 'success');
+                    closeImportModal();
+                    loadStats();
+                    loadCodes();
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error importing CSV: ' + error.message, 'error');
+            }
+        }
+
+        async function exportCodes() {
+            window.location.href = `/api/export/${currentCategory}`;
+        }
+
+        async function backupDatabase() {
+            try {
+                const response = await fetch(`/api/backup/${currentCategory}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(`Backup created: ${data.filename} (${(data.size / 1024).toFixed(2)} KB)`, 'success');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error creating backup: ' + error.message, 'error');
+            }
+        }
+
+        async function showAuditLog() {
+            document.getElementById('audit-modal').classList.add('show');
+            
+            try {
+                const response = await fetch(`/api/audit/${currentCategory}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const content = document.getElementById('audit-content');
+                    if (data.logs.length === 0) {
+                        content.innerHTML = '<p>No audit logs found</p>';
+                        return;
+                    }
+                    
+                    content.innerHTML = data.logs.map(log => `
+                        <div style="padding: 10px; border-bottom: 1px solid #e0e0e0;">
+                            <strong>${log.action}</strong> on ${log.table_name}
+                            ${log.record_id ? `(${log.record_id})` : ''}
+                            <br>
+                            <small style="color: #666;">
+                                ${new Date(log.timestamp).toLocaleString()} by ${log.user}
+                            </small>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                showAlert('Error loading audit log: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('show');
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.remove('show');
+        }
+
+        function closeAuditModal() {
+            document.getElementById('audit-modal').classList.remove('show');
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -162,7 +162,7 @@ def compare_file_sizes():
     """Compare file sizes of different formats (example only)."""
     import os
     
-    base = Path('../examples/reference_files')
+    base = Path('../reference_files')
     
     # Example files - update with your actual files
     files = {

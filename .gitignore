@@ -25,6 +25,7 @@ wheels/
 venv/
 ENV/
 env/
+.env
 
 # IDE
 .vscode/
@@ -37,14 +38,41 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
+.nox/
+
+# Data directories (new structure)
+data/uploads/*
+!data/uploads/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+data/backups/*
+!data/backups/.gitkeep
+
+# Legacy symlinks (backward compatibility)
+reference_files
+examples
+uploads
+backups
+logs
 
 # Output files
 *.xml
-!examples/*.xml
-
-# Examples folder
-examples/
+!data/examples/*.xml
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db-journal
+*.sqlite3-journal
+
+# Temporary files
+*.tmp
+*.bak
+.~*
+

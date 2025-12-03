@@ -1,0 +1,535 @@
+#!/usr/bin/env python3
+"""
+Utility to update DSR database with minor revisions.
+Supports single updates, batch updates from CSV, and versioning.
+"""
+
+import sqlite3
+import json
+import csv
+import argparse
+from pathlib import Path
+from datetime import datetime
+from typing import List, Dict, Optional
+
+
+def get_current_version(db_path: Path) -> int:
+    """Get current version number from database metadata."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Create metadata table if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS db_metadata (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TEXT
+        )
+    ''')
+    
+    # Get current version
+    cursor.execute("SELECT value FROM db_metadata WHERE key = 'version'")
+    result = cursor.fetchone()
+    
+    if result:
+        version = int(result[0])
+    else:
+        # Initialize version
+        version = 1
+        cursor.execute('''
+            INSERT INTO db_metadata (key, value, updated_at) 
+            VALUES ('version', '1', ?)
+        ''', (datetime.now().isoformat(),))
+        conn.commit()
+    
+    conn.close()
+    return version
+
+
+def increment_version(db_path: Path, change_log: str) -> int:
+    """Increment database version and log the change."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Create tables if they don't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS db_metadata (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TEXT
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS version_history (
+            version INTEGER PRIMARY KEY,
+            change_log TEXT,
+            timestamp TEXT,
+            user TEXT
+        )
+    ''')
+    
+    # Get current version
+    current_version = get_current_version(db_path)
+    new_version = current_version + 1
+    
+    # Update version
+    cursor.execute('''
+        INSERT OR REPLACE INTO db_metadata (key, value, updated_at)
+        VALUES ('version', ?, ?)
+    ''', (str(new_version), datetime.now().isoformat()))
+    
+    # Log change
+    import getpass
+    try:
+        username = getpass.getuser()
+    except:
+        username = 'unknown'
+    
+    cursor.execute('''
+        INSERT INTO version_history (version, change_log, timestamp, user)
+        VALUES (?, ?, ?, ?)
+    ''', (new_version, change_log, datetime.now().isoformat(), username))
+    
+    conn.commit()
+    conn.close()
+    
+    return new_version
+
+
+def show_version_history(db_path: Path, limit: int = 10):
+    """Show version history of database."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Check if tables exist
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='version_history'")
+    if not cursor.fetchone():
+        print("⚠️  No version history found. Database versioning not initialized.")
+        conn.close()
+        return
+    
+    # Get current version
+    current_version = get_current_version(db_path)
+    print(f"\n📊 Database Version History (Current: v{current_version})")
+    print(f"{'='*80}")
+    
+    # Get history
+    cursor.execute('''
+        SELECT version, change_log, timestamp, user 
+        FROM version_history 
+        ORDER BY version DESC 
+        LIMIT ?
+    ''', (limit,))
+    
+    for row in cursor.fetchall():
+        version, change_log, timestamp, user = row
+        dt = datetime.fromisoformat(timestamp)
+        print(f"\nv{version} - {dt.strftime('%Y-%m-%d %H:%M:%S')} by {user}")
+        print(f"  {change_log}")
+    
+    print(f"{'='*80}\n")
+    conn.close()
+
+
+def update_rate(db_path: Path, code: str, new_rate: float, category: str = None, dry_run: bool = False):
+    """Update rate for a specific DSR code."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Find existing entry
+    if category:
+        cursor.execute("SELECT code, category, description, rate FROM dsr_codes WHERE code = ? AND category = ?", (code, category))
+    else:
+        cursor.execute("SELECT code, category, description, rate FROM dsr_codes WHERE code = ?", (code,))
+    
+    results = cursor.fetchall()
+    
+    if not results:
+        print(f"❌ Code {code} not found in database")
+        conn.close()
+        return False
+    
+    if len(results) > 1 and not category:
+        print(f"⚠️  Found {len(results)} entries for code {code}:")
+        for r in results:
+            print(f"   [{r[1]}] {r[0]}: {r[2][:50]}... (Current rate: ₹{r[3]})")
+        print(f"   Please specify --category to update specific entry")
+        conn.close()
+        return False
+    
+    entry = results[0]
+    old_rate = entry[3]
+    
+    print(f"\n📝 Update Details:")
+    print(f"   Code: {entry[0]} ({entry[1]})")
+    print(f"   Description: {entry[2][:60]}...")
+    print(f"   Old Rate: ₹{old_rate}")
+    print(f"   New Rate: ₹{new_rate}")
+    print(f"   Change: {((new_rate - old_rate) / old_rate * 100):+.2f}%")
+    
+    if dry_run:
+        print(f"\n🔍 DRY RUN - No changes made")
+        conn.close()
+        return True
+    
+    # Update
+    if category:
+        cursor.execute("UPDATE dsr_codes SET rate = ? WHERE code = ? AND category = ?", (new_rate, code, category))
+    else:
+        cursor.execute("UPDATE dsr_codes SET rate = ? WHERE code = ?", (new_rate, code))
+    
+    conn.commit()
+    
+    # Increment version
+    change_log = f"Updated rate for {code} ({category or 'all'}): ₹{old_rate} → ₹{new_rate}"
+    new_version = increment_version(db_path, change_log)
+    
+def update_description(db_path: Path, code: str, new_description: str, category: str = None, dry_run: bool = False):
+    """Update description for a specific DSR code."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    if category:
+        cursor.execute("SELECT code, category, description FROM dsr_codes WHERE code = ? AND category = ?", (code, category))
+    else:
+        cursor.execute("SELECT code, category, description FROM dsr_codes WHERE code = ?", (code,))
+    
+    results = cursor.fetchall()
+    
+    if not results:
+        print(f"❌ Code {code} not found")
+        conn.close()
+        return False
+    
+    if len(results) > 1 and not category:
+        print(f"⚠️  Multiple entries found. Please specify --category")
+        conn.close()
+        return False
+    
+    entry = results[0]
+    old_description = entry[2]
+    
+    print(f"\n📝 Update Description:")
+    print(f"   Code: {entry[0]} ({entry[1]})")
+    print(f"   Old: {old_description}")
+    print(f"   New: {new_description}")
+    
+    if dry_run:
+        print(f"\n🔍 DRY RUN - No changes made")
+        conn.close()
+        return True
+    
+    if category:
+        cursor.execute("UPDATE dsr_codes SET description = ? WHERE code = ? AND category = ?", (new_description, code, category))
+    else:
+        cursor.execute("UPDATE dsr_codes SET description = ? WHERE code = ?", (new_description, code))
+    
+    conn.commit()
+    
+    # Increment version
+    change_log = f"Updated description for {code} ({category or 'all'})"
+    new_version = increment_version(db_path, change_log)
+    
+    print(f"✅ Description updated successfully")
+    print(f"📌 Database version: v{get_current_version(db_path) - 1} → v{new_version}")
+    
+    conn.close()
+    return Trueexecute("UPDATE dsr_codes SET description = ? WHERE code = ? AND category = ?", (new_description, code, category))
+    else:
+        cursor.execute("UPDATE dsr_codes SET description = ? WHERE code = ?", (new_description, code))
+    
+    conn.commit()
+    print(f"✅ Description updated successfully")
+    conn.close()
+    return True
+
+
+def batch_update_from_csv(db_path: Path, csv_file: Path, dry_run: bool = False):
+    """Update multiple entries from CSV file.
+    
+    CSV format: code,category,field,new_value
+    Example:
+    15.12.2,civil,rate,550.00
+    15.7.4,civil,description,New description here
+    """
+    if not csv_file.exists():
+        print(f"❌ CSV file not found: {csv_file}")
+        return False
+    
+    updates = []
+    with open(csv_file, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            updates.append(row)
+    
+    print(f"\n📋 Found {len(updates)} updates in CSV")
+    
+    if dry_run:
+        print(f"\n🔍 DRY RUN - Preview of changes:")
+        for i, update in enumerate(updates, 1):
+            print(f"{i}. {update['code']} ({update['category']}): {update['field']} = {update['new_value']}")
+        return True
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    success_count = 0
+    for update in updates:
+        code = update['code']
+        category = update['category']
+        field = update['field']
+        new_value = update['new_value']
+        
+        try:
+            # Verify code exists
+            cursor.execute("SELECT code FROM dsr_codes WHERE code = ? AND category = ?", (code, category))
+    conn.commit()
+    conn.close()
+    
+    if success_count > 0:
+        # Increment version for batch update
+        change_log = f"Batch update: {success_count} changes from {csv_file.name}"
+        new_version = increment_version(db_path, change_log)
+        print(f"\n📊 Summary: {success_count}/{len(updates)} updates successful")
+        print(f"📌 Database version incremented to v{new_version}")
+    else:
+        print(f"\n📊 Summary: {success_count}/{len(updates)} updates successful")
+    
+    return Truepdate
+            if field == 'rate':
+                new_value = float(new_value)
+            
+            cursor.execute(f"UPDATE dsr_codes SET {field} = ? WHERE code = ? AND category = ?", 
+                         (new_value, code, category))
+            success_count += 1
+            print(f"✅ Updated {code} ({category}): {field} = {new_value}")
+            
+        except Exception as e:
+            print(f"❌ Error updating {code}: {e}")
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"\n📊 Summary: {success_count}/{len(updates)} updates successful")
+    return True
+
+
+def add_new_code(db_path: Path, code_data: Dict, dry_run: bool = False):
+    """Add a new DSR code to database."""
+    required_fields = ['code', 'category', 'description', 'unit', 'rate']
+    
+    for field in required_fields:
+        if field not in code_data:
+            print(f"❌ Missing required field: {field}")
+            return False
+    
+    print(f"\n➕ Adding new code:")
+    print(f"   Code: {code_data['code']} ({code_data['category']})")
+    print(f"   Description: {code_data['description']}")
+    print(f"   Unit: {code_data['unit']}")
+    print(f"   Rate: ₹{code_data['rate']}")
+    
+    if dry_run:
+        print(f"\n🔍 DRY RUN - No changes made")
+        return True
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Check if code already exists
+    conn.commit()
+    conn.close()
+    
+    # Increment version
+    change_log = f"Added new code: {code_data['code']} ({code_data['category']})"
+    new_version = increment_version(db_path, change_log)
+    
+    print(f"✅ New code added successfully")
+    print(f"📌 Database version: v{get_current_version(db_path) - 1} → v{new_version}")
+    
+    return Trueose()
+        return False
+    
+    # Insert
+    cursor.execute('''
+        INSERT INTO dsr_codes (code, category, chapter, section, description, unit, rate, volume, page, keywords)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        code_data['code'],
+        code_data['category'],
+        code_data.get('chapter', ''),
+        code_data.get('section', ''),
+        code_data['description'],
+        code_data['unit'],
+        float(code_data['rate']),
+        code_data.get('volume', ''),
+        code_data.get('page', 0),
+        code_data.get('keywords', '')
+    ))
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"✅ New code added successfully")
+    return True
+
+
+def view_code(db_path: Path, code: str, category: str = None):
+    """View details of a specific DSR code."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    if category:
+    parser = argparse.ArgumentParser(
+        description='Update DSR database with minor revisions',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+Examples:
+  # View version history
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db --show-version
+  
+  # View a code
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db --view 15.12.2
+  
+  # Update rate (with dry-run)
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --update-rate 15.12.2 --new-rate 550.00 --category civil --dry-run
+  
+  # Update description
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --update-description 15.12.2 --new-description "Updated description" --category civil
+  
+  # Batch update from CSV
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --batch-update updates.csv
+  
+  # Add new code
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --add-code \\
+    --code 15.999 \\
+    --category civil \\
+    --description "New work item" \\
+    --unit sqm \\
+    --rate 450.00
+        '''
+    )
+    
+    parser.add_argument('-d', '--database', type=Path, required=True, help='Path to DSR database')
+    parser.add_argument('--show-version', action='store_true', help='Show version history')
+    parser.add_argument('--dry-run', action='store_true', help='Preview changes without applying')
+    parser.add_argument('--category', type=str, help='Category (civil, electrical, etc.)')
+  # View a code
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db --view 15.12.2
+  
+  # Update rate (with dry-run)
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --update-rate 15.12.2 --new-rate 550.00 --category civil --dry-run
+  
+  # Update description
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --update-description 15.12.2 --new-description "Updated description" --category civil
+  
+  # Batch update from CSV
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --batch-update updates.csv --backup
+  
+  # Add new code
+  python update_dsr_database.py -d civil/DSR_Civil_combined.db \\
+    --add-code \\
+    --code 15.999 \\
+    --category civil \\
+    --description "New work item" \\
+    --unit sqm \\
+    --rate 450.00
+        '''
+    )
+    
+    parser.add_argument('-d', '--database', type=Path, required=True, help='Path to DSR database')
+    parser.add_argument('--backup', action='store_true', help='Create backup before changes')
+    parser.add_argument('--dry-run', action='store_true', help='Preview changes without applying')
+    parser.add_argument('--category', type=str, help='Category (civil, electrical, etc.)')
+    
+def main():
+    args = parse_arguments()
+    
+    if not args.database.exists():
+        print(f"❌ Database not found: {args.database}")
+        return
+    
+    # Show version history
+    if args.show_version:
+        show_version_history(args.database)
+        return
+    
+    # View code
+    if args.view:gument('--batch-update', type=Path, help='CSV file with batch updates')
+    
+    # Add new code
+    parser.add_argument('--add-code', action='store_true', help='Add new DSR code')
+    parser.add_argument('--code', type=str, help='DSR code')
+    parser.add_argument('--description', type=str, help='Description')
+    parser.add_argument('--unit', type=str, help='Unit (sqm, cum, nos, etc.)')
+    parser.add_argument('--rate', type=float, help='Rate')
+    parser.add_argument('--chapter', type=str, help='Chapter')
+    parser.add_argument('--section', type=str, help='Section')
+    
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    
+    if not args.database.exists():
+        print(f"❌ Database not found: {args.database}")
+        return
+    
+    # Create backup if requested
+    if args.backup and not args.dry_run:
+        backup_database(args.database)
+    
+    # View code
+    if args.view:
+        view_code(args.database, args.view, args.category)
+        return
+    
+    # Update rate
+    if args.update_rate and args.new_rate:
+        update_rate(args.database, args.update_rate, args.new_rate, args.category, args.dry_run)
+        return
+    
+    # Update description
+    if args.update_description and args.new_description:
+        update_description(args.database, args.update_description, args.new_description, args.category, args.dry_run)
+        return
+    
+    # Batch update
+    if args.batch_update:
+        batch_update_from_csv(args.database, args.batch_update, args.dry_run)
+        return
+    
+    # Add new code
+    if args.add_code:
+        if not all([args.code, args.category, args.description, args.unit, args.rate]):
+            print("❌ Missing required fields for new code: --code, --category, --description, --unit, --rate")
+            return
+        
+        code_data = {
+            'code': args.code,
+            'category': args.category,
+            'description': args.description,
+            'unit': args.unit,
+            'rate': args.rate,
+            'chapter': args.chapter or '',
+            'section': args.section or ''
+        }
+        add_new_code(args.database, code_data, args.dry_run)
+        return
+    
+    print("❌ No action specified. Use --view, --update-rate, --update-description, --batch-update, or --add-code")
+    print("Use --help for usage information")
+
+
+if __name__ == '__main__':
+    main()

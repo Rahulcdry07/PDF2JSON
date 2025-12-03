@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Main web application
+  web:
+    build: .
+    container_name: pdf2json-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./reference_files:/app/reference_files
+      - ./uploads:/app/uploads
+      - ./examples:/app/examples
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - pdf2json-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MCP web interface
+  mcp-web:
+    build: .
+    container_name: pdf2json-mcp-web
+    command: python mcp_web_interface.py
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./reference_files:/app/reference_files
+      - ./uploads:/app/uploads
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - pdf2json-network
+    depends_on:
+      - web
+
+  # MCP server (stdio mode for Claude Desktop)
+  mcp-server:
+    build: .
+    container_name: pdf2json-mcp-server
+    command: python mcp_server.py
+    volumes:
+      - ./reference_files:/app/reference_files
+      - ./uploads:/app/uploads
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - pdf2json-network
+    stdin_open: true
+    tty: true
+
+  # Database Manager
+  db-manager:
+    build: .
+    container_name: pdf2json-db-manager
+    command: python database_manager.py
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./reference_files:/app/reference_files
+      - ./backups:/app/backups
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - pdf2json-network
+    depends_on:
+      - web
+
+networks:
+  pdf2json-network:
+    driver: bridge
+
+volumes:
+  reference_files:
+  uploads:
+  examples:

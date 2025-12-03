@@ -203,7 +203,7 @@ python3 match_dsr_rates_sqlite.py [OPTIONS]
 
 **Options:**
 - `-i, --input` - Path to input JSON file with DSR items (default: ../examples/input_files/Lko_Office_Repair_revise.json)
-- `-d, --database` - Path to SQLite DSR database (default: ../examples/reference_files/DSR_combined.db)
+- `-d, --database` - Path to SQLite DSR database (default: ../reference_files/DSR_combined.db)
 - `-o, --output` - Output directory for results (default: ../examples/output_reports)
 - `-t, --threshold` - Similarity threshold for matching (default: 0.3)
 

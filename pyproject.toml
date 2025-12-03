@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf2json-dsr"
+version = "1.0.0"
+description = "PDF Conversion & DSR Rate Matching System for Construction Cost Estimation"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "PDF2JSON Team"}
+]
+keywords = ["pdf", "json", "dsr", "construction", "cost-estimation", "mcp"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "PyMuPDF>=1.23.0",
+    "click>=8.1.0",
+    "Flask>=2.0.0",
+    "Markdown>=3.4.0",
+    "mcp>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "pylint>=2.17.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+    "bandit>=1.7.0",
+]
+
+[project.scripts]
+pdf2json = "src.pdf2json.cli:main"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=src --cov=scripts --cov-report=html --cov-report=term"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["src", "scripts"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # missing-docstring
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "W0212",  # protected-access
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "venv"]
+skips = ["B101", "B601"]

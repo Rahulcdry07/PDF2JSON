@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - PDF2JSON</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .endpoints-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .endpoint {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .endpoint-header {
+            padding: 20px;
+            background: #f9f9f9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .endpoint-header:hover {
+            background: #f0f0f0;
+        }
+
+        .method-badge {
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+        }
+
+        .method-get { background: #22c55e; }
+        .method-post { background: #3b82f6; }
+        .method-put { background: #f59e0b; }
+        .method-delete { background: #ef4444; }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+        }
+
+        .endpoint-body {
+            padding: 20px;
+            display: none;
+            border-top: 2px solid #eee;
+        }
+
+        .endpoint-body.active {
+            display: block;
+        }
+
+        .endpoint-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .param-table th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .param-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .param-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .response-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .status-200 { background: #dcfce7; color: #22c55e; }
+        .status-302 { background: #dbeafe; color: #3b82f6; }
+        .status-400 { background: #fef3c7; color: #f59e0b; }
+        .status-404 { background: #fee2e2; color: #ef4444; }
+        .status-413 { background: #fee2e2; color: #ef4444; }
+
+        .try-it-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .try-it-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .tag-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tag-filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tag-filter-btn:hover,
+        .tag-filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .expand-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .endpoint-header.active .expand-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-buttons">
+            <a href="/" class="btn btn-secondary">← Back to Home</a>
+            <a href="/analytics" class="btn btn-secondary">📊 Analytics Dashboard</a>
+        </div>
+
+        <div class="header">
+            <h1>📖 API Documentation</h1>
+            <p class="subtitle">Complete reference for PDF2JSON REST API endpoints</p>
+        </div>
+
+        <div class="endpoints-section">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search endpoints...">
+            
+            <div class="tag-filter">
+                <button class="tag-filter-btn active" data-tag="all">All</button>
+                <button class="tag-filter-btn" data-tag="System">System</button>
+                <button class="tag-filter-btn" data-tag="PDF Conversion">PDF Conversion</button>
+                <button class="tag-filter-btn" data-tag="DSR Matching">DSR Matching</button>
+                <button class="tag-filter-btn" data-tag="Excel Operations">Excel Operations</button>
+                <button class="tag-filter-btn" data-tag="Analytics">Analytics</button>
+            </div>
+
+            <!-- System Endpoints -->
+            <div class="endpoint" data-tags="System">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/</span>
+                    <span class="tag-badge">System</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Display the home page with dashboard showing all available files organized by category (input, output, reference).</p>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> HTML page with file listings
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-tags="System">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/health</span>
+                    <span class="tag-badge">System</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Health check endpoint to verify API availability and responsiveness.</p>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> Service is healthy
+                    </div>
+                    
+                    <div class="section-title">Example Response</div>
+                    <div class="code-block">{
+  "status": "healthy",
+  "timestamp": "2025-12-04T10:30:00Z"
+}</div>
+                </div>
+            </div>
+
+            <!-- Analytics Endpoints -->
+            <div class="endpoint" data-tags="Analytics">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/api/stats</span>
+                    <span class="tag-badge">Analytics</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Retrieve comprehensive usage statistics including API calls, conversions, performance metrics, and recent activity.</p>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> Statistics retrieved successfully
+                    </div>
+                    
+                    <div class="section-title">Example Response</div>
+                    <div class="code-block">{
+  "total_api_calls": 1543,
+  "total_conversions": 234,
+  "total_cost_estimations": 89,
+  "avg_response_time": 145.6,
+  "error_rate": 2.3,
+  "recent_activity": [...]
+}</div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-tags="Analytics">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/analytics</span>
+                    <span class="tag-badge">Analytics</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Display the analytics dashboard with charts, graphs, and detailed usage metrics.</p>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> HTML analytics dashboard
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF Conversion Endpoints -->
+            <div class="endpoint" data-tags="PDF Conversion">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/upload</span>
+                    <span class="tag-badge">PDF Conversion</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Upload a PDF file and convert it to JSON format. Maximum file size is 500MB.</p>
+                    
+                    <div class="section-title">Request Body</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>pdf</code></td>
+                            <td>file</td>
+                            <td>✓</td>
+                            <td>PDF file to upload and convert</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-302">302</span> Redirect to home page after successful upload<br>
+                        <span class="response-status status-400">400</span> Invalid file or missing file<br>
+                        <span class="response-status status-413">413</span> File too large (max 500MB)
+                    </div>
+                    
+                    <div class="section-title">Example cURL</div>
+                    <div class="code-block">curl -X POST http://localhost:8000/upload \
+  -F "pdf=@document.pdf"</div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-tags="PDF Conversion">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-path">/view/{filepath}</span>
+                    <span class="tag-badge">PDF Conversion</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">View converted JSON, CSV, or Markdown files in a formatted display.</p>
+                    
+                    <div class="section-title">Path Parameters</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>filepath</code></td>
+                            <td>string</td>
+                            <td>Relative path to file (e.g., input_files/example.json)</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> File content displayed<br>
+                        <span class="response-status status-404">404</span> File not found
+                    </div>
+                    
+                    <div class="section-title">Example</div>
+                    <div class="code-block">GET /view/input_files/example.json</div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-tags="PDF Conversion">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/search</span>
+                    <span class="tag-badge">PDF Conversion</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Search for text across all converted JSON files.</p>
+                    
+                    <div class="section-title">Request Body</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>search_term</code></td>
+                            <td>string</td>
+                            <td>✓</td>
+                            <td>Text to search for (case-insensitive)</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> HTML page with search results
+                    </div>
+                </div>
+            </div>
+
+            <!-- DSR Matching Endpoints -->
+            <div class="endpoint" data-tags="DSR Matching">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/cost-estimation</span>
+                    <span class="tag-badge">DSR Matching</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Match construction items with DSR rates and calculate total costs.</p>
+                    
+                    <div class="section-title">Request Body</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>input_file</code></td>
+                            <td>string</td>
+                            <td>✓</td>
+                            <td>Input JSON file with items to price</td>
+                        </tr>
+                        <tr>
+                            <td><code>reference_files</code></td>
+                            <td>array</td>
+                            <td>✓</td>
+                            <td>DSR reference database files</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> Cost estimation completed<br>
+                        <span class="response-status status-400">400</span> Missing required parameters
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel Operations Endpoints -->
+            <div class="endpoint" data-tags="Excel Operations">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/api/excel/sheets</span>
+                    <span class="tag-badge">Excel Operations</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Upload an Excel file and retrieve a list of available sheets.</p>
+                    
+                    <div class="section-title">Request Body</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>file</code></td>
+                            <td>file</td>
+                            <td>✓</td>
+                            <td>Excel file (.xlsx, .xls)</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> Sheet list retrieved successfully<br>
+                        <span class="response-status status-400">400</span> Invalid file or processing error
+                    </div>
+                    
+                    <div class="section-title">Example Response</div>
+                    <div class="code-block">{
+  "sheets": ["Sheet1", "Data", "Summary"]
+}</div>
+                </div>
+            </div>
+
+            <div class="endpoint" data-tags="Excel Operations">
+                <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-path">/api/excel/convert</span>
+                    <span class="tag-badge">Excel Operations</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="endpoint-body">
+                    <p class="endpoint-description">Convert selected Excel sheets to PDF format with customizable options.</p>
+                    
+                    <div class="section-title">Request Body</div>
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><code>file</code></td>
+                            <td>file</td>
+                            <td>✓</td>
+                            <td>Excel file to convert</td>
+                        </tr>
+                        <tr>
+                            <td><code>sheets</code></td>
+                            <td>array</td>
+                            <td>✓</td>
+                            <td>Sheet names to convert</td>
+                        </tr>
+                        <tr>
+                            <td><code>orientation</code></td>
+                            <td>string</td>
+                            <td>✗</td>
+                            <td>portrait or landscape (default: portrait)</td>
+                        </tr>
+                        <tr>
+                            <td><code>page_size</code></td>
+                            <td>string</td>
+                            <td>✗</td>
+                            <td>A4 or Letter (default: A4)</td>
+                        </tr>
+                        <tr>
+                            <td><code>output_mode</code></td>
+                            <td>string</td>
+                            <td>✗</td>
+                            <td>separate or combined (default: separate)</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="section-title">Responses</div>
+                    <div>
+                        <span class="response-status status-200">200</span> PDF/ZIP file returned<br>
+                        <span class="response-status status-400">400</span> Conversion failed
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEndpoint(header) {
+            const body = header.nextElementSibling;
+            const allBodies = document.querySelectorAll('.endpoint-body');
+            const allHeaders = document.querySelectorAll('.endpoint-header');
+            
+            // Close all other endpoints
+            allBodies.forEach(b => {
+                if (b !== body) b.classList.remove('active');
+            });
+            allHeaders.forEach(h => {
+                if (h !== header) h.classList.remove('active');
+            });
+            
+            // Toggle current endpoint
+            body.classList.toggle('active');
+            header.classList.toggle('active');
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const endpoints = document.querySelectorAll('.endpoint');
+            
+            endpoints.forEach(endpoint => {
+                const text = endpoint.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    endpoint.style.display = 'block';
+                } else {
+                    endpoint.style.display = 'none';
+                }
+            });
+        });
+
+        // Tag filtering
+        document.querySelectorAll('.tag-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active from all buttons
+                document.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tag = this.dataset.tag;
+                const endpoints = document.querySelectorAll('.endpoint');
+                
+                endpoints.forEach(endpoint => {
+                    if (tag === 'all' || endpoint.dataset.tags.includes(tag)) {
+                        endpoint.style.display = 'block';
+                    } else {
+                        endpoint.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
