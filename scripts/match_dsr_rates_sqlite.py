@@ -11,48 +11,51 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 from text_similarity import calculate_text_similarity
-from logging_utils import setup_script_logging, log_operation, log_error_with_context, log_progress
+from logging_utils import setup_script_logging
 
 # Setup logging
-logger = setup_script_logging('match_dsr_rates_sqlite')
+logger = setup_script_logging("match_dsr_rates_sqlite")
 
 
 def load_input_file(input_file: Path) -> List[Dict]:
     """Load and extract DSR items from structured or unstructured format."""
     logger.info(f"Loading input file: {input_file}")
     print(f"📂 Loading input file: {input_file.name}")
-    
-    with open(input_file, 'r', encoding='utf-8') as f:
+
+    with open(input_file, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
+
     # Detect format by metadata
-    if 'metadata' in data and data.get('metadata', {}).get('type') == 'input_items':
+    if "metadata" in data and data.get("metadata", {}).get("type") == "input_items":
         logger.info("Detected structured input format")
-        print(f"✅ Detected structured input format")
-        items = data.get('items', [])
-        
+        print("✅ Detected structured input format")
+        items = data.get("items", [])
+
         # Map to matching format
         mapped_items = []
         for item in items:
-            mapped_items.append({
-                'dsr_code': item.get('code', ''),
-                'clean_dsr_code': item.get('clean_code', ''),
-                'description': item.get('description', ''),
-                'quantity': item.get('quantity', 0),
-                'unit': item.get('unit', ''),
-                'chapter': item.get('chapter', ''),
-                'section': item.get('section', '')
-            })
-        
+            mapped_items.append(
+                {
+                    "dsr_code": item.get("code", ""),
+                    "clean_dsr_code": item.get("clean_code", ""),
+                    "description": item.get("description", ""),
+                    "quantity": item.get("quantity", 0),
+                    "unit": item.get("unit", ""),
+                    "chapter": item.get("chapter", ""),
+                    "section": item.get("section", ""),
+                }
+            )
+
         print(f"📊 Loaded {len(mapped_items)} items from structured format")
         return mapped_items
     else:
         # Fall back to extraction
-        print(f"⚠️  Detected unstructured input format (using extractor)")
-        print(f"💡 TIP: Convert to structured format for better accuracy:")
+        print("⚠️  Detected unstructured input format (using extractor)")
+        print("💡 TIP: Convert to structured format for better accuracy:")
         print(f"    python3 input_file_converter.py -i {input_file.name}\n")
-        
+
         from dsr_extractor import extract_dsr_codes_from_lko
+
         items = extract_dsr_codes_from_lko(data)
         print(f"📊 Extracted {len(items)} items from unstructured format")
         return items
@@ -64,24 +67,27 @@ def load_dsr_database(db_path: Path) -> sqlite3.Connection:
     if not db_path.exists():
         logger.error(f"Database not found: {db_path}")
         raise FileNotFoundError(f"DSR database not found: {db_path}\nRun create_alternative_formats.py first.")
-    
+
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     logger.debug("Database connection established")
     return conn
 
 
-def match_with_database(lko_items: List[Dict], db_conn: sqlite3.Connection, similarity_threshold: float = 0.3) -> List[Dict]:
+def match_with_database(
+    lko_items: List[Dict], db_conn: sqlite3.Connection, similarity_threshold: float = 0.3
+) -> List[Dict]:
     """Match items using SQLite database for fast lookups."""
     logger.info(f"Matching {len(lko_items)} items with DSR database (threshold={similarity_threshold})")
     cursor = db_conn.cursor()
     matched_items = []
-    
+
     for item in lko_items:
-        clean_code = item.get('clean_dsr_code', item['dsr_code'])
-        
+        clean_code = item.get("clean_dsr_code", item["dsr_code"])
+
         # Direct database lookup - get all matching codes (may have duplicates from different volumes)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT code, description, unit, rate, volume, page
             FROM dsr_codes 
             WHERE code = ?
@@ -91,61 +97,63 @@ def match_with_database(lko_items: List[Dict], db_conn: sqlite3.Connection, simi
                     ELSE 2 
                 END,
                 rate ASC  -- Prefer lower rates
-        """, (clean_code,))
-        
+        """,
+            (clean_code,),
+        )
+
         results = cursor.fetchall()
         result = results[0] if results else None
-        
+
         if result:
             # Calculate similarity
-            similarity = calculate_text_similarity(item['description'], result['description'])
-            
+            similarity = calculate_text_similarity(item["description"], result["description"])
+
             # Show if multiple entries exist
             duplicate_info = f" ({len(results)} entries)" if len(results) > 1 else ""
-            
+
             print(f"  DSR {clean_code} - Database match{duplicate_info}, similarity: {similarity:.3f}")
             print(f"    Input: {item['description'][:60]}...")
             print(f"    Match: {result['description'][:60]}... (Vol: {result['volume']}, Rate: ₹{result['rate']})")
-            
+
             if similarity >= similarity_threshold:
                 # Good match
-                item['rate'] = result['rate']
-                item['dsr_description'] = result['description']
-                item['dsr_unit'] = result['unit']
-                item['dsr_volume'] = result['volume']
-                item['dsr_page'] = result['page']
-                item['match_type'] = 'exact_with_description_match'
-                item['similarity_score'] = similarity
+                item["rate"] = result["rate"]
+                item["dsr_description"] = result["description"]
+                item["dsr_unit"] = result["unit"]
+                item["dsr_volume"] = result["volume"]
+                item["dsr_page"] = result["page"]
+                item["match_type"] = "exact_with_description_match"
+                item["similarity_score"] = similarity
             else:
                 # Code found but low similarity
                 print(f"  ⚠️  DSR {clean_code} found but similarity {similarity:.3f} below threshold")
-                item['rate'] = result['rate']
-                item['dsr_description'] = result['description']
-                item['dsr_unit'] = result['unit']
-                item['dsr_volume'] = result['volume']
-                item['dsr_page'] = result['page']
-                item['match_type'] = 'code_match_but_description_mismatch'
-                item['similarity_score'] = similarity
+                item["rate"] = result["rate"]
+                item["dsr_description"] = result["description"]
+                item["dsr_unit"] = result["unit"]
+                item["dsr_volume"] = result["volume"]
+                item["dsr_page"] = result["page"]
+                item["match_type"] = "code_match_but_description_mismatch"
+                item["similarity_score"] = similarity
         else:
             # Code not found
-            item['rate'] = None
-            item['dsr_description'] = "DSR code not found in reference files"
-            item['dsr_unit'] = ""
-            item['dsr_volume'] = ""
-            item['match_type'] = 'not_found'
-            item['similarity_score'] = 0.0
-        
+            item["rate"] = None
+            item["dsr_description"] = "DSR code not found in reference files"
+            item["dsr_unit"] = ""
+            item["dsr_volume"] = ""
+            item["match_type"] = "not_found"
+            item["similarity_score"] = 0.0
+
         # Calculate amount
-        if item.get('quantity') and item.get('rate'):
+        if item.get("quantity") and item.get("rate"):
             try:
-                qty = float(item['quantity'])
-                rate = float(item['rate'])
-                item['amount'] = qty * rate
+                qty = float(item["quantity"])
+                rate = float(item["rate"])
+                item["amount"] = qty * rate
             except (ValueError, TypeError):
-                item['amount'] = None
-        
+                item["amount"] = None
+
         matched_items.append(item)
-    
+
     return matched_items
 
 
@@ -154,79 +162,79 @@ def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None,
     # Use defaults if not provided
     # All paths are now required via CLI arguments
     # No hardcoded defaults
-    
+
     # Check if database exists
     if not db_path.exists():
         print("⚠️  DSR database not found. Creating it now...")
         print("This is a one-time setup.\n")
         import subprocess
-        subprocess.run(['python3', 'create_alternative_formats.py'], cwd=Path(__file__).parent)
+
+        subprocess.run(["python3", "create_alternative_formats.py"], cwd=Path(__file__).parent)
         print()
-    
+
     # Load input file (structured or unstructured)
     lko_items = load_input_file(input_file)
-    
+
     if not lko_items:
         print("❌ No DSR items found in input file")
         return
-    
+
     # Connect to database
     print("\n🔗 Connecting to DSR database...")
     db_conn = load_dsr_database(db_path)
-    
+
     # Get database statistics
     cursor = db_conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM dsr_codes")
     total_codes = cursor.fetchone()[0]
     print(f"📊 Database loaded: {total_codes:,} DSR codes available\n")
-    
+
     # Match items using database
     print("Matching items with DSR database...")
     matched_items = match_with_database(lko_items, db_conn, similarity_threshold=similarity_threshold)
-    
+
     db_conn.close()
-    
+
     # Create output
     output = {
-        'project': f'DSR Rate Matching from {input_file.name}',
-        'source_files': {
-            'items': str(input_file),
-            'rates_database': str(db_path)
+        "project": f"DSR Rate Matching from {input_file.name}",
+        "source_files": {"items": str(input_file), "rates_database": str(db_path)},
+        "summary": {
+            "total_items": len(matched_items),
+            "exact_matches": len([i for i in matched_items if i.get("match_type") == "exact_with_description_match"]),
+            "code_match_description_mismatch": len(
+                [i for i in matched_items if i.get("match_type") == "code_match_but_description_mismatch"]
+            ),
+            "not_found": len([i for i in matched_items if i.get("match_type") == "not_found"]),
+            "total_estimated_amount": sum([i["amount"] for i in matched_items if i.get("amount")]),
         },
-        'summary': {
-            'total_items': len(matched_items),
-            'exact_matches': len([i for i in matched_items if i.get('match_type') == 'exact_with_description_match']),
-            'code_match_description_mismatch': len([i for i in matched_items if i.get('match_type') == 'code_match_but_description_mismatch']),
-            'not_found': len([i for i in matched_items if i.get('match_type') == 'not_found']),
-            'total_estimated_amount': sum([i['amount'] for i in matched_items if i.get('amount')])
-        },
-        'matched_items': matched_items
+        "matched_items": matched_items,
     }
-    
+
     # Save output
-    output_file = output_dir / f'{input_file.stem}_matched_rates.json'
-    with open(output_file, 'w', encoding='utf-8') as f:
+    output_file = output_dir / f"{input_file.stem}_matched_rates.json"
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
-    
+
     # Print summary
-    print(f"\n=== MATCHING SUMMARY ===")
+    print("\n=== MATCHING SUMMARY ===")
     print(f"Total items: {output['summary']['total_items']}")
     print(f"Exact matches (code + description): {output['summary']['exact_matches']}")
     print(f"Code matched but description mismatch: {output['summary']['code_match_description_mismatch']}")
     print(f"Not found: {output['summary']['not_found']}")
-    if output['summary']['total_estimated_amount']:
+    if output["summary"]["total_estimated_amount"]:
         print(f"Total estimated amount: ₹{output['summary']['total_estimated_amount']:,.2f}")
-    
+
     print(f"\nDetailed results saved to: {output_file}")
-    
+
     # Show sample matched items
-    print(f"\n=== SAMPLE MATCHED ITEMS ===")
+    print("\n=== SAMPLE MATCHED ITEMS ===")
     for item in matched_items[:5]:
         print(f"DSR Code: {item['dsr_code']}")
         print(f"Description: {item['description'][:70]}...")
         print(f"Quantity: {item.get('quantity', 'N/A')} {item.get('unit', '')}")
-        print(f"Rate: ₹{item['rate']}" if item['rate'] else "Rate: Not found")
-        print(f"Amount: ₹{item['amount']:,.2f}" if item.get('amount') else "Amount: N/A")
+        print(f"Rate: ₹{item['rate']}" if item["rate"] else "Rate: Not found")
+        print(f"Amount: ₹{item['amount']:,.2f}" if item.get("amount") else "Amount: N/A")
         print(f"Match: {item['match_type']} (similarity: {item.get('similarity_score', 0):.2f})")
         print("-" * 70)
 
@@ -234,75 +242,57 @@ def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None,
 def parse_arguments():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description='Match DSR codes from input file with rates from SQLite database',
+        description="Match DSR codes from input file with rates from SQLite database",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog="""
 Examples:
   # Match DSR rates (all arguments required)
   python3 match_dsr_rates_sqlite.py -i data/examples/input_files/project.json -d data/reference/DSR_combined.db -o data/examples/output_reports
   
   # Custom paths
   python3 match_dsr_rates_sqlite.py -i /path/to/input.json -d /path/to/database.db -o /path/to/output
-        '''
+        """,
     )
-    
+
+    parser.add_argument("-i", "--input", type=str, required=True, help="Path to input JSON file with DSR items")
+
+    parser.add_argument("-d", "--database", type=str, required=True, help="Path to SQLite DSR database")
+
+    parser.add_argument("-o", "--output", type=str, required=True, help="Output directory for results")
+
     parser.add_argument(
-        '-i', '--input',
-        type=str,
-        required=True,
-        help='Path to input JSON file with DSR items'
+        "-t", "--threshold", type=float, default=0.3, help="Similarity threshold for matching (default: 0.3)"
     )
-    
-    parser.add_argument(
-        '-d', '--database',
-        type=str,
-        required=True,
-        help='Path to SQLite DSR database'
-    )
-    
-    parser.add_argument(
-        '-o', '--output',
-        type=str,
-        required=True,
-        help='Output directory for results'
-    )
-    
-    parser.add_argument(
-        '-t', '--threshold',
-        type=float,
-        default=0.3,
-        help='Similarity threshold for matching (default: 0.3)'
-    )
-    
+
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_arguments()
-    
+
     # Convert paths to Path objects
     input_file = Path(args.input)
     db_path = Path(args.database)
     output_dir = Path(args.output)
-    
+
     # Validate input files exist
     if not input_file.exists():
         print(f"Error: Input file not found: {input_file}")
         sys.exit(1)
-    
+
     if not db_path.exists():
         print(f"Error: Database file not found: {db_path}")
-        print(f"Please run: python3 create_alternative_formats.py")
+        print("Please run: python3 create_alternative_formats.py")
         sys.exit(1)
-    
+
     # Create output directory if needed
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Override the main function's hardcoded paths by passing parameters
     # Update main() to accept parameters
     print(f"Input file: {input_file}")
     print(f"Database: {db_path}")
     print(f"Output directory: {output_dir}")
     print(f"Similarity threshold: {args.threshold}\n")
-    
+
     main(input_file, db_path, output_dir, args.threshold)
