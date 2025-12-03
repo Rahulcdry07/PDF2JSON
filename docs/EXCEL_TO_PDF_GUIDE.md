@@ -1,13 +1,57 @@
 # Excel to PDF Converter - User Guide
 
 ## Overview
-The Excel to PDF Converter allows you to extract individual sheets from Excel workbooks (.xlsx, .xls) and convert them to professionally formatted PDF documents.
+The Excel to PDF Converter provides two methods for converting Excel workbooks to PDF:
+
+1. **Native Conversion** (Recommended): Uses LibreOffice's native PDF engine to preserve exact Excel formatting
+2. **Custom Rendering**: Python-based table rendering with customizable options
+
+## 🌟 Native Conversion (Recommended)
+
+### Why Use Native Conversion?
+- ✅ **Perfect Formatting**: Preserves Excel's exact layout, styles, and formatting
+- ✅ **Faster**: Uses optimized native PDF engines
+- ✅ **Accurate**: Respects print areas, page breaks, and Excel settings
+- ✅ **Professional**: Same quality as printing from Excel
+
+### Installation
+```bash
+# macOS
+brew install --cask libreoffice
+
+# Linux
+sudo apt-get install libreoffice
+
+# Windows
+# Download from https://www.libreoffice.org/download/
+```
+
+### Usage - Native Method
+
+```bash
+# Convert single sheet (native quality)
+python scripts/excel_to_pdf_native.py myfile.xlsx output.pdf --sheet "Sheet1"
+
+# Convert all sheets to separate PDFs
+python scripts/excel_to_pdf_native.py myfile.xlsx output_dir/ --all-sheets
+
+# List all sheets
+python scripts/excel_to_pdf_native.py myfile.xlsx --list
+
+# Specify conversion method
+python scripts/excel_to_pdf_native.py myfile.xlsx output.pdf --method libreoffice
+```
 
 ## Features
 
 ### 1. **Command-Line Interface**
-Use the CLI for quick conversions and batch processing:
 
+**Native Converter** (uses LibreOffice):
+```bash
+python scripts/excel_to_pdf_native.py myfile.xlsx output.pdf --sheet "Sheet1"
+```
+
+**Custom Renderer** (Python-based):
 ```bash
 # List all sheets in an Excel file
 python scripts/excel_to_pdf.py myfile.xlsx --list
@@ -32,18 +76,31 @@ python scripts/excel_to_pdf.py myfile.xlsx output.pdf --sheet "Report" --page-si
 Access the user-friendly web interface at **http://localhost:8000/excel-converter**
 
 Features:
-- Drag and drop Excel files
-- Visual sheet selection with checkboxes
-- Select all/individual sheets
-- Choose orientation (Portrait/Landscape)
-- Choose page size (A4/Letter)
-- Choose output mode:
-  - **Separate PDFs**: Each sheet as a separate PDF file (ZIP download)
-  - **Combined PDF**: All selected sheets in one PDF file
+- 🎯 **Native Quality Conversion**: Separate PDFs mode uses LibreOffice for best quality
+- 📁 Drag and drop Excel files
+- ✅ Visual sheet selection with checkboxes
+- 🎨 Output mode selection:
+  - **Separate PDFs** (✨ Recommended): Native quality, each sheet as individual PDF (ZIP download)
+  - **Combined PDF**: Custom rendering, all sheets in one PDF file
+- 📐 Orientation and page size options (for combined mode)
 
 ### 3. **Python API**
-Integrate into your own scripts:
 
+**Native Conversion:**
+```python
+from pathlib import Path
+from excel_to_pdf_native import convert_excel_to_pdf
+
+# Convert with native quality (automatic method selection)
+success = convert_excel_to_pdf(
+    Path("data.xlsx"),
+    Path("output.pdf"),
+    sheet_name="Sheet1",
+    method='auto'  # tries LibreOffice first, then Excel (macOS)
+)
+```
+
+**Custom Rendering:**
 ```python
 from pathlib import Path
 from excel_to_pdf import ExcelToPDFConverter

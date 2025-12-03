@@ -25,6 +25,10 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfgen import canvas
 import io
+from logging_utils import setup_script_logging, log_operation, log_error_with_context
+
+# Setup logging
+logger = setup_script_logging('excel_to_pdf')
 
 
 class ExcelToPDFConverter:
@@ -39,9 +43,12 @@ class ExcelToPDFConverter:
         """
         self.excel_path = Path(excel_path)
         if not self.excel_path.exists():
+            logger.error(f"Excel file not found: {excel_path}")
             raise FileNotFoundError(f"Excel file not found: {excel_path}")
         
+        logger.info(f"Initializing converter for: {self.excel_path.name}")
         self.workbook = openpyxl.load_workbook(excel_path, data_only=True)
+        logger.debug(f"Loaded workbook with {len(self.workbook.sheetnames)} sheets")
     
     def list_sheets(self) -> List[str]:
         """Get list of all sheet names in the workbook."""
@@ -101,19 +108,35 @@ class ExcelToPDFConverter:
         if not data:
             raise ValueError(f"Sheet '{sheet_name}' is empty")
         
+        # Auto-detect orientation for wide tables
+        num_cols = len(data[0]) if data else 1
+        if orientation == 'auto':
+            # Use landscape for tables with 6+ columns
+            orientation = 'landscape' if num_cols >= 6 else 'portrait'
+        
         # Adjust page size for orientation
         if orientation == 'landscape':
             page_size = landscape(page_size)
+        
+        # Standard margins - wider tables will span multiple pages
+        left_margin = 0.5*inch
+        right_margin = 0.5*inch
+        top_margin = 0.7*inch
+        bottom_margin = 0.7*inch
+        
+        if num_cols >= 12:
+            logger.warning(f"Table has {num_cols} columns - may span multiple pages")
+            print(f"⚠️  Table has {num_cols} columns. Using multi-page layout for readability.")
         
         # Create PDF
         output_path.parent.mkdir(parents=True, exist_ok=True)
         doc = SimpleDocTemplate(
             str(output_path),
             pagesize=page_size,
-            leftMargin=0.5*inch,
-            rightMargin=0.5*inch,
-            topMargin=0.75*inch,
-            bottomMargin=0.75*inch
+            leftMargin=left_margin,
+            rightMargin=right_margin,
+            topMargin=top_margin,
+            bottomMargin=bottom_margin
         )
         
         # Build story
@@ -124,50 +147,100 @@ class ExcelToPDFConverter:
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
-            fontSize=16,
+            fontSize=14,
             textColor=colors.HexColor('#667eea'),
-            spaceAfter=12
+            spaceAfter=8
         )
         story.append(Paragraph(f"<b>{sheet_name}</b>", title_style))
-        story.append(Spacer(1, 0.2*inch))
+        story.append(Spacer(1, 0.15*inch))
         
-        # Create table
-        if fit_to_width:
-            # Calculate column widths
-            page_width = page_size[0] - doc.leftMargin - doc.rightMargin
-            num_cols = len(data[0]) if data else 1
-            col_width = page_width / num_cols
-            col_widths = [col_width] * num_cols
+        # Calculate column widths based on content with readable minimums
+        page_width = page_size[0] - left_margin - right_margin
+        
+        col_widths = []
+        for col_idx in range(num_cols):
+            max_len = 0
+            for row in data[:30]:  # Sample more rows for accuracy
+                if col_idx < len(row):
+                    cell_content = str(row[col_idx])
+                    max_len = max(max_len, len(cell_content))
+            
+            # Set minimum readable widths - don't go below these
+            if num_cols >= 15:
+                # Very wide: much larger minimum for readability
+                min_width = 1.8*inch
+                max_width = 4.5*inch
+                char_width = 8
+            elif num_cols >= 10:
+                min_width = 2.0*inch
+                max_width = 5.0*inch
+                char_width = 9
+            else:
+                min_width = 2.2*inch
+                max_width = 5.5*inch
+                char_width = 10
+            
+            # Calculate width with readable constraints
+            width = min(max(min_width, max_len * char_width), max_width)
+            col_widths.append(width)
+        
+        total_width = sum(col_widths)
+        
+        # Only scale down if slightly over, otherwise let it span pages
+        if total_width > page_width and total_width <= page_width * 1.15:
+            # Minor adjustment - scale to fit
+            scale = page_width / total_width
+            col_widths = [w * scale for w in col_widths]
+            logger.debug(f"Scaled columns by {scale:.2f} to fit page width")
+        elif total_width > page_width:
+            # Table too wide - will span multiple pages horizontally
+            logger.info(f"Table width ({total_width:.0f}pt) exceeds page ({page_width:.0f}pt) - will span pages")
+            print(f"📄 Table spans multiple pages for better readability")
+        
+        # Use larger, more readable font sizes
+        if num_cols >= 15:
+            header_font_size = 11
+            data_font_size = 10
+            padding = 8
+        elif num_cols >= 10:
+            header_font_size = 12
+            data_font_size = 11
+            padding = 9
         else:
-            col_widths = None
+            header_font_size = 13
+            data_font_size = 12
+            padding = 10
         
-        table = Table(data, colWidths=col_widths, repeatRows=1)
+        logger.info(f"Using font sizes: header={header_font_size}pt, data={data_font_size}pt")
         
-        # Apply table style
+        # Create table with repeatRows for header on each page
+        table = Table(data, colWidths=col_widths, repeatRows=1, splitByRow=True)
+        
+        # Apply clean, readable table style
         table_style = TableStyle([
             # Header row
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            ('FONTSIZE', (0, 0), (-1, 0), header_font_size),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), padding + 4),
+            ('TOPPADDING', (0, 0), (-1, 0), padding + 4),
             
             # Data rows
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
             ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 1), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+            ('FONTSIZE', (0, 1), (-1, -1), data_font_size),
+            ('GRID', (0, 0), (-1, -1), 0.75, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), padding + 2),
+            ('RIGHTPADDING', (0, 0), (-1, -1), padding + 2),
+            ('TOPPADDING', (0, 1), (-1, -1), padding + 1),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), padding + 1),
             
-            # Alternating row colors
-            *[('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f9f9f9'))
+            # Alternating row colors for readability
+            *[('BACKGROUND', (0, i), (-1, i), colors.HexColor('#f7f7f7'))
               for i in range(2, len(data), 2)]
         ])
         
@@ -176,6 +249,12 @@ class ExcelToPDFConverter:
         
         # Build PDF
         doc.build(story)
+        log_operation(logger, 'sheet_converted', 
+                     sheet=sheet_name, 
+                     output=str(output_path), 
+                     rows=len(data), 
+                     cols=num_cols,
+                     orientation=orientation)
         print(f"✓ Converted sheet '{sheet_name}' to {output_path}")
     
     def convert_all_sheets(
@@ -197,6 +276,8 @@ class ExcelToPDFConverter:
         """
         output_dir.mkdir(parents=True, exist_ok=True)
         created_files = []
+        
+        logger.info(f"Converting all sheets ({len(self.list_sheets())}) to separate PDFs")
         
         for sheet_name in self.list_sheets():
             safe_name = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name)

@@ -190,10 +190,10 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  # Use default files
-  python3 create_alternative_formats.py
+  # Create CSV and SQLite from structured JSON (volume argument required)
+  python3 create_alternative_formats.py -v data/reference/civil/DSR_Vol_1_structured.json
   
-  # Specify custom structured JSON files (one or more)
+  # Process multiple volumes
   python3 create_alternative_formats.py -v vol1_structured.json vol2_structured.json vol3_structured.json
   
   # Specify output directory
@@ -205,7 +205,7 @@ Examples:
         '-v', '--volumes',
         type=str,
         nargs='+',
-        default=None,
+        required=True,
         help='Path(s) to structured DSR JSON files (can specify multiple files)'
     )
     
@@ -228,16 +228,8 @@ Examples:
 if __name__ == "__main__":
     args = parse_arguments()
     
-    # Determine volume files to use
-    if args.volumes:
-        volume_paths = [Path(v) for v in args.volumes]
-    else:
-        # Use defaults
-        base_dir = Path(__file__).parent.parent / 'examples' / 'reference_files'
-        volume_paths = [
-            base_dir / 'DSR_Vol_1_Civil_structured.json',
-            base_dir / 'DSR_Vol_2_Civil_structured.json'
-        ]
+    # Use volumes from CLI arguments (required)
+    volume_paths = [Path(v) for v in args.volumes]
     
     # Validate all input files exist
     for vol_path in volume_paths:

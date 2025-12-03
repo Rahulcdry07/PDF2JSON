@@ -11,10 +11,15 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 from text_similarity import calculate_text_similarity
+from logging_utils import setup_script_logging, log_operation, log_error_with_context, log_progress
+
+# Setup logging
+logger = setup_script_logging('match_dsr_rates_sqlite')
 
 
 def load_input_file(input_file: Path) -> List[Dict]:
     """Load and extract DSR items from structured or unstructured format."""
+    logger.info(f"Loading input file: {input_file}")
     print(f"📂 Loading input file: {input_file.name}")
     
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -22,6 +27,7 @@ def load_input_file(input_file: Path) -> List[Dict]:
     
     # Detect format by metadata
     if 'metadata' in data and data.get('metadata', {}).get('type') == 'input_items':
+        logger.info("Detected structured input format")
         print(f"✅ Detected structured input format")
         items = data.get('items', [])
         
@@ -54,16 +60,20 @@ def load_input_file(input_file: Path) -> List[Dict]:
 
 def load_dsr_database(db_path: Path) -> sqlite3.Connection:
     """Load SQLite DSR database and return connection."""
+    logger.info(f"Loading DSR database from {db_path}")
     if not db_path.exists():
+        logger.error(f"Database not found: {db_path}")
         raise FileNotFoundError(f"DSR database not found: {db_path}\nRun create_alternative_formats.py first.")
     
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
+    logger.debug("Database connection established")
     return conn
 
 
 def match_with_database(lko_items: List[Dict], db_conn: sqlite3.Connection, similarity_threshold: float = 0.3) -> List[Dict]:
     """Match items using SQLite database for fast lookups."""
+    logger.info(f"Matching {len(lko_items)} items with DSR database (threshold={similarity_threshold})")
     cursor = db_conn.cursor()
     matched_items = []
     
@@ -142,17 +152,8 @@ def match_with_database(lko_items: List[Dict], db_conn: sqlite3.Connection, simi
 def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None, similarity_threshold: float = 0.3):
     """Main function to match DSR codes with database rates."""
     # Use defaults if not provided
-    if input_file is None:
-        base_dir = Path(__file__).parent.parent / 'examples'
-        input_file = base_dir / 'input_files' / 'Lko_Office_Repair_revise.json'
-    
-    if db_path is None:
-        base_dir = Path(__file__).parent.parent / 'examples'
-        db_path = base_dir / 'reference_files' / 'DSR_combined.db'
-    
-    if output_dir is None:
-        base_dir = Path(__file__).parent.parent / 'examples'
-        output_dir = base_dir / 'output_reports'
+    # All paths are now required via CLI arguments
+    # No hardcoded defaults
     
     # Check if database exists
     if not db_path.exists():
@@ -237,36 +238,33 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  # Use default files
-  python3 match_dsr_rates_sqlite.py
+  # Match DSR rates (all arguments required)
+  python3 match_dsr_rates_sqlite.py -i data/examples/input_files/project.json -d data/reference/DSR_combined.db -o data/examples/output_reports
   
-  # Specify custom input and database
-  python3 match_dsr_rates_sqlite.py -i input.json -d dsr_database.db
-  
-  # Specify output directory
-  python3 match_dsr_rates_sqlite.py -i input.json -o ./results
+  # Custom paths
+  python3 match_dsr_rates_sqlite.py -i /path/to/input.json -d /path/to/database.db -o /path/to/output
         '''
     )
     
     parser.add_argument(
         '-i', '--input',
         type=str,
-        default='../examples/input_files/Lko_Office_Repair_revise.json',
-        help='Path to input JSON file with DSR items (default: ../examples/input_files/Lko_Office_Repair_revise.json)'
+        required=True,
+        help='Path to input JSON file with DSR items'
     )
     
     parser.add_argument(
         '-d', '--database',
         type=str,
-        default='../reference_files/DSR_combined.db',
-        help='Path to SQLite DSR database (default: ../reference_files/DSR_combined.db)'
+        required=True,
+        help='Path to SQLite DSR database'
     )
     
     parser.add_argument(
         '-o', '--output',
         type=str,
-        default='../examples/output_reports',
-        help='Output directory for results (default: ../examples/output_reports)'
+        required=True,
+        help='Output directory for results'
     )
     
     parser.add_argument(

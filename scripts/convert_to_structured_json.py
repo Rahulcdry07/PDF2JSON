@@ -87,11 +87,11 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  # Convert with default file names in reference_files/
-  python3 convert_to_structured_json.py
+  # Convert single volume
+  python3 convert_to_structured_json.py -v data/reference/civil/DSR_Vol_1_Civil.json
   
-  # Convert specific volumes (one or more)
-  python3 convert_to_structured_json.py -v vol1.json vol2.json vol3.json
+  # Convert multiple volumes
+  python3 convert_to_structured_json.py -v data/reference/civil/DSR_Vol_1.json data/reference/civil/DSR_Vol_2.json
   
   # Specify output directory
   python3 convert_to_structured_json.py -v vol1.json vol2.json -o ./output
@@ -102,7 +102,7 @@ Examples:
         '-v', '--volumes',
         type=str,
         nargs='+',
-        default=None,
+        required=True,
         help='Path(s) to DSR volume JSON files (can specify multiple files)'
     )
     
@@ -123,14 +123,9 @@ def main(volume_inputs: list = None, output_dir: Path = None):
         volume_inputs: List of Path objects for input volume JSON files
         output_dir: Output directory Path object
     """
-    # Use defaults if not provided
-    if volume_inputs is None:
-        base_dir = Path(__file__).parent.parent / 'examples'
-        reference_dir = base_dir / 'reference_files'
-        volume_inputs = [
-            reference_dir / 'DSR_Vol_1_Civil.json',
-            reference_dir / 'DSR_Vol_2_Civil.json'
-        ]
+    # Validate inputs
+    if not volume_inputs:
+        raise ValueError("No volume input files provided. Use -v to specify files.")
     
     # Determine output directory
     if output_dir is None:

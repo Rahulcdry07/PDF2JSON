@@ -270,7 +270,10 @@
     <div class="container">
         <header>
             <h1>📊 Excel to PDF Converter</h1>
-            <p class="subtitle">Extract individual sheets from Excel files and convert them to PDF</p>
+            <p class="subtitle">Extract individual sheets from Excel files and convert them to PDF with native formatting preserved</p>
+            <p style="color: #28a745; margin-top: 10px; font-size: 0.95em;">
+                ✨ <strong>Enhanced Quality:</strong> Uses LibreOffice native PDF engine to preserve exact Excel formatting
+            </p>
         </header>
 
         <div id="alert" class="alert"></div>
@@ -305,11 +308,39 @@
             <div class="options">
                 <h3 style="color: #667eea; margin-bottom: 15px;">Conversion Options</h3>
                 
+                <div style="background-color: #d4edda; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #28a745;">
+                    <strong>✨ Native Quality:</strong> Individual sheets use LibreOffice's native PDF engine, 
+                    preserving exact Excel formatting, styles, and layout. <strong>Recommended for best quality!</strong>
+                </div>
+                
+                <div style="background-color: #e7f3ff; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                    <strong>💡 Combined Mode:</strong> Creates a single PDF with multiple sheets using custom rendering. 
+                    Use <strong>Separate PDFs</strong> mode for highest quality output.
+                </div>
+                
                 <div class="option-group">
-                    <label>Orientation:</label>
+                    <label>Output Mode:</label>
                     <div class="radio-group">
                         <label>
-                            <input type="radio" name="orientation" value="portrait" checked>
+                            <input type="radio" name="mode" value="separate" checked>
+                            Separate PDFs (Recommended - Native Quality ✨)
+                        </label>
+                        <label>
+                            <input type="radio" name="mode" value="combined">
+                            Combined PDF (Custom Rendering)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <label>Orientation (Combined Mode Only):</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="orientation" value="auto" checked>
+                            Auto
+                        </label>
+                        <label>
+                            <input type="radio" name="orientation" value="portrait">
                             Portrait
                         </label>
                         <label>
@@ -320,7 +351,7 @@
                 </div>
 
                 <div class="option-group">
-                    <label>Page Size:</label>
+                    <label>Page Size (Combined Mode Only):</label>
                     <div class="radio-group">
                         <label>
                             <input type="radio" name="pagesize" value="A4" checked>
@@ -329,20 +360,6 @@
                         <label>
                             <input type="radio" name="pagesize" value="Letter">
                             Letter
-                        </label>
-                    </div>
-                </div>
-
-                <div class="option-group">
-                    <label>Output Mode:</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="mode" value="separate" checked>
-                            Separate PDFs
-                        </label>
-                        <label>
-                            <input type="radio" name="mode" value="combined">
-                            Combined PDF
                         </label>
                     </div>
                 </div>

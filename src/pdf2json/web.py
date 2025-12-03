@@ -21,11 +21,12 @@ import random
 from .logging_config import get_logger, log_performance, log_error, setup_logging
 
 APP_ROOT = Path(__file__).parents[2]
-EXAMPLES = APP_ROOT / 'examples'
+DATA_DIR = APP_ROOT / 'data'
+EXAMPLES = DATA_DIR / 'examples'
 INPUT_FILES = EXAMPLES / 'input_files'
 OUTPUT_REPORTS = EXAMPLES / 'output_reports'
-REFERENCE_FILES = APP_ROOT / 'reference_files'
-UPLOADS = APP_ROOT / 'uploads'
+REFERENCE_FILES = DATA_DIR / 'reference'
+UPLOADS = DATA_DIR / 'uploads'
 UPLOADS.mkdir(exist_ok=True)
 
 # Setup structured logging
@@ -351,11 +352,17 @@ def upload():
 def view_json(filepath):
     # Handle different file locations
     if filepath.startswith('input_files/'):
-        json_path = INPUT_FILES / filepath[12:]  # Remove 'input_files/' prefix
-    elif filepath.startswith('output_reports/'):
-        json_path = OUTPUT_REPORTS / filepath[15:]  # Remove 'output_reports/' prefix
-    elif filepath.startswith('reference_files/'):
+        json_path = INPUT_FILES / filepath[29:]  # Remove 'data/examples/input_files/' prefix
+    elif filepath.startswith('data/examples/output_reports/'):
+        json_path = OUTPUT_REPORTS / filepath[30:]  # Remove 'data/examples/output_reports/' prefix
+    elif filepath.startswith('data/reference/'):
+        json_path = DATA_DIR / 'reference' / filepath[15:]  # Remove 'data/reference/' prefix
+    elif filepath.startswith('reference_files/'):  # Legacy support
         json_path = REFERENCE_FILES / filepath[16:]  # Remove 'reference_files/' prefix
+    elif filepath.startswith('input_files/'):  # Legacy support
+        json_path = INPUT_FILES / filepath[12:]  # Remove 'input_files/' prefix
+    elif filepath.startswith('output_reports/'):  # Legacy support
+        json_path = OUTPUT_REPORTS / filepath[15:]  # Remove 'output_reports/' prefix
     else:
         json_path = EXAMPLES / filepath  # Legacy location
     
@@ -408,11 +415,11 @@ def search():
         
         results = []
         
-        # Search in all directories
+        # Search in all directories - updated to new structure
         search_locations = [
-            (INPUT_FILES, 'input_files/'),
-            (OUTPUT_REPORTS, 'output_reports/'),
-            (REFERENCE_FILES, 'reference_files/')
+            (INPUT_FILES, 'data/examples/input_files/'),
+            (OUTPUT_REPORTS, 'data/examples/output_reports/'),
+            (REFERENCE_FILES / 'civil', 'data/reference/civil/'),
         ]
         
         for location_path, url_prefix in search_locations:
@@ -530,10 +537,12 @@ def get_reference_files():
     files = []
     reference_dir = REFERENCE_FILES
     if reference_dir.exists():
-        for json_file in sorted(reference_dir.glob('*.json')):
+        # Get files from all subdirectories (civil, electrical, etc.)
+        for json_file in sorted(reference_dir.rglob('*.json')):
+            relative_path = json_file.relative_to(DATA_DIR)
             files.append({
                 'name': json_file.name,
-                'path': f'reference_files/{json_file.name}'
+                'path': str(relative_path).replace('\\', '/')  # Ensure forward slashes
             })
     return files
 
@@ -699,16 +708,18 @@ def convert_excel_to_pdf():
         temp_excel = UPLOADS / filename
         file.save(temp_excel)
         
-        # Import converter
+        # Import native converter (tries LibreOffice first, falls back to custom renderer)
         sys.path.insert(0, str(APP_ROOT / 'scripts'))
-        from excel_to_pdf import ExcelToPDFConverter
-        from reportlab.lib.pagesizes import A4, letter
-        
-        converter = ExcelToPDFConverter(temp_excel)
-        page_size_obj = letter if page_size == 'Letter' else A4
+        from excel_to_pdf_native import convert_excel_to_pdf
         
         if mode == 'combined':
-            # Single PDF with all sheets
+            # Single PDF with all sheets - native method converts all sheets
+            # For combined mode, we need to use the custom renderer or convert separately and merge
+            from excel_to_pdf import ExcelToPDFConverter
+            from reportlab.lib.pagesizes import A4, letter
+            
+            converter = ExcelToPDFConverter(temp_excel)
+            page_size_obj = letter if page_size == 'Letter' else A4
             output_pdf = UPLOADS / 'combined.pdf'
             converter.convert_multiple_sheets(sheets, output_pdf, page_size_obj, orientation)
             converter.close()
@@ -717,7 +728,7 @@ def convert_excel_to_pdf():
             return send_file(output_pdf, as_attachment=True, download_name='converted.pdf')
         
         else:
-            # Separate PDFs in ZIP
+            # Separate PDFs using native converter (much better quality)
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for sheet_name in sheets:
@@ -725,11 +736,26 @@ def convert_excel_to_pdf():
                                       for c in sheet_name)
                     output_pdf = UPLOADS / f"{safe_name}.pdf"
                     
-                    converter.convert_sheet_to_pdf(sheet_name, output_pdf, page_size_obj, orientation)
-                    zip_file.write(output_pdf, f"{safe_name}.pdf")
-                    output_pdf.unlink()
+                    # Use native conversion for best quality
+                    success = convert_excel_to_pdf(temp_excel, output_pdf, sheet_name, method='auto')
+                    
+                    if success and output_pdf.exists():
+                        zip_file.write(output_pdf, f"{safe_name}.pdf")
+                        output_pdf.unlink()
+                    else:
+                        # Fallback to custom renderer if native fails
+                        from excel_to_pdf import ExcelToPDFConverter
+                        from reportlab.lib.pagesizes import A4, letter
+                        
+                        converter = ExcelToPDFConverter(temp_excel)
+                        page_size_obj = letter if page_size == 'Letter' else A4
+                        converter.convert_sheet_to_pdf(sheet_name, output_pdf, page_size_obj, orientation)
+                        converter.close()
+                        
+                        if output_pdf.exists():
+                            zip_file.write(output_pdf, f"{safe_name}.pdf")
+                            output_pdf.unlink()
             
-            converter.close()
             temp_excel.unlink()
             
             zip_buffer.seek(0)
