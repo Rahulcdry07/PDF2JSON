@@ -18,6 +18,7 @@ import zipfile
 import io
 import time
 import random
+from .logging_config import get_logger, log_performance, log_error, setup_logging
 
 APP_ROOT = Path(__file__).parents[2]
 EXAMPLES = APP_ROOT / 'examples'
@@ -26,6 +27,12 @@ OUTPUT_REPORTS = EXAMPLES / 'output_reports'
 REFERENCE_FILES = APP_ROOT / 'reference_files'
 UPLOADS = APP_ROOT / 'uploads'
 UPLOADS.mkdir(exist_ok=True)
+
+# Setup structured logging
+log_format = os.getenv('LOG_FORMAT', 'human')  # 'json' for production
+log_level = os.getenv('LOG_LEVEL', 'INFO')
+setup_logging(log_level=log_level, log_format=log_format, service_name="pdf2json-web")
+logger = get_logger(__name__, component="web_interface")
 
 app = Flask(__name__, template_folder=str(APP_ROOT / 'templates'))
 app.secret_key = 'dev-secret'
@@ -163,6 +170,17 @@ analytics_tracker = AnalyticsTracker()
 @app.before_request
 def before_request():
     g.start_time = time.time()
+    g.request_id = f"{int(time.time() * 1000)}-{random.randint(1000, 9999)}"
+    
+    logger.debug(
+        f"Request started: {request.method} {request.path}",
+        extra={
+            "request_id": g.request_id,
+            "method": request.method,
+            "path": request.path,
+            "remote_addr": request.remote_addr
+        }
+    )
 
 @app.after_request
 def after_request(response):
@@ -174,6 +192,30 @@ def after_request(response):
             status_code=response.status_code,
             response_time=response_time
         )
+        
+        # Structured logging for request completion
+        if response.status_code >= 400:
+            logger.warning(
+                f"Request completed with error: {request.method} {request.path}",
+                extra={
+                    "request_id": g.request_id,
+                    "method": request.method,
+                    "path": request.path,
+                    "status_code": response.status_code,
+                    "duration_ms": round(response_time, 2)
+                }
+            )
+        else:
+            logger.info(
+                f"Request completed: {request.method} {request.path}",
+                extra={
+                    "request_id": g.request_id,
+                    "method": request.method,
+                    "path": request.path,
+                    "status_code": response.status_code,
+                    "duration_ms": round(response_time, 2)
+                }
+            )
     return response
 
 # Add markdown filter

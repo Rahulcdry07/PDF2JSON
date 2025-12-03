@@ -18,6 +18,16 @@ from .helpers import (
     get_version_info
 )
 
+# Logging utilities
+from .logging_config import (
+    setup_logging,
+    get_logger,
+    log_performance,
+    log_error,
+    StructuredFormatter,
+    HumanReadableFormatter
+)
+
 # Import utility functions from scripts
 import sys
 from pathlib import Path
@@ -101,6 +111,13 @@ __all__ = [
     "batch_convert_pdfs",
     "validate_dsr_database",
     "get_version_info",
+    # Logging utilities
+    "setup_logging",
+    "get_logger",
+    "log_performance",
+    "log_error",
+    "StructuredFormatter",
+    "HumanReadableFormatter",
     # DSR Matching
     "load_input_file",
     "load_dsr_database",

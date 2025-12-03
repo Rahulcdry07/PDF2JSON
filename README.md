@@ -1,5 +1,12 @@
 # PDF2JSON - PDF Conversion & DSR Rate Matching System
 
+[![CI/CD Pipeline](https://github.com/Rahulcdry07/PDF2JSON/actions/workflows/ci.yml/badge.svg)](https://github.com/Rahulcdry07/PDF2JSON/actions/workflows/ci.yml)
+[![Python Versions](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://img.shields.io/badge/tests-78%20passing-brightgreen)](https://github.com/Rahulcdry07/PDF2JSON/tree/main/tests)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Rahulcdry07/PDF2JSON/blob/main/docs/CONTRIBUTING.md)
+
 A comprehensive Python application that converts PDF files to JSON format and provides advanced DSR (Detailed Schedule of Rates) rate matching capabilities for construction project cost estimation.
 
 ## 🏗️ Features
