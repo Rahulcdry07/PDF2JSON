@@ -66,7 +66,9 @@ def load_dsr_database(db_path: Path) -> sqlite3.Connection:
     logger.info(f"Loading DSR database from {db_path}")
     if not db_path.exists():
         logger.error(f"Database not found: {db_path}")
-        raise FileNotFoundError(f"DSR database not found: {db_path}\nRun create_alternative_formats.py first.")
+        raise FileNotFoundError(
+            f"DSR database not found: {db_path}\nRun create_alternative_formats.py first."
+        )
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -78,7 +80,9 @@ def match_with_database(
     lko_items: List[Dict], db_conn: sqlite3.Connection, similarity_threshold: float = 0.3
 ) -> List[Dict]:
     """Match items using SQLite database for fast lookups."""
-    logger.info(f"Matching {len(lko_items)} items with DSR database (threshold={similarity_threshold})")
+    logger.info(
+        f"Matching {len(lko_items)} items with DSR database (threshold={similarity_threshold})"
+    )
     cursor = db_conn.cursor()
     matched_items = []
 
@@ -111,9 +115,13 @@ def match_with_database(
             # Show if multiple entries exist
             duplicate_info = f" ({len(results)} entries)" if len(results) > 1 else ""
 
-            print(f"  DSR {clean_code} - Database match{duplicate_info}, similarity: {similarity:.3f}")
+            print(
+                f"  DSR {clean_code} - Database match{duplicate_info}, similarity: {similarity:.3f}"
+            )
             print(f"    Input: {item['description'][:60]}...")
-            print(f"    Match: {result['description'][:60]}... (Vol: {result['volume']}, Rate: ₹{result['rate']})")
+            print(
+                f"    Match: {result['description'][:60]}... (Vol: {result['volume']}, Rate: ₹{result['rate']})"
+            )
 
             if similarity >= similarity_threshold:
                 # Good match
@@ -126,7 +134,9 @@ def match_with_database(
                 item["similarity_score"] = similarity
             else:
                 # Code found but low similarity
-                print(f"  ⚠️  DSR {clean_code} found but similarity {similarity:.3f} below threshold")
+                print(
+                    f"  ⚠️  DSR {clean_code} found but similarity {similarity:.3f} below threshold"
+                )
                 item["rate"] = result["rate"]
                 item["dsr_description"] = result["description"]
                 item["dsr_unit"] = result["unit"]
@@ -157,7 +167,12 @@ def match_with_database(
     return matched_items
 
 
-def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None, similarity_threshold: float = 0.3):
+def main(
+    input_file: Path = None,
+    db_path: Path = None,
+    output_dir: Path = None,
+    similarity_threshold: float = 0.3,
+):
     """Main function to match DSR codes with database rates."""
     # Use defaults if not provided
     # All paths are now required via CLI arguments
@@ -191,7 +206,9 @@ def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None,
 
     # Match items using database
     print("Matching items with DSR database...")
-    matched_items = match_with_database(lko_items, db_conn, similarity_threshold=similarity_threshold)
+    matched_items = match_with_database(
+        lko_items, db_conn, similarity_threshold=similarity_threshold
+    )
 
     db_conn.close()
 
@@ -201,9 +218,15 @@ def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None,
         "source_files": {"items": str(input_file), "rates_database": str(db_path)},
         "summary": {
             "total_items": len(matched_items),
-            "exact_matches": len([i for i in matched_items if i.get("match_type") == "exact_with_description_match"]),
+            "exact_matches": len(
+                [i for i in matched_items if i.get("match_type") == "exact_with_description_match"]
+            ),
             "code_match_description_mismatch": len(
-                [i for i in matched_items if i.get("match_type") == "code_match_but_description_mismatch"]
+                [
+                    i
+                    for i in matched_items
+                    if i.get("match_type") == "code_match_but_description_mismatch"
+                ]
             ),
             "not_found": len([i for i in matched_items if i.get("match_type") == "not_found"]),
             "total_estimated_amount": sum([i["amount"] for i in matched_items if i.get("amount")]),
@@ -220,7 +243,9 @@ def main(input_file: Path = None, db_path: Path = None, output_dir: Path = None,
     print("\n=== MATCHING SUMMARY ===")
     print(f"Total items: {output['summary']['total_items']}")
     print(f"Exact matches (code + description): {output['summary']['exact_matches']}")
-    print(f"Code matched but description mismatch: {output['summary']['code_match_description_mismatch']}")
+    print(
+        f"Code matched but description mismatch: {output['summary']['code_match_description_mismatch']}"
+    )
     print(f"Not found: {output['summary']['not_found']}")
     if output["summary"]["total_estimated_amount"]:
         print(f"Total estimated amount: ₹{output['summary']['total_estimated_amount']:,.2f}")
@@ -254,14 +279,24 @@ Examples:
         """,
     )
 
-    parser.add_argument("-i", "--input", type=str, required=True, help="Path to input JSON file with DSR items")
-
-    parser.add_argument("-d", "--database", type=str, required=True, help="Path to SQLite DSR database")
-
-    parser.add_argument("-o", "--output", type=str, required=True, help="Output directory for results")
+    parser.add_argument(
+        "-i", "--input", type=str, required=True, help="Path to input JSON file with DSR items"
+    )
 
     parser.add_argument(
-        "-t", "--threshold", type=float, default=0.3, help="Similarity threshold for matching (default: 0.3)"
+        "-d", "--database", type=str, required=True, help="Path to SQLite DSR database"
+    )
+
+    parser.add_argument(
+        "-o", "--output", type=str, required=True, help="Output directory for results"
+    )
+
+    parser.add_argument(
+        "-t",
+        "--threshold",
+        type=float,
+        default=0.3,
+        help="Similarity threshold for matching (default: 0.3)",
     )
 
     return parser.parse_args()

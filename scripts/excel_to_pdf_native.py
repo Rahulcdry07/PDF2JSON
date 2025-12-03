@@ -54,7 +54,9 @@ def check_libreoffice() -> Optional[str]:
     return None
 
 
-def convert_with_libreoffice(input_path: Path, output_path: Path, sheet_name: Optional[str] = None) -> bool:
+def convert_with_libreoffice(
+    input_path: Path, output_path: Path, sheet_name: Optional[str] = None
+) -> bool:
     """
     Convert Excel to PDF using LibreOffice headless mode.
 
@@ -76,7 +78,15 @@ def convert_with_libreoffice(input_path: Path, output_path: Path, sheet_name: Op
         output_dir = output_path.parent
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        cmd = [soffice, "--headless", "--convert-to", "pdf", "--outdir", str(output_dir), str(input_path)]
+        cmd = [
+            soffice,
+            "--headless",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            str(output_dir),
+            str(input_path),
+        ]
 
         logger.info(f"Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
@@ -111,7 +121,9 @@ def convert_with_libreoffice(input_path: Path, output_path: Path, sheet_name: Op
         return False
 
 
-def convert_with_excel_macos(input_path: Path, output_path: Path, sheet_name: Optional[str] = None) -> bool:
+def convert_with_excel_macos(
+    input_path: Path, output_path: Path, sheet_name: Optional[str] = None
+) -> bool:
     """
     Convert Excel to PDF using Excel on macOS (via AppleScript).
 
@@ -140,7 +152,9 @@ def convert_with_excel_macos(input_path: Path, output_path: Path, sheet_name: Op
         """
 
         logger.info("Using Excel for macOS to convert")
-        result = subprocess.run(["osascript", "-e", applescript], capture_output=True, text=True, timeout=60)
+        result = subprocess.run(
+            ["osascript", "-e", applescript], capture_output=True, text=True, timeout=60
+        )
 
         if result.returncode == 0 and output_path.exists():
             logger.info(f"Successfully converted with Excel: {output_path}")
@@ -195,7 +209,9 @@ def extract_sheet_to_temp_file(workbook_path: Path, sheet_name: str) -> Optional
 
         # Copy column widths
         for col_letter in source_sheet.column_dimensions:
-            target_sheet.column_dimensions[col_letter].width = source_sheet.column_dimensions[col_letter].width
+            target_sheet.column_dimensions[col_letter].width = source_sheet.column_dimensions[
+                col_letter
+            ].width
 
         # Save to temp file
         temp_file = workbook_path.parent / f"_temp_{sheet_name.replace(' ', '_')}.xlsx"
@@ -322,7 +338,12 @@ Requirements:
     parser.add_argument("output", type=Path, nargs="?", help="Output PDF file or directory")
     parser.add_argument("--sheet", type=str, help="Sheet name to convert")
     parser.add_argument("--all-sheets", action="store_true", help="Convert all sheets separately")
-    parser.add_argument("--method", choices=["auto", "libreoffice", "excel"], default="auto", help="Conversion method")
+    parser.add_argument(
+        "--method",
+        choices=["auto", "libreoffice", "excel"],
+        default="auto",
+        help="Conversion method",
+    )
     parser.add_argument("--list", action="store_true", help="List sheets and exit")
 
     args = parser.parse_args()
@@ -353,7 +374,9 @@ Requirements:
         # Convert all sheets
         if args.all_sheets:
             wb = openpyxl.load_workbook(args.input)
-            output_dir = args.output if not args.output.suffix else args.output.parent / args.output.stem
+            output_dir = (
+                args.output if not args.output.suffix else args.output.parent / args.output.stem
+            )
             output_dir.mkdir(parents=True, exist_ok=True)
 
             print(f"\n📊 Converting all sheets from {args.input.name}")
@@ -361,7 +384,9 @@ Requirements:
 
             success_count = 0
             for sheet_name in wb.sheetnames:
-                safe_name = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in sheet_name)
+                safe_name = "".join(
+                    c if c.isalnum() or c in (" ", "-", "_") else "_" for c in sheet_name
+                )
                 output_path = output_dir / f"{safe_name}.pdf"
 
                 if convert_excel_to_pdf(args.input, output_path, sheet_name, args.method):

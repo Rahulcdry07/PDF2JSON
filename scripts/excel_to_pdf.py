@@ -141,7 +141,11 @@ class ExcelToPDFConverter:
 
         # Add title
         title_style = ParagraphStyle(
-            "CustomTitle", parent=styles["Heading1"], fontSize=14, textColor=colors.HexColor("#667eea"), spaceAfter=8
+            "CustomTitle",
+            parent=styles["Heading1"],
+            fontSize=14,
+            textColor=colors.HexColor("#667eea"),
+            spaceAfter=8,
         )
         story.append(Paragraph(f"<b>{sheet_name}</b>", title_style))
         story.append(Spacer(1, 0.15 * inch))
@@ -186,7 +190,9 @@ class ExcelToPDFConverter:
             logger.debug(f"Scaled columns by {scale:.2f} to fit page width")
         elif total_width > page_width:
             # Table too wide - will span multiple pages horizontally
-            logger.info(f"Table width ({total_width:.0f}pt) exceeds page ({page_width:.0f}pt) - will span pages")
+            logger.info(
+                f"Table width ({total_width:.0f}pt) exceeds page ({page_width:.0f}pt) - will span pages"
+            )
             print("📄 Table spans multiple pages for better readability")
 
         # Use larger, more readable font sizes
@@ -231,7 +237,10 @@ class ExcelToPDFConverter:
                 ("TOPPADDING", (0, 1), (-1, -1), padding + 1),
                 ("BOTTOMPADDING", (0, 1), (-1, -1), padding + 1),
                 # Alternating row colors for readability
-                *[("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f7f7f7")) for i in range(2, len(data), 2)],
+                *[
+                    ("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f7f7f7"))
+                    for i in range(2, len(data), 2)
+                ],
             ]
         )
 
@@ -251,7 +260,9 @@ class ExcelToPDFConverter:
         )
         print(f"✓ Converted sheet '{sheet_name}' to {output_path}")
 
-    def convert_all_sheets(self, output_dir: Path, page_size: tuple = A4, orientation: str = "portrait") -> List[Path]:
+    def convert_all_sheets(
+        self, output_dir: Path, page_size: tuple = A4, orientation: str = "portrait"
+    ) -> List[Path]:
         """
         Convert all sheets to separate PDF files.
 
@@ -269,7 +280,9 @@ class ExcelToPDFConverter:
         logger.info(f"Converting all sheets ({len(self.list_sheets())}) to separate PDFs")
 
         for sheet_name in self.list_sheets():
-            safe_name = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in sheet_name)
+            safe_name = "".join(
+                c if c.isalnum() or c in (" ", "-", "_") else "_" for c in sheet_name
+            )
             output_path = output_dir / f"{safe_name}.pdf"
 
             try:
@@ -281,7 +294,11 @@ class ExcelToPDFConverter:
         return created_files
 
     def convert_multiple_sheets(
-        self, sheet_names: List[str], output_path: Path, page_size: tuple = A4, orientation: str = "portrait"
+        self,
+        sheet_names: List[str],
+        output_path: Path,
+        page_size: tuple = A4,
+        orientation: str = "portrait",
     ) -> None:
         """
         Convert multiple sheets to a single PDF.
@@ -354,7 +371,10 @@ class ExcelToPDFConverter:
                         ("RIGHTPADDING", (0, 0), (-1, -1), 6),
                         ("TOPPADDING", (0, 1), (-1, -1), 6),
                         ("BOTTOMPADDING", (0, 1), (-1, -1), 6),
-                        *[("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f9f9f9")) for i in range(2, len(data), 2)],
+                        *[
+                            ("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f9f9f9"))
+                            for i in range(2, len(data), 2)
+                        ],
                     ]
                 )
 

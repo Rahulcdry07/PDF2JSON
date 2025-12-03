@@ -15,7 +15,7 @@ from .helpers import (
     quick_match,
     batch_convert_pdfs,
     validate_dsr_database,
-    get_version_info
+    get_version_info,
 )
 
 # Logging utilities
@@ -25,7 +25,7 @@ from .logging_config import (
     log_performance,
     log_error,
     StructuredFormatter,
-    HumanReadableFormatter
+    HumanReadableFormatter,
 )
 
 # Import utility functions from scripts
@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 # Add scripts directory to path for imports
-_scripts_dir = Path(__file__).parents[2] / 'scripts'
+_scripts_dir = Path(__file__).parents[2] / "scripts"
 if str(_scripts_dir) not in sys.path:
     sys.path.insert(0, str(_scripts_dir))
 
@@ -42,15 +42,11 @@ try:
     from scripts.match_dsr_rates_sqlite import (
         load_input_file,
         load_dsr_database,
-        match_with_database
+        match_with_database,
     )
 except ImportError:
     # Fallback if scripts not in path
-    from match_dsr_rates_sqlite import (
-        load_input_file,
-        load_dsr_database,
-        match_with_database
-    )
+    from match_dsr_rates_sqlite import load_input_file, load_dsr_database, match_with_database
 
 # DSR Extraction functions
 try:
@@ -85,7 +81,7 @@ try:
         update_description,
         add_new_code,
         view_code,
-        show_version_history
+        show_version_history,
     )
 except ImportError:
     from update_dsr_database import (
@@ -93,7 +89,7 @@ except ImportError:
         update_description,
         add_new_code,
         view_code,
-        show_version_history
+        show_version_history,
     )
 
 __all__ = [

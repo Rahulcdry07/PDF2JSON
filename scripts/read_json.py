@@ -21,16 +21,16 @@ import click
 
 def load_json(json_path: Path) -> Dict:
     """Load JSON data from file."""
-    with json_path.open('r', encoding='utf-8') as f:
+    with json_path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def get_all_text_blocks(data: Dict) -> List[str]:
     """Extract all text blocks from the JSON data."""
     texts = []
-    for page in data.get('document', {}).get('pages_data', []):
-        for block in page.get('blocks', []):
-            lines = block.get('lines', [])
+    for page in data.get("document", {}).get("pages_data", []):
+        for block in page.get("blocks", []):
+            lines = block.get("lines", [])
             for line in lines:
                 text = line.strip()
                 if text:
@@ -39,9 +39,15 @@ def get_all_text_blocks(data: Dict) -> List[str]:
 
 
 @click.command()
-@click.option('--json', 'json_path', type=click.Path(exists=True, path_type=Path), required=True, help='Path to the JSON file')
-@click.option('--print-text', is_flag=True, help='Print all text blocks')
-@click.option('--search', 'search_term', help='Search for text/regex in blocks')
+@click.option(
+    "--json",
+    "json_path",
+    type=click.Path(exists=True, path_type=Path),
+    required=True,
+    help="Path to the JSON file",
+)
+@click.option("--print-text", is_flag=True, help="Print all text blocks")
+@click.option("--search", "search_term", help="Search for text/regex in blocks")
 def main(json_path: Path, print_text: bool, search_term: str):
     data = load_json(json_path)
     texts = get_all_text_blocks(data)
@@ -61,5 +67,5 @@ def main(json_path: Path, print_text: bool, search_term: str):
         print("Use --print-text or --search option.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
