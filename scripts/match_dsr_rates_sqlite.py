@@ -186,7 +186,9 @@ def main(
         print("This is a one-time setup.\n")
         import subprocess
 
-        subprocess.run(["python3", "create_alternative_formats.py"], cwd=Path(__file__).parent, check=False)
+        subprocess.run(
+            ["python3", "create_alternative_formats.py"], cwd=Path(__file__).parent, check=False
+        )
         print()
 
     # Load input file (structured or unstructured)

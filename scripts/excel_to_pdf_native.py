@@ -88,7 +88,7 @@ def convert_with_libreoffice(
             str(input_path),
         ]
 
-        logger.info("Running: %s", ' '.join(cmd))
+        logger.info("Running: %s", " ".join(cmd))
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
 
         if not result.returncode:
@@ -153,7 +153,11 @@ def convert_with_excel_macos(
 
         logger.info("Using Excel for macOS to convert")
         result = subprocess.run(
-            ["osascript", "-e", applescript], capture_output=True, text=True, timeout=60, check=False
+            ["osascript", "-e", applescript],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
         )
 
         if not result.returncode and output_path.exists():

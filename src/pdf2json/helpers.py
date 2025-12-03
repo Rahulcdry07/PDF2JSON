@@ -222,7 +222,11 @@ def quick_match(
         sys.path.insert(0, str(_scripts_dir))
 
     try:
-        from scripts.match_dsr_rates_sqlite import load_input_file, load_dsr_database, match_with_database
+        from scripts.match_dsr_rates_sqlite import (
+            load_input_file,
+            load_dsr_database,
+            match_with_database,
+        )
     except ImportError:
         from match_dsr_rates_sqlite import load_input_file, load_dsr_database, match_with_database
 
@@ -377,6 +381,7 @@ def get_version_info() -> Dict:
 
     # Import version directly to avoid cyclic import at module level
     import importlib.metadata
+
     try:
         __version__ = importlib.metadata.version("pdf2json")
     except Exception:

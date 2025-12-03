@@ -45,10 +45,10 @@ def sample_excel(tmp_path):
 def test_native_converter_basic(sample_excel, tmp_path):
     """Test basic native converter functionality."""
     output_pdf = tmp_path / "output.pdf"
-    
+
     # Test conversion
     success = convert_excel_to_pdf(sample_excel, output_pdf)
-    
+
     # Should succeed or fail gracefully (depends on system tools availability)
     assert isinstance(success, bool)
     if success:
@@ -58,9 +58,9 @@ def test_native_converter_basic(sample_excel, tmp_path):
 def test_native_converter_with_sheet(sample_excel, tmp_path):
     """Test native converter with specific sheet."""
     output_pdf = tmp_path / "sheet1.pdf"
-    
+
     success = convert_excel_to_pdf(sample_excel, output_pdf, "Sheet1")
-    
+
     assert isinstance(success, bool)
     if success:
         assert output_pdf.exists()
@@ -70,7 +70,7 @@ def test_native_converter_nonexistent_file(tmp_path):
     """Test native converter with nonexistent file."""
     nonexistent = tmp_path / "nonexistent.xlsx"
     output_pdf = tmp_path / "output.pdf"
-    
+
     success = convert_excel_to_pdf(nonexistent, output_pdf)
     assert success is False
     assert not output_pdf.exists()

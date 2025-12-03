@@ -67,8 +67,17 @@ def _is_valid_unit(unit_text: str) -> bool:
     """Check if text is a valid unit."""
     unit_lower = unit_text.lower()
     return unit_lower in [
-        "cum", "sqm", "nos", "each", "kg", "mtr", "ltr",
-        "metre", "quintal", "sq.m", "cu.m",
+        "cum",
+        "sqm",
+        "nos",
+        "each",
+        "kg",
+        "mtr",
+        "ltr",
+        "metre",
+        "quintal",
+        "sq.m",
+        "cu.m",
     ]
 
 
@@ -148,8 +157,21 @@ def _should_skip_line(search_text: str) -> bool:
     """Check if line should be skipped in description extraction."""
     # Skip headers and unit lines
     if search_text.lower() in [
-        "code", "description", "unit", "rate", "amount", "details",
-        "cum", "sqm", "nos", "each", "kg", "mtr", "ltr", "metre", "quintal",
+        "code",
+        "description",
+        "unit",
+        "rate",
+        "amount",
+        "details",
+        "cum",
+        "sqm",
+        "nos",
+        "each",
+        "kg",
+        "mtr",
+        "ltr",
+        "metre",
+        "quintal",
     ]:
         return True
 
@@ -163,9 +185,18 @@ def _should_skip_line(search_text: str) -> bool:
 def _should_stop_extraction(search_text: str) -> bool:
     """Check if we should stop description extraction at this line."""
     # Stop at calculation sections
-    if any(kw in search_text.lower() for kw in [
-        "add ", "total", "cost for", "say", "material", "labour", "details of cost",
-    ]):
+    if any(
+        kw in search_text.lower()
+        for kw in [
+            "add ",
+            "total",
+            "cost for",
+            "say",
+            "material",
+            "labour",
+            "details of cost",
+        ]
+    ):
         return True
 
     # Stop if we hit another DSR code
@@ -192,7 +223,7 @@ def _extract_description_lines(
     desc_lines = []
 
     # Check if description is on the same line after the code
-    remaining_text = line_text[len(dsr_code):].strip()
+    remaining_text = line_text[len(dsr_code) :].strip()
     if len(remaining_text) > 10 and not re.match(r"^[\d\s,.₹`%]+$", remaining_text):
         desc_lines.append(remaining_text)
 
@@ -280,8 +311,19 @@ def _extract_unit_from_lines(lines: List, line_idx: int) -> str:
         )
 
         if search_text.lower() in [
-            "cum", "sqm", "nos", "each", "kg", "mtr", "ltr",
-            "cu.m", "sq.m", "metre", "quintal", "sqm.", "cum.",
+            "cum",
+            "sqm",
+            "nos",
+            "each",
+            "kg",
+            "mtr",
+            "ltr",
+            "cu.m",
+            "sq.m",
+            "metre",
+            "quintal",
+            "sqm.",
+            "cum.",
         ]:
             unit = search_text.lower().rstrip(".")
             break
@@ -358,9 +400,7 @@ def _find_cost_per_rate_in_lines(lines: List, search_idx: int) -> Optional[float
     for rate_idx in range(search_idx + 1, min(search_idx + 4, len(lines))):
         next_line = lines[rate_idx]
         next_text = (
-            next_line.strip()
-            if isinstance(next_line, str)
-            else next_line.get("text", "").strip()
+            next_line.strip() if isinstance(next_line, str) else next_line.get("text", "").strip()
         )
         rate = _try_parse_rate_from_text(next_text)
         if rate:
@@ -409,7 +449,7 @@ def _extract_rate_from_block(
     blocks: List[Dict],
     block_idx: int,
     pages_data: List,
-    page_idx: int
+    page_idx: int,
 ) -> Optional[float]:
     """Extract rate value prioritizing 'Say' values.
 
