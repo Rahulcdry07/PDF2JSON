@@ -26,7 +26,7 @@ INPUT_FILES = EXAMPLES / "input_files"
 OUTPUT_REPORTS = EXAMPLES / "output_reports"
 REFERENCE_FILES = DATA_DIR / "reference"
 UPLOADS = DATA_DIR / "uploads"
-UPLOADS.mkdir(exist_ok=True)
+UPLOADS.mkdir(parents=True, exist_ok=True)
 
 # Setup structured logging
 log_format = os.getenv("LOG_FORMAT", "human")  # 'json' for production
