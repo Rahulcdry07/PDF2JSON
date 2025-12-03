@@ -36,7 +36,7 @@ class DSRMatcherHelper:
             raise FileNotFoundError(f"Database not found: {db_path}")
 
         self.conn = sqlite3.connect(str(self.db_path))
-        logger.info(f"Connected to DSR database: {self.db_path.name}")
+        logger.info("Connected to DSR database: %s", self.db_path.name)
 
     def match_items(self, items: List[Dict], similarity_threshold: float = 0.3) -> List[Dict]:
         """Match construction items with DSR rates.
@@ -48,7 +48,18 @@ class DSRMatcherHelper:
         Returns:
             List of matched results with rates and costs
         """
-        from pdf2json import match_with_database
+        # Import directly from script to avoid cyclic import
+        import sys
+        from pathlib import Path as _Path
+
+        _scripts_dir = _Path(__file__).parents[2] / "scripts"
+        if str(_scripts_dir) not in sys.path:
+            sys.path.insert(0, str(_scripts_dir))
+
+        try:
+            from scripts.match_dsr_rates_sqlite import match_with_database
+        except ImportError:
+            from match_dsr_rates_sqlite import match_with_database
 
         # Ensure items have required fields
         formatted_items = []
@@ -139,7 +150,7 @@ class DSRMatcherHelper:
         """Close database connection."""
         if self.conn:
             self.conn.close()
-            logger.debug(f"Closed database connection: {self.db_path.name}")
+            logger.debug("Closed database connection: %s", self.db_path.name)
 
     def __enter__(self):
         """Context manager entry."""
@@ -167,7 +178,7 @@ def quick_convert(
         >>> data = quick_convert("document.pdf", extract_tables=True)
         >>> print(f"Converted {data['document']['pages']} pages")
     """
-    from pdf2json import PDFToXMLConverter
+    from pdf2json.converter import PDFToXMLConverter
 
     pdf_path = Path(pdf_path)
     if output_path is None:
@@ -177,7 +188,7 @@ def quick_convert(
         data = converter.convert(**kwargs)
         converter.save_json(output_path, **kwargs)
 
-    logger.info(f"Converted: {pdf_path.name} → {output_path}")
+    logger.info("Converted: %s → {output_path}", pdf_path.name)
     return data
 
 
@@ -202,7 +213,18 @@ def quick_match(
         ... ])
         >>> total = sum(r['total_cost'] for r in results)
     """
-    from pdf2json import load_input_file, load_dsr_database, match_with_database
+    # Import directly from scripts to avoid cyclic import
+    import sys
+    from pathlib import Path as _Path
+
+    _scripts_dir = _Path(__file__).parents[2] / "scripts"
+    if str(_scripts_dir) not in sys.path:
+        sys.path.insert(0, str(_scripts_dir))
+
+    try:
+        from scripts.match_dsr_rates_sqlite import load_input_file, load_dsr_database, match_with_database
+    except ImportError:
+        from match_dsr_rates_sqlite import load_input_file, load_dsr_database, match_with_database
 
     # Load items
     if isinstance(input_items, (str, Path)):
@@ -251,7 +273,7 @@ def batch_convert_pdfs(
         >>> converted = batch_convert_pdfs("pdfs/", "json/", extract_tables=True)
         >>> print(f"Converted {len(converted)} files")
     """
-    from pdf2json import PDFToXMLConverter
+    from pdf2json.converter import PDFToXMLConverter
 
     pdf_dir = Path(pdf_directory)
     out_dir = Path(output_directory) if output_directory else pdf_dir
@@ -263,9 +285,9 @@ def batch_convert_pdfs(
             output_file = out_dir / pdf_file.with_suffix(".json").name
             PDFToXMLConverter.convert_file(pdf_file, output_file, **kwargs)
             converted.append(output_file)
-            logger.info(f"Converted: {pdf_file.name}")
-        except Exception as e:
-            logger.error(f"Failed to convert {pdf_file.name}: {e}")
+            logger.info("Converted: %s", pdf_file.name)
+        except Exception:
+            logger.error("Failed to convert %s: {e}", pdf_file.name)
 
     return converted
 
@@ -343,17 +365,22 @@ def get_version_info() -> Dict:
         import fitz
 
         pymupdf_version = fitz.version[0]
-    except:
+    except Exception:
         pymupdf_version = "unknown"
 
     try:
         import flask
 
         flask_version = flask.__version__
-    except:
+    except Exception:
         flask_version = "not installed"
 
-    from pdf2json import __version__
+    # Import version directly to avoid cyclic import at module level
+    import importlib.metadata
+    try:
+        __version__ = importlib.metadata.version("pdf2json")
+    except Exception:
+        __version__ = "1.0.0"  # fallback
 
     return {
         "pdf2json": __version__,

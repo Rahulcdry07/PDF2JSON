@@ -1,7 +1,9 @@
 """Command-line interface for PDF2JSON."""
 
-import click
 from pathlib import Path
+
+import click
+
 from .converter import PDFToXMLConverter
 
 
@@ -16,7 +18,9 @@ from .converter import PDFToXMLConverter
 @click.option("--include-metadata", is_flag=True, help="Include PDF metadata in XML output")
 @click.option("--extract-tables", is_flag=True, help="Detect and extract tables from PDF")
 @click.option("--no-pretty", is_flag=True, help="Disable pretty-printing of XML")
-def main(pdf_file: str, output: str, include_metadata: bool, extract_tables: bool, no_pretty: bool):
+def main(
+    pdf_file: str, output: str, include_metadata: bool, extract_tables: bool, no_pretty: bool
+):
     """Convert PDF to JSON format."""
     try:
         if not output:
@@ -43,4 +47,4 @@ def main(pdf_file: str, output: str, include_metadata: bool, extract_tables: boo
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=no-value-for-parameter

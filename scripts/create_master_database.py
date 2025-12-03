@@ -4,9 +4,8 @@ Adds category tracking and enhanced search capabilities.
 """
 
 import sqlite3
-import json
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict
 import argparse
 
 
@@ -109,23 +108,23 @@ def create_master_database(category_databases: Dict[str, Path], output_db: Path)
     print(f"{'='*60}")
     print(f"Total Categories: {len(category_counts)}")
     print(f"Total Codes: {total_codes}")
-    print(f"\nBreakdown by Category:")
+    print("\nBreakdown by Category:")
     for category, count in category_counts.items():
         print(f"  • {category.capitalize()}: {count} codes")
     print(f"{'='*60}")
 
     # Verify with sample queries
-    print(f"\n🔍 Sample Queries:")
+    print("\n🔍 Sample Queries:")
 
     # Query 1: Total codes per category
     cursor.execute("SELECT category, COUNT(*) FROM dsr_codes GROUP BY category")
-    print(f"\nCodes per category:")
+    print("\nCodes per category:")
     for row in cursor.fetchall():
         print(f"  {row[0]}: {row[1]}")
 
     # Query 2: Sample codes from each category
     cursor.execute("SELECT category, code, description FROM dsr_codes GROUP BY category LIMIT 3")
-    print(f"\nSample codes:")
+    print("\nSample codes:")
     for row in cursor.fetchall():
         print(f"  [{row[0]}] {row[1]}: {row[2][:50]}...")
 

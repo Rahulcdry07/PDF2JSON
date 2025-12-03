@@ -67,9 +67,9 @@ def setup_script_logging(
     logger.addHandler(file_handler)
 
     # Log startup message
-    logger.debug(f"Logging initialized for {script_name}")
-    logger.debug(f"Log file: {log_file}")
-    logger.debug(f"Log level: {log_level}")
+    logger.debug("Logging initialized for %s", script_name)
+    logger.debug("Log file: %s", log_file)
+    logger.debug("Log level: %s", log_level)
 
     return logger
 
@@ -90,7 +90,7 @@ def log_operation(logger: logging.Logger, operation: str, **kwargs):
         ...              duration_ms=1500)
     """
     context = " | ".join(f"{k}={v}" for k, v in kwargs.items())
-    logger.info(f"{operation} | {context}")
+    logger.info("%s | {context}", operation)
 
 
 def log_progress(logger: logging.Logger, current: int, total: int, item: str = "items"):
@@ -107,7 +107,7 @@ def log_progress(logger: logging.Logger, current: int, total: int, item: str = "
         >>> log_progress(logger, 5, 10, "sheets")
     """
     percentage = (current / total * 100) if total > 0 else 0
-    logger.debug(f"Progress: {current}/{total} {item} ({percentage:.1f}%)")
+    logger.debug("Progress: %s/{total} {item} ({percentage:.1f}%)", current)
 
 
 def log_error_with_context(logger: logging.Logger, error: Exception, context: dict = None):

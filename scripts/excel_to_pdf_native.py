@@ -42,13 +42,13 @@ def check_libreoffice() -> Optional[str]:
 
     for path in possible_paths:
         if Path(path).exists():
-            logger.info(f"Found LibreOffice at: {path}")
+            logger.info("Found LibreOffice at: %s", path)
             return path
 
     # Try to find in PATH
     libreoffice = shutil.which("soffice") or shutil.which("libreoffice")
     if libreoffice:
-        logger.info(f"Found LibreOffice in PATH: {libreoffice}")
+        logger.info("Found LibreOffice in PATH: %s", libreoffice)
         return libreoffice
 
     return None
@@ -88,10 +88,10 @@ def convert_with_libreoffice(
             str(input_path),
         ]
 
-        logger.info(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        logger.info("Running: %s", ' '.join(cmd))
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, check=False)
 
-        if result.returncode == 0:
+        if not result.returncode:
             # LibreOffice creates output with same name as input
             generated_pdf = output_dir / f"{input_path.stem}.pdf"
 
@@ -100,16 +100,16 @@ def convert_with_libreoffice(
                 if generated_pdf != output_path:
                     generated_pdf.rename(output_path)
 
-                logger.info(f"Successfully converted to: {output_path}")
+                logger.info("Successfully converted to: %s", output_path)
                 print(f"✓ Created: {output_path}")
                 return True
             else:
-                logger.error(f"PDF not created: {generated_pdf}")
+                logger.error("PDF not created: %s", generated_pdf)
                 return False
-        else:
-            logger.error(f"LibreOffice error: {result.stderr}")
-            print(f"✗ Error: {result.stderr}", file=sys.stderr)
-            return False
+
+        logger.error("LibreOffice error: %s", result.stderr)
+        print(f"\u2717 Error: {result.stderr}", file=sys.stderr)
+        return False
 
     except subprocess.TimeoutExpired:
         logger.error("LibreOffice conversion timed out")
@@ -153,16 +153,16 @@ def convert_with_excel_macos(
 
         logger.info("Using Excel for macOS to convert")
         result = subprocess.run(
-            ["osascript", "-e", applescript], capture_output=True, text=True, timeout=60
+            ["osascript", "-e", applescript], capture_output=True, text=True, timeout=60, check=False
         )
 
-        if result.returncode == 0 and output_path.exists():
-            logger.info(f"Successfully converted with Excel: {output_path}")
+        if not result.returncode and output_path.exists():
+            logger.info("Successfully converted with Excel: %s", output_path)
             print(f"✓ Created: {output_path}")
             return True
-        else:
-            logger.error(f"Excel conversion failed: {result.stderr}")
-            return False
+
+        logger.error("Excel conversion failed: %s", result.stderr)
+        return False
 
     except Exception as e:
         log_error_with_context(logger, e, {"input": str(input_path)})
@@ -184,7 +184,7 @@ def extract_sheet_to_temp_file(workbook_path: Path, sheet_name: str) -> Optional
         wb = openpyxl.load_workbook(workbook_path)
 
         if sheet_name not in wb.sheetnames:
-            logger.error(f"Sheet '{sheet_name}' not found")
+            logger.error("Sheet '%s' not found", sheet_name)
             return None
 
         # Create new workbook with only the target sheet
@@ -217,7 +217,7 @@ def extract_sheet_to_temp_file(workbook_path: Path, sheet_name: str) -> Optional
         temp_file = workbook_path.parent / f"_temp_{sheet_name.replace(' ', '_')}.xlsx"
         new_wb.save(temp_file)
 
-        logger.debug(f"Created temp file: {temp_file}")
+        logger.debug("Created temp file: %s", temp_file)
         return temp_file
 
     except Exception as e:
@@ -306,7 +306,7 @@ def convert_excel_to_pdf(
         # Clean up temp file
         if temp_file and temp_file.exists():
             temp_file.unlink()
-            logger.debug(f"Cleaned up temp file: {temp_file}")
+            logger.debug("Cleaned up temp file: %s", temp_file)
 
 
 def main():

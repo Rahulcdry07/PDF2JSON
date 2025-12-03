@@ -1,7 +1,6 @@
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, jsonify, g
 import os
-import tempfile
 import re
 from datetime import datetime, timedelta
 from .converter import PDFToXMLConverter
@@ -192,7 +191,9 @@ def before_request():
     g.request_id = f"{int(time.time() * 1000)}-{random.randint(1000, 9999)}"
 
     logger.debug(
-        f"Request started: {request.method} {request.path}",
+        "Request started: %s %s",
+        request.method,
+        request.path,
         extra={
             "request_id": g.request_id,
             "method": request.method,
@@ -216,7 +217,9 @@ def after_request(response):
         # Structured logging for request completion
         if response.status_code >= 400:
             logger.warning(
-                f"Request completed with error: {request.method} {request.path}",
+                "Request completed with error: %s %s",
+                request.method,
+                request.path,
                 extra={
                     "request_id": g.request_id,
                     "method": request.method,
@@ -227,7 +230,9 @@ def after_request(response):
             )
         else:
             logger.info(
-                f"Request completed: {request.method} {request.path}",
+                "Request completed: %s %s",
+                request.method,
+                request.path,
                 extra={
                     "request_id": g.request_id,
                     "method": request.method,
@@ -355,7 +360,7 @@ def upload():
             f.save(dest)
 
             # Check if file was actually saved and has content
-            if not dest.exists() or dest.stat().st_size == 0:
+            if not dest.exists() or not dest.stat().st_size:
                 flash("Failed to save file or file is empty")
                 return redirect(request.url)
 
@@ -495,7 +500,7 @@ def search():
                                 }
                             )
 
-                    except Exception as e:
+                    except Exception:
                         continue  # Skip files that can't be read
 
         return render_template("search_results.html", search_term=search_term, results=results)
@@ -623,9 +628,10 @@ def process_cost_estimation(input_file: str, reference_files: List[str]) -> Dict
             capture_output=True,
             text=True,
             cwd=str(APP_ROOT / "scripts"),
+            check=False,
         )
 
-        if result.returncode != 0:
+        if result.returncode:
             error_msg = result.stderr or result.stdout or "Unknown error"
             return {"success": False, "error": f"Script failed: {error_msg}"}
 

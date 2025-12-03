@@ -5,12 +5,11 @@ Supports single updates, batch updates from CSV, and version tracking.
 """
 
 import sqlite3
-import json
 import csv
 import argparse
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Dict
 
 
 def get_current_version(db_path: Path) -> int:
@@ -98,7 +97,7 @@ def increment_version(db_path: Path, change_log: str) -> int:
 
     try:
         username = getpass.getuser()
-    except:
+    except Exception:
         username = "unknown"
 
     cursor.execute(
@@ -182,14 +181,14 @@ def update_rate(
         print(f"⚠️  Found {len(results)} entries for code {code}:")
         for r in results:
             print(f"   [{r[1]}] {r[0]}: {r[2][:50]}... (Current rate: ₹{r[3]})")
-        print(f"   Please specify --category to update specific entry")
+        print("   Please specify --category to update specific entry")
         conn.close()
         return False
 
     entry = results[0]
     old_rate = entry[3]
 
-    print(f"\n📝 Update Details:")
+    print("\n📝 Update Details:")
     print(f"   Code: {entry[0]} ({entry[1]})")
     print(f"   Description: {entry[2][:60]}...")
     print(f"   Old Rate: ₹{old_rate}")
@@ -197,7 +196,7 @@ def update_rate(
     print(f"   Change: {((new_rate - old_rate) / old_rate * 100):+.2f}%")
 
     if dry_run:
-        print(f"\n🔍 DRY RUN - No changes made")
+        print("\n🔍 DRY RUN - No changes made")
         conn.close()
         return True
 
@@ -217,7 +216,7 @@ def update_rate(
     change_log = f"Updated rate for {code} ({category or 'all'}): ₹{old_rate} → ₹{new_rate}"
     new_version = increment_version(db_path, change_log)
 
-    print(f"✅ Rate updated successfully")
+    print("✅ Rate updated successfully")
     print(f"📌 Database version: v{new_version - 1} → v{new_version}")
 
     return True
@@ -246,20 +245,20 @@ def update_description(
         return False
 
     if len(results) > 1 and not category:
-        print(f"⚠️  Multiple entries found. Please specify --category")
+        print("⚠️  Multiple entries found. Please specify --category")
         conn.close()
         return False
 
     entry = results[0]
     old_description = entry[2]
 
-    print(f"\n📝 Update Description:")
+    print("\n📝 Update Description:")
     print(f"   Code: {entry[0]} ({entry[1]})")
     print(f"   Old: {old_description}")
     print(f"   New: {new_description}")
 
     if dry_run:
-        print(f"\n🔍 DRY RUN - No changes made")
+        print("\n🔍 DRY RUN - No changes made")
         conn.close()
         return True
 
@@ -280,7 +279,7 @@ def update_description(
     change_log = f"Updated description for {code} ({category or 'all'})"
     new_version = increment_version(db_path, change_log)
 
-    print(f"✅ Description updated successfully")
+    print("✅ Description updated successfully")
     print(f"📌 Database version: v{new_version - 1} → v{new_version}")
 
     return True
@@ -307,7 +306,7 @@ def batch_update_from_csv(db_path: Path, csv_file: Path, dry_run: bool = False):
     print(f"\n📋 Found {len(updates)} updates in CSV")
 
     if dry_run:
-        print(f"\n🔍 DRY RUN - Preview of changes:")
+        print("\n🔍 DRY RUN - Preview of changes:")
         for i, update in enumerate(updates, 1):
             print(
                 f"{i}. {update['code']} ({update['category']}): {update['field']} = {update['new_value']}"
@@ -371,14 +370,14 @@ def add_new_code(db_path: Path, code_data: Dict, dry_run: bool = False):
             print(f"❌ Missing required field: {field}")
             return False
 
-    print(f"\n➕ Adding new code:")
+    print("\n➕ Adding new code:")
     print(f"   Code: {code_data['code']} ({code_data['category']})")
     print(f"   Description: {code_data['description']}")
     print(f"   Unit: {code_data['unit']}")
     print(f"   Rate: ₹{code_data['rate']}")
 
     if dry_run:
-        print(f"\n🔍 DRY RUN - No changes made")
+        print("\n🔍 DRY RUN - No changes made")
         return True
 
     conn = sqlite3.connect(db_path)
@@ -421,7 +420,7 @@ def add_new_code(db_path: Path, code_data: Dict, dry_run: bool = False):
     change_log = f"Added new code: {code_data['code']} ({code_data['category']})"
     new_version = increment_version(db_path, change_log)
 
-    print(f"✅ New code added successfully")
+    print("✅ New code added successfully")
     print(f"📌 Database version: v{new_version - 1} → v{new_version}")
 
     return True

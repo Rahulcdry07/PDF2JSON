@@ -1,18 +1,17 @@
 """PDF to JSON converter using PyMuPDF."""
 
-import fitz  # PyMuPDF
 import json
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Union
+from typing import Dict, List, Union
+
+import fitz  # PyMuPDF
 
 logger = logging.getLogger(__name__)
 
 
 class PDFConversionError(Exception):
     """Custom exception for PDF conversion errors."""
-
-    pass
 
 
 class PDFToXMLConverter:
@@ -42,7 +41,7 @@ class PDFToXMLConverter:
 
         try:
             self.doc = fitz.open(str(self.pdf_path))
-            logger.info(f"Opened PDF: {self.pdf_path.name} ({len(self.doc)} pages)")
+            logger.info("Opened PDF: %s ({len(self.doc)} pages)", self.pdf_path.name)
         except Exception as e:
             raise PDFConversionError(f"Failed to open PDF: {e}")
 
@@ -120,7 +119,7 @@ class PDFToXMLConverter:
             blocks = page.get_text("dict")["blocks"]
 
             for block in blocks:
-                if block.get("type") == 0:  # Text block
+                if not block.get("type"):  # Text block
                     block_data = {"bbox": [round(coord, 2) for coord in block["bbox"]], "lines": []}
 
                     # Extract lines within block
@@ -188,7 +187,7 @@ class PDFToXMLConverter:
         """Close the PDF document and free resources."""
         if self.doc:
             self.doc.close()
-            logger.debug(f"Closed PDF: {self.pdf_path.name}")
+            logger.debug("Closed PDF: %s", self.pdf_path.name)
 
     @classmethod
     def convert_file(
@@ -290,7 +289,7 @@ class PDFToXMLConverter:
         blocks = page.get_text("dict")["blocks"]
 
         for block in blocks:
-            if block.get("type") == 0:  # Text block
+            if not block.get("type"):  # Text block
                 block_data = {"bbox": [round(coord, 2) for coord in block["bbox"]], "lines": []}
 
                 # Extract lines within block

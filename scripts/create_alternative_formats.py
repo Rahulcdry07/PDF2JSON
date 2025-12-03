@@ -13,7 +13,7 @@ def create_csv_format(volume_files: list, output_dir: Path):
     """Convert structured JSON to combined CSV."""
     csv_file = output_dir / "DSR_combined.csv"
 
-    with open(csv_file, "w", newline="", encoding="utf-8") as f:
+    with open(csv_file, "w", encoding="utf-8", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
             fieldnames=[
@@ -31,7 +31,7 @@ def create_csv_format(volume_files: list, output_dir: Path):
 
         for vol_file in volume_files:
             print(f"  Adding {vol_file.name} to CSV...")
-            with open(vol_file) as vf:
+            with open(vol_file, encoding="utf-8") as vf:
                 data = json.load(vf)
 
             for entry in data["dsr_codes"]:
@@ -88,7 +88,7 @@ def create_sqlite_format(volume_files: list, output_dir: Path):
     # Load all volumes
     for vol_file in volume_files:
         print(f"  Loading {vol_file.name}...")
-        with open(vol_file) as f:
+        with open(vol_file, encoding="utf-8") as f:
             data = json.load(f)
 
         for entry in data["dsr_codes"]:
@@ -263,7 +263,7 @@ if __name__ == "__main__":
     # Determine output directory
     output_dir = Path(args.output_dir) if args.output_dir else volume_paths[0].parent
 
-    print(f"Input files:")
+    print("Input files:")
     for idx, vol_path in enumerate(volume_paths, 1):
         print(f"  Volume {idx}: {vol_path}")
     print()

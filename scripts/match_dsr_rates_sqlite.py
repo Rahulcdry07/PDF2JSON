@@ -19,7 +19,7 @@ logger = setup_script_logging("match_dsr_rates_sqlite")
 
 def load_input_file(input_file: Path) -> List[Dict]:
     """Load and extract DSR items from structured or unstructured format."""
-    logger.info(f"Loading input file: {input_file}")
+    logger.info("Loading input file: %s", input_file)
     print(f"📂 Loading input file: {input_file.name}")
 
     with open(input_file, "r", encoding="utf-8") as f:
@@ -63,9 +63,9 @@ def load_input_file(input_file: Path) -> List[Dict]:
 
 def load_dsr_database(db_path: Path) -> sqlite3.Connection:
     """Load SQLite DSR database and return connection."""
-    logger.info(f"Loading DSR database from {db_path}")
+    logger.info("Loading DSR database from %s", db_path)
     if not db_path.exists():
-        logger.error(f"Database not found: {db_path}")
+        logger.error("Database not found: %s", db_path)
         raise FileNotFoundError(
             f"DSR database not found: {db_path}\nRun create_alternative_formats.py first."
         )
@@ -81,7 +81,9 @@ def match_with_database(
 ) -> List[Dict]:
     """Match items using SQLite database for fast lookups."""
     logger.info(
-        f"Matching {len(lko_items)} items with DSR database (threshold={similarity_threshold})"
+        "Matching %s items with DSR database (threshold=%s)",
+        len(lko_items),
+        similarity_threshold,
     )
     cursor = db_conn.cursor()
     matched_items = []
@@ -184,7 +186,7 @@ def main(
         print("This is a one-time setup.\n")
         import subprocess
 
-        subprocess.run(["python3", "create_alternative_formats.py"], cwd=Path(__file__).parent)
+        subprocess.run(["python3", "create_alternative_formats.py"], cwd=Path(__file__).parent, check=False)
         print()
 
     # Load input file (structured or unstructured)

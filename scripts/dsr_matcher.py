@@ -132,7 +132,6 @@ def match_items_with_rates(lko_items: List[Dict], dsr_rates: Dict[str, List[Dict
 
         best_match = None
         best_similarity = 0.0
-        match_code = None
 
         # First, try exact match with clean code
         if clean_dsr_code in dsr_rates:
@@ -145,7 +144,7 @@ def match_items_with_rates(lko_items: List[Dict], dsr_rates: Dict[str, List[Dict
 
             if best_match and "similarity" in best_match:
                 best_similarity = best_match["similarity"]
-                match_code = clean_dsr_code
+                _match_code = clean_dsr_code
 
                 # If similarity is good enough, use this match
                 if best_similarity >= 0.3:

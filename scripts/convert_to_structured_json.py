@@ -12,10 +12,10 @@ def convert_to_structured_format(input_file: Path, output_file: Path, volume_nam
     """Convert to structured DSR format with searchable fields."""
 
     print(f"Loading {input_file.name}...")
-    with open(input_file, "r") as f:
+    with open(input_file, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    print(f"Extracting DSR codes...")
+    print("Extracting DSR codes...")
     rates = extract_rates_from_dsr(data, volume_name)
 
     dsr_codes = []
@@ -60,7 +60,7 @@ def convert_to_structured_format(input_file: Path, output_file: Path, volume_nam
     # Create lookup index
     index = {entry["code"]: i for i, entry in enumerate(dsr_codes)}
     index_file = output_file.with_suffix(".index.json")
-    with open(index_file, "w") as f:
+    with open(index_file, "w", encoding="utf-8") as f:
         json.dump(index, f, indent=2)
     print(f"✓ Created index with {len(index)} entries")
 
@@ -166,15 +166,15 @@ def main(volume_inputs: list = None, output_dir: Path = None):
         output_files.append(vol_output.with_suffix(".index.json"))
 
     print(f"\n✅ Total DSR codes converted: {total_codes}")
-    print(f"\nStructured files created:")
+    print("\nStructured files created:")
     for file in output_files:
         print(f"  - {file}")
 
     # Show sample from last volume
     if output_files:
         last_json = [f for f in output_files if f.suffix == ".json" and "index" not in f.name][-1]
-        print(f"\n=== Sample Structured Entry ===")
-        with open(last_json) as f:
+        print("\n=== Sample Structured Entry ===")
+        with open(last_json, encoding="utf-8") as f:
             data = json.load(f)
         if data["dsr_codes"]:
             sample = data["dsr_codes"][0]

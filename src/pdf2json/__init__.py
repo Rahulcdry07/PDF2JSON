@@ -1,36 +1,37 @@
 """PDF2JSON - Convert PDF files to JSON format and DSR rate matching."""
 
+import sys
+from pathlib import Path
+
 __version__ = "1.0.0"
 
 # Core converter
-from .converter import PDFToXMLConverter, PDFConversionError
+from .converter import PDFConversionError, PDFToXMLConverter
 
 # Web application
-from .web import app, create_app, AnalyticsTracker
+from .web import AnalyticsTracker, app, create_app
 
 # Helper utilities
 from .helpers import (
     DSRMatcherHelper,
+    batch_convert_pdfs,
+    get_version_info,
     quick_convert,
     quick_match,
-    batch_convert_pdfs,
     validate_dsr_database,
-    get_version_info,
 )
 
 # Logging utilities
 from .logging_config import (
-    setup_logging,
-    get_logger,
-    log_performance,
-    log_error,
-    StructuredFormatter,
     HumanReadableFormatter,
+    StructuredFormatter,
+    get_logger,
+    log_error,
+    log_performance,
+    setup_logging,
 )
 
 # Import utility functions from scripts
-import sys
-from pathlib import Path
 
 # Add scripts directory to path for imports
 _scripts_dir = Path(__file__).parents[2] / "scripts"
@@ -62,11 +63,14 @@ try:
 except ImportError:
     from input_file_converter import convert_input_to_structured
 
-# Excel conversion
+# Excel conversion (native only)
 try:
-    from scripts.excel_to_pdf import ExcelToPDFConverter
+    from scripts.excel_to_pdf_native import convert_excel_to_pdf
 except ImportError:
-    from excel_to_pdf import ExcelToPDFConverter
+    try:
+        from excel_to_pdf_native import convert_excel_to_pdf
+    except ImportError:
+        convert_excel_to_pdf = None
 
 # Text similarity
 try:
@@ -123,7 +127,6 @@ __all__ = [
     "extract_rates_from_dsr",
     # Conversion
     "convert_input_to_structured",
-    "ExcelToPDFConverter",
     # Utilities
     "calculate_text_similarity",
     # Database Management

@@ -11,11 +11,11 @@ Usage examples:
 
 """
 
-import re
-import sys
 import json
+import re
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List
+
 import click
 
 
@@ -68,4 +68,4 @@ def main(json_path: Path, print_text: bool, search_term: str):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=no-value-for-parameter
