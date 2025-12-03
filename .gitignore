@@ -41,7 +41,10 @@ htmlcov/
 .tox/
 .nox/
 
-# Data directories (new structure)
+# Data directories - exclude ALL data files
+data/reference/
+data/examples/
+data/legacy/
 data/uploads/*
 !data/uploads/.gitkeep
 data/logs/*

@@ -702,6 +702,26 @@ def convert_excel_to_pdf():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+def create_app(config=None):
+    """
+    Application factory for creating Flask app instance.
+    
+    Args:
+        config: Optional configuration dictionary to override defaults
+        
+    Returns:
+        Flask application instance
+        
+    Example:
+        >>> from pdf2json import create_app
+        >>> app = create_app({'SECRET_KEY': 'my-secret', 'DEBUG': False})
+        >>> app.run()
+    """
+    if config:
+        app.config.update(config)
+    return app
+
+
 if __name__ == '__main__':
     try:
         app.run(debug=True, host='0.0.0.0', port=8000)
