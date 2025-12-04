@@ -19,6 +19,20 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Sequence
 import sys
+import warnings
+import os
+
+# Suppress warnings that might interfere with JSON output
+warnings.filterwarnings('ignore')
+
+# Suppress all logging output to avoid interfering with JSON-RPC
+os.environ['MCP_LOG_LEVEL'] = 'CRITICAL'
+import logging
+logging.basicConfig(level=logging.CRITICAL)
+for logger_name in ['mcp', 'mcp.server', 'mcp.server.lowlevel']:
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.CRITICAL)
+    logger.disabled = True
 
 # Add project paths
 PROJECT_ROOT = Path(__file__).parent
