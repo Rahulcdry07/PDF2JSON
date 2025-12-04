@@ -500,27 +500,7 @@ def test_excel_sheets_api_valid_excel(client, temp_dir):
         assert len(result["sheets"]) >= 1
 
 
-def test_excel_convert_api_no_file(client):
-    """Test /api/excel/convert without file."""
-    response = client.post("/api/excel/convert", data={})
-    assert response.status_code == 400
-
-
-def test_excel_convert_api_no_sheets(client, temp_dir):
-    """Test /api/excel/convert without sheets selected."""
-    import openpyxl
-    
-    excel_file = temp_dir / "test.xlsx"
-    wb = openpyxl.Workbook()
-    wb.save(excel_file)
-    
-    with open(excel_file, "rb") as f:
-        data = {
-            "file": (f, "test.xlsx"),
-            "sheets": json.dumps([])
-        }
-        response = client.post("/api/excel/convert", data=data, content_type="multipart/form-data")
-        assert response.status_code == 400
+# Excel conversion tests removed - excel_to_pdf functionality has been removed
 
 
 # =============================================================================

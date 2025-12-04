@@ -24,7 +24,7 @@ PDF2JSON/
 │   ├── DEPLOYMENT.md     # Deployment guide
 │   ├── TESTING.md        # Testing documentation
 │   ├── MCP_INTEGRATION.md           # MCP setup guide
-│   ├── EXCEL_TO_PDF_GUIDE.md        # Excel converter docs
+
 │   ├── EXCEL_CONVERTER_SUMMARY.md   # Excel feature summary
 │   ├── MULTI_CATEGORY_GUIDE.md      # Multi-category guide
 │   ├── STRUCTURED_INPUT_FORMAT.md   # Input format specs
@@ -33,7 +33,7 @@ PDF2JSON/
 │   └── TEST_QUICK_REFERENCE.md      # Test quick ref
 │
 ├── scripts/              # Utility scripts
-│   ├── excel_to_pdf.py           # Excel to PDF converter
+
 │   ├── dsr_matcher.py            # DSR matching logic
 │   ├── dsr_rate_extractor.py     # Rate extraction
 │   ├── match_dsr_rates_sqlite.py # SQLite-based matching

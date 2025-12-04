@@ -63,15 +63,6 @@ try:
 except ImportError:
     from input_file_converter import convert_input_to_structured
 
-# Excel conversion (native only)
-try:
-    from scripts.excel_to_pdf_native import convert_excel_to_pdf
-except ImportError:
-    try:
-        from excel_to_pdf_native import convert_excel_to_pdf
-    except ImportError:
-        convert_excel_to_pdf = None
-
 # Text similarity
 try:
     from scripts.text_similarity import calculate_text_similarity

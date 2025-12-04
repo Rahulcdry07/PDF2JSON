@@ -114,7 +114,7 @@ PDF2JSON/
 │   ├── MCP_INTEGRATION.md    # MCP setup
 │   └── ...                   # Other docs
 ├── scripts/               # Utility scripts
-│   ├── excel_to_pdf.py          # Excel converter
+
 │   ├── dsr_matcher.py           # DSR matching
 │   ├── match_dsr_rates_sqlite.py # SQLite matching
 │   └── ...                      # Other scripts
