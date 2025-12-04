@@ -101,9 +101,7 @@ def test_find_best_dsr_match_with_similarity_return():
 
 def test_find_best_dsr_match_empty_entries():
     """Test with empty DSR entries list."""
-    result = find_best_dsr_match(
-        "Some description", "1.1", [], similarity_threshold=0.3
-    )
+    result = find_best_dsr_match("Some description", "1.1", [], similarity_threshold=0.3)
 
     assert result is None
 
@@ -172,15 +170,11 @@ def test_find_best_dsr_match_high_threshold():
     ]
 
     # Low threshold - should match
-    result_low = find_best_dsr_match(
-        input_desc, "16.5", entries, similarity_threshold=0.2
-    )
+    result_low = find_best_dsr_match(input_desc, "16.5", entries, similarity_threshold=0.2)
     assert result_low is not None
 
     # High threshold - might not match
-    result_high = find_best_dsr_match(
-        input_desc, "16.5", entries, similarity_threshold=0.9
-    )
+    result_high = find_best_dsr_match(input_desc, "16.5", entries, similarity_threshold=0.9)
     # High threshold may reject the match
     assert result_high is None or "similarity" in result_high
 

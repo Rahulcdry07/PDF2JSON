@@ -52,7 +52,7 @@ def test_find_best_dsr_match_basic(sample_dsr_rates):
     """Test basic DSR matching."""
     item_desc = "excavation in ordinary soil"
     item_unit = "cum"
-    
+
     try:
         result = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.5
@@ -68,7 +68,7 @@ def test_find_best_dsr_match_exact(sample_dsr_rates):
     """Test exact matching."""
     item_desc = "Earth work excavation in foundation in ordinary soil"
     item_unit = "cum"
-    
+
     try:
         result = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.9
@@ -82,7 +82,7 @@ def test_find_best_dsr_match_no_match(sample_dsr_rates):
     """Test when no match is found."""
     item_desc = "completely unrelated item xyz123"
     item_unit = "nos"
-    
+
     try:
         result = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.7
@@ -95,7 +95,7 @@ def test_find_best_dsr_match_no_match(sample_dsr_rates):
 def test_match_items_with_rates(sample_lko_items, sample_dsr_rates):
     """Test matching multiple items."""
     result = match_items_with_rates(sample_lko_items, sample_dsr_rates)
-    
+
     assert isinstance(result, list)
     assert len(result) == len(sample_lko_items)
 
@@ -103,7 +103,7 @@ def test_match_items_with_rates(sample_lko_items, sample_dsr_rates):
 def test_match_items_empty_list(sample_dsr_rates):
     """Test matching with empty item list."""
     result = match_items_with_rates([], sample_dsr_rates)
-    
+
     assert isinstance(result, list)
     assert len(result) == 0
 
@@ -111,7 +111,7 @@ def test_match_items_empty_list(sample_dsr_rates):
 def test_match_items_empty_dsr(sample_lko_items):
     """Test matching with empty DSR database."""
     result = match_items_with_rates(sample_lko_items, {})
-    
+
     assert isinstance(result, list)
     assert len(result) == len(sample_lko_items)
 
@@ -120,7 +120,7 @@ def test_find_best_match_case_insensitive(sample_dsr_rates):
     """Test case-insensitive matching."""
     item_desc = "EXCAVATION IN ORDINARY SOIL"
     item_unit = "cum"
-    
+
     try:
         result = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.5
@@ -135,18 +135,18 @@ def test_find_best_match_with_threshold(sample_dsr_rates):
     """Test matching with different thresholds."""
     item_desc = "excavation soil"
     item_unit = "cum"
-    
+
     try:
         # Low threshold
         result_low = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.3
         )
-        
+
         # High threshold
         result_high = find_best_dsr_match(
             item_desc, item_unit, sample_dsr_rates, similarity_threshold=0.9
         )
-        
+
         # Both should return valid results (or None)
         assert result_low is None or isinstance(result_low, dict)
         assert result_high is None or isinstance(result_high, dict)
@@ -157,7 +157,7 @@ def test_find_best_match_with_threshold(sample_dsr_rates):
 def test_match_preserves_original_data(sample_lko_items, sample_dsr_rates):
     """Test that matching preserves original item data."""
     result = match_items_with_rates(sample_lko_items, sample_dsr_rates)
-    
+
     assert isinstance(result, list)
     for i, matched_item in enumerate(result):
         assert "sno" in matched_item or "description" in matched_item

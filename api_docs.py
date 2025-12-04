@@ -8,38 +8,15 @@ API_SPEC = {
         "title": "PDF2JSON API",
         "description": "PDF conversion and DSR rate matching API for construction cost estimation",
         "version": "1.0.0",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/Rahulcdry07/PDF2JSON"
-        }
+        "contact": {"name": "API Support", "url": "https://github.com/Rahulcdry07/PDF2JSON"},
     },
-    "servers": [
-        {
-            "url": "http://localhost:8000",
-            "description": "Development server"
-        }
-    ],
+    "servers": [{"url": "http://localhost:8000", "description": "Development server"}],
     "tags": [
-        {
-            "name": "PDF Conversion",
-            "description": "Upload and convert PDF files to JSON"
-        },
-        {
-            "name": "DSR Matching",
-            "description": "Cost estimation and DSR rate matching"
-        },
-        {
-            "name": "Excel Operations",
-            "description": "Excel to PDF conversion"
-        },
-        {
-            "name": "Analytics",
-            "description": "Usage statistics and analytics"
-        },
-        {
-            "name": "System",
-            "description": "Health checks and system information"
-        }
+        {"name": "PDF Conversion", "description": "Upload and convert PDF files to JSON"},
+        {"name": "DSR Matching", "description": "Cost estimation and DSR rate matching"},
+        {"name": "Excel Operations", "description": "Excel to PDF conversion"},
+        {"name": "Analytics", "description": "Usage statistics and analytics"},
+        {"name": "System", "description": "Health checks and system information"},
     ],
     "paths": {
         "/": {
@@ -47,11 +24,7 @@ API_SPEC = {
                 "tags": ["System"],
                 "summary": "Home page",
                 "description": "Display dashboard with all available files",
-                "responses": {
-                    "200": {
-                        "description": "HTML page with file listings"
-                    }
-                }
+                "responses": {"200": {"description": "HTML page with file listings"}},
             }
         },
         "/health": {
@@ -67,20 +40,14 @@ API_SPEC = {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "healthy"
-                                        },
-                                        "timestamp": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        }
-                                    }
+                                        "status": {"type": "string", "example": "healthy"},
+                                        "timestamp": {"type": "string", "format": "date-time"},
+                                    },
                                 }
                             }
-                        }
+                        },
                     }
-                }
+                },
             }
         },
         "/api/stats": {
@@ -101,13 +68,13 @@ API_SPEC = {
                                         "total_cost_estimations": {"type": "integer"},
                                         "avg_response_time": {"type": "number"},
                                         "error_rate": {"type": "number"},
-                                        "recent_activity": {"type": "array"}
-                                    }
+                                        "recent_activity": {"type": "array"},
+                                    },
                                 }
                             }
-                        }
+                        },
                     }
-                }
+                },
             }
         },
         "/upload": {
@@ -115,11 +82,7 @@ API_SPEC = {
                 "tags": ["PDF Conversion"],
                 "summary": "Upload form",
                 "description": "Display PDF upload form",
-                "responses": {
-                    "200": {
-                        "description": "HTML upload form"
-                    }
-                }
+                "responses": {"200": {"description": "HTML upload form"}},
             },
             "post": {
                 "tags": ["PDF Conversion"],
@@ -135,26 +98,20 @@ API_SPEC = {
                                     "pdf": {
                                         "type": "string",
                                         "format": "binary",
-                                        "description": "PDF file to upload (max 500MB)"
+                                        "description": "PDF file to upload (max 500MB)",
                                     }
                                 },
-                                "required": ["pdf"]
+                                "required": ["pdf"],
                             }
                         }
-                    }
+                    },
                 },
                 "responses": {
-                    "302": {
-                        "description": "Redirect to home page after successful upload"
-                    },
-                    "400": {
-                        "description": "Invalid file or missing file"
-                    },
-                    "413": {
-                        "description": "File too large (max 500MB)"
-                    }
-                }
-            }
+                    "302": {"description": "Redirect to home page after successful upload"},
+                    "400": {"description": "Invalid file or missing file"},
+                    "413": {"description": "File too large (max 500MB)"},
+                },
+            },
         },
         "/view/{filepath}": {
             "get": {
@@ -168,17 +125,13 @@ API_SPEC = {
                         "required": True,
                         "schema": {"type": "string"},
                         "description": "Relative path to file (e.g., input_files/example.json)",
-                        "example": "input_files/example.json"
+                        "example": "input_files/example.json",
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "File content displayed"
-                    },
-                    "404": {
-                        "description": "File not found"
-                    }
-                }
+                    "200": {"description": "File content displayed"},
+                    "404": {"description": "File not found"},
+                },
             }
         },
         "/search": {
@@ -195,13 +148,13 @@ API_SPEC = {
                                 "properties": {
                                     "search_term": {
                                         "type": "string",
-                                        "description": "Text to search for"
+                                        "description": "Text to search for",
                                     }
                                 },
-                                "required": ["search_term"]
+                                "required": ["search_term"],
                             }
                         }
-                    }
+                    },
                 },
                 "responses": {
                     "200": {
@@ -210,12 +163,12 @@ API_SPEC = {
                             "text/html": {
                                 "schema": {
                                     "type": "string",
-                                    "description": "HTML page with search results"
+                                    "description": "HTML page with search results",
                                 }
                             }
-                        }
+                        },
                     }
-                }
+                },
             }
         },
         "/cost-estimation": {
@@ -223,11 +176,7 @@ API_SPEC = {
                 "tags": ["DSR Matching"],
                 "summary": "Cost estimation form",
                 "description": "Display cost estimation form with available files",
-                "responses": {
-                    "200": {
-                        "description": "HTML cost estimation form"
-                    }
-                }
+                "responses": {"200": {"description": "HTML cost estimation form"}},
             },
             "post": {
                 "tags": ["DSR Matching"],
@@ -242,18 +191,18 @@ API_SPEC = {
                                 "properties": {
                                     "input_file": {
                                         "type": "string",
-                                        "description": "Input JSON file with items"
+                                        "description": "Input JSON file with items",
                                     },
                                     "reference_files": {
                                         "type": "array",
                                         "items": {"type": "string"},
-                                        "description": "DSR reference database files"
-                                    }
+                                        "description": "DSR reference database files",
+                                    },
                                 },
-                                "required": ["input_file", "reference_files"]
+                                "required": ["input_file", "reference_files"],
                             }
                         }
-                    }
+                    },
                 },
                 "responses": {
                     "200": {
@@ -262,27 +211,21 @@ API_SPEC = {
                             "text/html": {
                                 "schema": {
                                     "type": "string",
-                                    "description": "HTML page with estimation results"
+                                    "description": "HTML page with estimation results",
                                 }
                             }
-                        }
+                        },
                     },
-                    "400": {
-                        "description": "Missing required parameters"
-                    }
-                }
-            }
+                    "400": {"description": "Missing required parameters"},
+                },
+            },
         },
         "/excel-converter": {
             "get": {
                 "tags": ["Excel Operations"],
                 "summary": "Excel converter interface",
                 "description": "Display Excel to PDF conversion interface",
-                "responses": {
-                    "200": {
-                        "description": "HTML converter interface"
-                    }
-                }
+                "responses": {"200": {"description": "HTML converter interface"}},
             }
         },
         "/api/excel/sheets": {
@@ -300,13 +243,13 @@ API_SPEC = {
                                     "file": {
                                         "type": "string",
                                         "format": "binary",
-                                        "description": "Excel file (.xlsx, .xls)"
+                                        "description": "Excel file (.xlsx, .xls)",
                                     }
                                 },
-                                "required": ["file"]
+                                "required": ["file"],
                             }
                         }
-                    }
+                    },
                 },
                 "responses": {
                     "200": {
@@ -316,19 +259,14 @@ API_SPEC = {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "sheets": {
-                                            "type": "array",
-                                            "items": {"type": "string"}
-                                        }
-                                    }
+                                        "sheets": {"type": "array", "items": {"type": "string"}}
+                                    },
                                 }
                             }
-                        }
+                        },
                     },
-                    "400": {
-                        "description": "Invalid file or error processing"
-                    }
-                }
+                    "400": {"description": "Invalid file or error processing"},
+                },
             }
         },
         "/api/excel/convert": {
@@ -343,67 +281,43 @@ API_SPEC = {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    },
-                                    "sheets": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    },
+                                    "file": {"type": "string", "format": "binary"},
+                                    "sheets": {"type": "array", "items": {"type": "string"}},
                                     "orientation": {
                                         "type": "string",
-                                        "enum": ["portrait", "landscape"]
+                                        "enum": ["portrait", "landscape"],
                                     },
-                                    "page_size": {
-                                        "type": "string",
-                                        "enum": ["A4", "Letter"]
-                                    },
+                                    "page_size": {"type": "string", "enum": ["A4", "Letter"]},
                                     "output_mode": {
                                         "type": "string",
-                                        "enum": ["separate", "combined"]
-                                    }
-                                }
+                                        "enum": ["separate", "combined"],
+                                    },
+                                },
                             }
                         }
-                    }
+                    },
                 },
                 "responses": {
                     "200": {
                         "description": "Conversion successful",
                         "content": {
-                            "application/pdf": {
-                                "schema": {
-                                    "type": "string",
-                                    "format": "binary"
-                                }
-                            },
-                            "application/zip": {
-                                "schema": {
-                                    "type": "string",
-                                    "format": "binary"
-                                }
-                            }
-                        }
+                            "application/pdf": {"schema": {"type": "string", "format": "binary"}},
+                            "application/zip": {"schema": {"type": "string", "format": "binary"}},
+                        },
                     },
-                    "400": {
-                        "description": "Conversion failed"
-                    }
-                }
+                    "400": {"description": "Conversion failed"},
+                },
             }
-        }
+        },
     },
     "components": {
         "schemas": {
             "Error": {
                 "type": "object",
-                "properties": {
-                    "error": {"type": "string"},
-                    "message": {"type": "string"}
-                }
+                "properties": {"error": {"type": "string"}, "message": {"type": "string"}},
             }
         }
-    }
+    },
 }
 
 

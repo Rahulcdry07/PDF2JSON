@@ -166,9 +166,7 @@ def test_extract_rates_preserves_volume_name():
     """Test that volume name is used during extraction."""
     data = {
         "document": {
-            "pages_data": [
-                {"page": 1, "blocks": [{"lines": ["1.1", "Test", "cum", "100.00"]}]}
-            ]
+            "pages_data": [{"page": 1, "blocks": [{"lines": ["1.1", "Test", "cum", "100.00"]}]}]
         }
     }
 

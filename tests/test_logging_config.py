@@ -46,7 +46,7 @@ def test_get_logger():
     """Test getting a logger instance."""
     logger = get_logger("test_module")
     # Might return Logger or LoggerAdapter
-    assert hasattr(logger, 'info')
+    assert hasattr(logger, "info")
     assert "test_module" in str(logger.name)
 
 
@@ -54,7 +54,7 @@ def test_get_logger_with_component():
     """Test getting logger with component name."""
     logger = get_logger("test_module", component="converter")
     # Might return Logger or LoggerAdapter
-    assert hasattr(logger, 'info') and hasattr(logger, 'debug')
+    assert hasattr(logger, "info") and hasattr(logger, "debug")
 
 
 def test_structured_formatter():
@@ -107,7 +107,7 @@ def test_logger_debug_level():
     # Just verify logger works
     logger.debug("Debug message")
     # Log was created successfully
-    assert hasattr(logger, 'debug')
+    assert hasattr(logger, "debug")
 
 
 def test_logger_warning_level(caplog):
@@ -130,9 +130,9 @@ def test_setup_logging_idempotent():
     """Test that setup_logging can be called multiple times."""
     setup_logging()
     logger1 = get_logger("test1")
-    
+
     setup_logging()
     logger2 = get_logger("test2")
-    
+
     assert isinstance(logger1, logging.Logger)
     assert isinstance(logger2, logging.Logger)

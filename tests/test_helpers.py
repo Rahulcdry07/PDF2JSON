@@ -70,16 +70,14 @@ def test_validate_dsr_database_invalid_json(tmp_path):
     """Test validating invalid JSON file."""
     invalid_file = tmp_path / "invalid.json"
     invalid_file.write_text("not valid json{")
-    
+
     result = validate_dsr_database(str(invalid_file))
     assert isinstance(result, dict)
 
 
 def test_batch_convert_pdfs_empty_directory(tmp_path):
     """Test batch conversion with empty directory."""
-    result = batch_convert_pdfs(
-        str(tmp_path), str(tmp_path / "output"), include_metadata=False
-    )
+    result = batch_convert_pdfs(str(tmp_path), str(tmp_path / "output"), include_metadata=False)
     # Should complete without errors
     assert result is None or isinstance(result, (dict, list))
 
@@ -87,9 +85,7 @@ def test_batch_convert_pdfs_empty_directory(tmp_path):
 def test_batch_convert_pdfs_nonexistent_directory():
     """Test batch conversion with non-existent directory."""
     try:
-        result = batch_convert_pdfs(
-            "nonexistent_dir", "output_dir", include_metadata=False
-        )
+        result = batch_convert_pdfs("nonexistent_dir", "output_dir", include_metadata=False)
         # Either returns result or raises error
         assert result is None or isinstance(result, (dict, list))
     except (FileNotFoundError, ValueError):

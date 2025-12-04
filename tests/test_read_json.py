@@ -113,9 +113,7 @@ def test_main_search_found(temp_json_file):
 def test_main_search_not_found(temp_json_file):
     """Test CLI search with no matches."""
     runner = CliRunner()
-    result = runner.invoke(
-        main, ["--json", str(temp_json_file), "--search", "nonexistent"]
-    )
+    result = runner.invoke(main, ["--json", str(temp_json_file), "--search", "nonexistent"])
 
     assert result.exit_code == 0
     assert "No matches found" in result.output
@@ -165,9 +163,7 @@ def test_get_all_text_blocks_whitespace():
             "pages_data": [
                 {
                     "page": 1,
-                    "blocks": [
-                        {"lines": ["Valid text", "   ", "\t", "\n", "More valid text"]}
-                    ],
+                    "blocks": [{"lines": ["Valid text", "   ", "\t", "\n", "More valid text"]}],
                 }
             ]
         }

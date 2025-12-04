@@ -56,7 +56,7 @@ def test_convert_with_output(runner, sample_pdf, tmp_path):
     """Test converting PDF with specified output."""
     output_file = tmp_path / "output.json"
     result = runner.invoke(main, [str(sample_pdf), "-o", str(output_file)])
-    
+
     # Command should complete (may fail on actual conversion but CLI works)
     assert "Converting" in result.output or result.exit_code != 0
 
