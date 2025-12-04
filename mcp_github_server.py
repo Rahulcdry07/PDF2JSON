@@ -630,12 +630,15 @@ async def call_tool(
                 "repo",
                 "view",
                 "--json",
-                "name,description,stargazerCount,forkCount,openIssues,watchers,defaultBranchRef,createdAt,updatedAt",
+                "name,description,stargazerCount,forkCount,issues,watchers,defaultBranchRef,createdAt,updatedAt",
             ]
         )
 
         if result["success"]:
             stats = json.loads(result["output"])
+            # Add open issues count if available
+            if 'issues' in stats and stats['issues']:
+                stats['openIssuesCount'] = stats['issues'].get('totalCount', 0)
             return [TextContent(type="text", text=json.dumps(stats, indent=2))]
         return [
             TextContent(

@@ -43,7 +43,7 @@ async def demo_github_integration():
     print("2️⃣  Fetching repository statistics...")
     result = run_gh_command([
         "repo", "view",
-        "--json", "name,description,stargazerCount,forkCount,openIssues"
+        "--json", "name,description,stargazerCount,forkCount,issues"
     ])
     if result["success"]:
         stats = json.loads(result["output"])
@@ -51,7 +51,10 @@ async def demo_github_integration():
         print(f"   📝 Description: {stats['description']}")
         print(f"   ⭐ Stars: {stats['stargazerCount']}")
         print(f"   🍴 Forks: {stats['forkCount']}")
-        print(f"   🔧 Open Issues: {stats['openIssues']['totalCount']}")
+        if 'issues' in stats and stats['issues']:
+            print(f"   🔧 Open Issues: {stats['issues']['totalCount']}")
+        else:
+            print(f"   🔧 Open Issues: N/A")
     else:
         print(f"   ❌ Failed to fetch stats: {result['error']}")
     print()
