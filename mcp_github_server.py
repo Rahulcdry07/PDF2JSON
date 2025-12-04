@@ -23,13 +23,14 @@ from datetime import datetime
 import warnings
 
 # Suppress warnings that might interfere with JSON output
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Suppress all logging output to avoid interfering with JSON-RPC
-os.environ['MCP_LOG_LEVEL'] = 'CRITICAL'
+os.environ["MCP_LOG_LEVEL"] = "CRITICAL"
 import logging
+
 logging.basicConfig(level=logging.CRITICAL)
-for logger_name in ['mcp', 'mcp.server', 'mcp.server.lowlevel']:
+for logger_name in ["mcp", "mcp.server", "mcp.server.lowlevel"]:
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.CRITICAL)
     logger.disabled = True
@@ -137,40 +138,36 @@ async def read_resource(uri: str) -> str:
         result = run_gh_command(["issue", "list", "--json", "number,title,state,createdAt,author"])
         if result["success"]:
             issues = json.loads(result["output"])
-            return json.dumps(
-                {"total_issues": len(issues), "issues": issues}, indent=2
-            )
+            return json.dumps({"total_issues": len(issues), "issues": issues}, indent=2)
         return json.dumps({"error": result["error"]})
 
     elif "/pulls" in uri:
         result = run_gh_command(["pr", "list", "--json", "number,title,state,createdAt,author"])
         if result["success"]:
             prs = json.loads(result["output"]) if result["output"] else []
-            return json.dumps(
-                {"total_prs": len(prs), "pull_requests": prs}, indent=2
-            )
+            return json.dumps({"total_prs": len(prs), "pull_requests": prs}, indent=2)
         return json.dumps({"error": result["error"]})
 
     elif "/actions" in uri:
-        result = run_gh_command(["run", "list", "--limit", "10", "--json", "status,conclusion,createdAt,workflowName"])
+        result = run_gh_command(
+            ["run", "list", "--limit", "10", "--json", "status,conclusion,createdAt,workflowName"]
+        )
         if result["success"]:
             runs = json.loads(result["output"]) if result["output"] else []
-            return json.dumps(
-                {"recent_runs": len(runs), "workflow_runs": runs}, indent=2
-            )
+            return json.dumps({"recent_runs": len(runs), "workflow_runs": runs}, indent=2)
         return json.dumps({"error": result["error"]})
 
     elif "/releases" in uri:
         result = run_gh_command(["release", "list", "--json", "name,tagName,createdAt,isLatest"])
         if result["success"]:
             releases = json.loads(result["output"]) if result["output"] else []
-            return json.dumps(
-                {"total_releases": len(releases), "releases": releases}, indent=2
-            )
+            return json.dumps({"total_releases": len(releases), "releases": releases}, indent=2)
         return json.dumps({"error": result["error"]})
 
     elif uri.endswith(f"/{GITHUB_REPO}"):
-        result = run_gh_command(["repo", "view", "--json", "name,description,stargazerCount,forkCount,openIssues"])
+        result = run_gh_command(
+            ["repo", "view", "--json", "name,description,stargazerCount,forkCount,openIssues"]
+        )
         if result["success"]:
             return result["output"]
         return json.dumps({"error": result["error"]})
@@ -444,7 +441,11 @@ async def call_tool(
                 TextContent(
                     type="text",
                     text=json.dumps(
-                        {"success": True, "message": "Pull request created", "url": result["output"]},
+                        {
+                            "success": True,
+                            "message": "Pull request created",
+                            "url": result["output"],
+                        },
                         indent=2,
                     ),
                 )
@@ -493,7 +494,14 @@ async def call_tool(
     elif name == "get_workflow_status":
         workflow = arguments.get("workflow", "latest")
 
-        cmd = ["run", "list", "--limit", "5", "--json", "status,conclusion,createdAt,workflowName,event,displayTitle"]
+        cmd = [
+            "run",
+            "list",
+            "--limit",
+            "5",
+            "--json",
+            "status,conclusion,createdAt,workflowName,event,displayTitle",
+        ]
 
         result = run_gh_command(cmd)
 
@@ -538,7 +546,15 @@ async def call_tool(
         if path:
             search_query += f" path:{path}"
 
-        cmd = ["search", "code", query, "--repo", f"{GITHUB_OWNER}/{GITHUB_REPO}", "--json", "path,repository"]
+        cmd = [
+            "search",
+            "code",
+            query,
+            "--repo",
+            f"{GITHUB_OWNER}/{GITHUB_REPO}",
+            "--json",
+            "path,repository",
+        ]
         if path:
             cmd.extend(["--match", "path", path])
 
@@ -650,8 +666,8 @@ async def call_tool(
         if result["success"]:
             stats = json.loads(result["output"])
             # Add open issues count if available
-            if 'issues' in stats and stats['issues']:
-                stats['openIssuesCount'] = stats['issues'].get('totalCount', 0)
+            if "issues" in stats and stats["issues"]:
+                stats["openIssuesCount"] = stats["issues"].get("totalCount", 0)
             return [TextContent(type="text", text=json.dumps(stats, indent=2))]
         return [
             TextContent(
@@ -663,18 +679,18 @@ async def call_tool(
     elif name == "git_status":
         # Get branch info
         branch_result = run_git_command(["git", "branch", "--show-current"])
-        
+
         # Get status
         status_result = run_git_command(["git", "status", "--porcelain"])
-        
+
         # Get last commit
         commit_result = run_git_command(["git", "log", "-1", "--format=%H|%s|%ar"])
 
         response = {}
-        
+
         if branch_result["success"]:
             response["branch"] = branch_result["output"]
-        
+
         if status_result["success"]:
             changes = []
             for line in status_result["output"].split("\n"):
@@ -682,7 +698,7 @@ async def call_tool(
                     changes.append(line)
             response["changes"] = changes
             response["clean"] = len(changes) == 0
-        
+
         if commit_result["success"] and commit_result["output"]:
             parts = commit_result["output"].split("|")
             if len(parts) == 3:

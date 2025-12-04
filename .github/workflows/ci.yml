@@ -28,16 +28,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pylint black mypy
+        # Install pinned dev tooling so CI uses the exact same formatter/linter versions
+        pip install -r dev-requirements.txt
+
+    - name: Show black version
+      run: black --version
 
     - name: Run linters
       run: |
-        # Check code formatting with black
-        black --check src/ scripts/ tests/
-        
+        # Check code formatting with black (run from repo root so pyproject.toml is used)
+        black --check .
+
         # Type checking with mypy
         mypy src/ scripts/ --ignore-missing-imports || true
-        
+
         # Lint with pylint
         pylint src/ scripts/ --disable=C0111,R0913,R0914,W0212 || true
 

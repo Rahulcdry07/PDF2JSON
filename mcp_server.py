@@ -23,13 +23,14 @@ import warnings
 import os
 
 # Suppress warnings that might interfere with JSON output
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Suppress all logging output to avoid interfering with JSON-RPC
-os.environ['MCP_LOG_LEVEL'] = 'CRITICAL'
+os.environ["MCP_LOG_LEVEL"] = "CRITICAL"
 import logging
+
 logging.basicConfig(level=logging.CRITICAL)
-for logger_name in ['mcp', 'mcp.server', 'mcp.server.lowlevel']:
+for logger_name in ["mcp", "mcp.server", "mcp.server.lowlevel"]:
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.CRITICAL)
     logger.disabled = True
