@@ -37,6 +37,7 @@ A comprehensive Python application that converts PDF files to JSON format and pr
 - **PDF Conversion**: Convert PDFs via AI assistant commands
 - **Context Resources**: Access DSR databases as AI context
 - **🎨 Web Testing Interface**: Beautiful UI to test all MCP tools before Claude Desktop setup
+- **🔗 GitHub Integration**: Create issues, PRs, monitor CI/CD, search code, and manage releases via MCP
 
 ### 🗄️ Database Management (NEW!)
 - **Full CRUD Operations**: Add, edit, delete DSR codes through web UI
@@ -62,7 +63,7 @@ A comprehensive Python application that converts PDF files to JSON format and pr
 - **Visual Dashboards**: Charts and graphs showing usage trends and distributions
 - **Activity Logs**: View recent API activity with detailed information
 
-See [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md) and [docs/API_ANALYTICS_GUIDE.md](docs/API_ANALYTICS_GUIDE.md) for setup and usage.
+See [docs/MCP_INTEGRATION.md](docs/MCP_INTEGRATION.md), [docs/GITHUB_MCP_INTEGRATION.md](docs/GITHUB_MCP_INTEGRATION.md), and [docs/API_ANALYTICS_GUIDE.md](docs/API_ANALYTICS_GUIDE.md) for setup and usage.
 
 ## 🧪 Testing
 
