@@ -125,12 +125,12 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-      if: github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME != ''
+      if: github.ref == 'refs/heads/main'
       continue-on-error: true
 
     - name: Push Docker image
       uses: docker/build-push-action@v5
-      if: github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME != ''
+      if: github.ref == 'refs/heads/main'
       continue-on-error: true
       with:
         context: .
