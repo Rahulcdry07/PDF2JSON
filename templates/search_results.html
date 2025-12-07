@@ -1,40 +1,93 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Search Results - {{ search_term }}</title>
-    <style>
-      .match { background-color: #ffff99; padding: 2px 4px; margin: 2px 0; }
-      .filename { font-weight: bold; color: #0066cc; }
-      .total { color: #666; font-size: 0.9em; }
-    </style>
-  </head>
-  <body>
-    <h1>Search Results for "{{ search_term }}"</h1>
-    <p><a href="/">Back to Home</a></p>
+{% extends "base.html" %}
 
+{% block title %}Search Results - {{ search_term }} - EstimateX{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav style="margin-bottom: 20px; color: #6c757d;">
+        <a href="/" style="color: #007bff; text-decoration: none;">Home</a> / 
+        <a href="/search" style="color: #007bff; text-decoration: none;">Search</a> / 
+        <span>Results</span>
+    </nav>
+
+    <div class="page-header">
+        <h1>🔍 Search Results</h1>
+        <p>Results for: <strong>"{{ search_term }}"</strong></p>
+    </div>
+
+    <!-- New Search -->
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <form method="POST" action="/search" style="display: flex; gap: 10px; align-items: center;">
+            <input 
+                type="text" 
+                name="search_term" 
+                value="{{ search_term }}"
+                placeholder="Enter new search term..."
+                style="flex: 1; padding: 10px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 14px;"
+            />
+            <button 
+                type="submit"
+                style="background: #17a2b8; color: white; padding: 10px 24px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; white-space: nowrap;"
+            >
+                🔍 Search Again
+            </button>
+        </form>
+    </div>
+
+    <!-- Results -->
     {% if results %}
-      <h2>Found in {{ results|length }} file(s)</h2>
-      {% for result in results %}
-        <div style="margin-bottom: 20px;">
-          <h3 class="filename">
-            <a href="/view/{{ result.filepath }}">{{ result.filename }}</a>
-            <span class="total">({{ result.total_matches }} matches)</span>
-          </h3>
-          <div>
-            {% for match_idx, match_text in result.matches %}
-              <div class="match">
-                <a href="/view/{{ result.filepath }}?search={{ search_term }}" style="text-decoration: none; color: inherit;">{{ match_text }}</a>
-              </div>
-            {% endfor %}
-            {% if result.total_matches > result.matches|length %}
-              <div style="color: #666; font-style: italic;">... and {{ result.total_matches - result.matches|length }} more matches</div>
-            {% endif %}
-          </div>
+        <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+            <strong style="color: #155724;">✅ Found {{ results|length }} file(s) with matches</strong>
         </div>
-      {% endfor %}
+
+        {% for result in results %}
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <h3 style="color: #007bff; margin-bottom: 10px; font-size: 1.3rem;">
+                <a href="/view/{{ result.filepath }}" style="color: #007bff; text-decoration: none;">
+                    📄 {{ result.filename }}
+                </a>
+                <span style="color: #6c757d; font-size: 0.9rem; font-weight: normal; margin-left: 10px;">
+                    ({{ result.total_matches }} match{{ 'es' if result.total_matches != 1 else '' }})
+                </span>
+            </h3>
+            
+            <div style="margin-top: 15px;">
+                {% for match_idx, match_text in result.matches %}
+                <div style="background: #fff9e6; border-left: 3px solid #ffc107; padding: 12px; margin-bottom: 8px; border-radius: 4px;">
+                    <a href="/view/{{ result.filepath }}?search={{ search_term }}" style="text-decoration: none; color: #333;">
+                        {{ match_text }}
+                    </a>
+                </div>
+                {% endfor %}
+                
+                {% if result.total_matches > result.matches|length %}
+                <div style="color: #6c757d; font-style: italic; margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    📋 ... and {{ result.total_matches - result.matches|length }} more match{{ 'es' if (result.total_matches - result.matches|length) != 1 else '' }} in this file
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
     {% else %}
-      <p>No matches found for "{{ search_term }}"</p>
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px;">
+            <h3 style="color: #856404; margin-bottom: 10px;">⚠️ No matches found</h3>
+            <p style="color: #856404; margin: 0;">
+                No results found for "<strong>{{ search_term }}</strong>". Try:
+            </p>
+            <ul style="color: #856404; margin-top: 10px;">
+                <li>Using different keywords</li>
+                <li>Checking your spelling</li>
+                <li>Using more general terms</li>
+                <li>Searching for item codes or categories</li>
+            </ul>
+        </div>
     {% endif %}
-  </body>
-</html>
+
+    <!-- Back Button -->
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="/search" style="display: inline-block; background: #6c757d; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: 500;">
+            ← Back to Search
+        </a>
+    </div>
+</div>
+{% endblock %}

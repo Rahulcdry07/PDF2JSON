@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Search DSR - EstimateX{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav style="margin-bottom: 20px; color: #6c757d;">
+        <a href="/" style="color: #007bff; text-decoration: none;">Home</a> / <span>Search DSR</span>
+    </nav>
+
+    <div class="page-header">
+        <h1>🔍 Search DSR Database</h1>
+        <p>Search through construction rates and specifications</p>
+    </div>
+
+    <!-- Search Form -->
+    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <form method="POST" action="/search" id="searchForm">
+            <div style="margin-bottom: 20px;">
+                <label for="search_term" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+                    Search Term
+                </label>
+                <input 
+                    type="text" 
+                    id="search_term" 
+                    name="search_term" 
+                    class="form-control"
+                    placeholder="Enter keywords to search (e.g., 'concrete', 'excavation', 'steel')"
+                    required
+                    style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 16px;"
+                />
+            </div>
+
+            <button 
+                type="submit" 
+                class="btn btn-primary"
+                style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); color: white; padding: 12px 30px; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; transition: transform 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'"
+                onmouseout="this.style.transform='translateY(0)'"
+            >
+                🔍 Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Information Box -->
+    <div style="background: #e7f3ff; border-left: 4px solid #17a2b8; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h3 style="color: #17a2b8; margin-bottom: 15px; font-size: 1.2rem;">💡 Search Tips</h3>
+        <ul style="color: #555; line-height: 1.8; margin: 0; padding-left: 20px;">
+            <li>Search is case-insensitive and supports partial matches</li>
+            <li>Try searching for item descriptions, codes, or categories</li>
+            <li>Results will show matches from input files, output reports, and reference files</li>
+            <li>Click on any result to view the full file with highlighted matches</li>
+        </ul>
+    </div>
+
+    <!-- Search Scope -->
+    <div style="background: #f8f9fa; padding: 25px; border-radius: 12px;">
+        <h3 style="color: #333; margin-bottom: 15px;">📂 Search Scope</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <h4 style="color: #28a745; margin-bottom: 5px; font-size: 1rem;">Input Files</h4>
+                <p style="color: #666; margin: 0; font-size: 0.9rem;">Uploaded PDF conversions and source data</p>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                <h4 style="color: #007bff; margin-bottom: 5px; font-size: 1rem;">Output Reports</h4>
+                <p style="color: #666; margin: 0; font-size: 0.9rem;">Generated cost estimates and matched results</p>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #6f42c1;">
+                <h4 style="color: #6f42c1; margin-bottom: 5px; font-size: 1rem;">Reference Files</h4>
+                <p style="color: #666; margin: 0; font-size: 0.9rem;">DSR database and civil engineering rates</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    showLoading();
+});
+</script>
+{% endblock %}

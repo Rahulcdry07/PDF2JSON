@@ -416,7 +416,7 @@ def search():
         search_term = request.form.get("search_term", "").strip()
         if not search_term:
             flash("Please enter a search term")
-            return redirect(url_for("index"))
+            return redirect(url_for("search"))
 
         results = []
 
@@ -481,7 +481,8 @@ def search():
 
         return render_template("search_results.html", search_term=search_term, results=results)
 
-    return redirect(url_for("index"))
+    # GET request - show search form
+    return render_template("search.html")
 
 
 @app.route("/cost-estimation", methods=["GET", "POST"])
