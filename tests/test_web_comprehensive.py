@@ -174,7 +174,9 @@ def test_upload_exception_handling(client, sample_pdf, monkeypatch):
         raise Exception("Test exception")
 
     with open(sample_pdf, "rb") as f:
-        with patch("estimatex.web.PDFToXMLConverter.save_json", side_effect=Exception("Test error")):
+        with patch(
+            "estimatex.web.PDFToXMLConverter.save_json", side_effect=Exception("Test error")
+        ):
             data = {"pdf": (f, "test.pdf")}
             response = client.post("/upload", data=data, content_type="multipart/form-data")
             assert response.status_code == 302
