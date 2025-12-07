@@ -178,7 +178,7 @@ def quick_convert(
         >>> data = quick_convert("document.pdf", extract_tables=True)
         >>> print(f"Converted {data['document']['pages']} pages")
     """
-    from pdf2json.converter import PDFToXMLConverter
+    from estimatex.converter import PDFToXMLConverter
 
     pdf_path = Path(pdf_path)
     if output_path is None:
@@ -277,7 +277,7 @@ def batch_convert_pdfs(
         >>> converted = batch_convert_pdfs("pdfs/", "json/", extract_tables=True)
         >>> print(f"Converted {len(converted)} files")
     """
-    from pdf2json.converter import PDFToXMLConverter
+    from estimatex.converter import PDFToXMLConverter
 
     pdf_dir = Path(pdf_directory)
     out_dir = Path(output_directory) if output_directory else pdf_dir
@@ -354,14 +354,14 @@ def validate_dsr_database(db_path: Union[str, Path]) -> Dict:
 
 
 def get_version_info() -> Dict:
-    """Get version information for pdf2json and dependencies.
+    """Get version information for EstimateX and dependencies.
 
     Returns:
         Dict with version numbers
 
     Example:
         >>> info = get_version_info()
-        >>> print(f"pdf2json version: {info['pdf2json']}")
+        >>> print(f"EstimateX version: {info['estimatex']}")
     """
     import sys
 
@@ -383,12 +383,12 @@ def get_version_info() -> Dict:
     import importlib.metadata
 
     try:
-        __version__ = importlib.metadata.version("pdf2json")
+        __version__ = importlib.metadata.version("estimatex")
     except Exception:
-        __version__ = "1.0.0"  # fallback
+        __version__ = "2.0.0"  # fallback
 
     return {
-        "pdf2json": __version__,
+        "estimatex": __version__,
         "python": sys.version.split()[0],
         "pymupdf": pymupdf_version,
         "flask": flask_version,

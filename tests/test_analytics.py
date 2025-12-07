@@ -68,7 +68,7 @@ def test_api_docs(client):
     response = client.get("/api/docs")
     assert response.status_code == 200
     assert b"API Documentation" in response.data
-    assert b"PDF2JSON" in response.data
+    assert b"EstimateX" in response.data
     assert b"/upload" in response.data
     assert b"/health" in response.data
 
