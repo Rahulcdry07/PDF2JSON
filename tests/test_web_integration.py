@@ -281,9 +281,13 @@ class TestSecurityAndValidation:
         response = client.post(
             "/search", data={"search_term": "<script>alert('xss')</script>", "category": "civil"}
         )
-        # Should sanitize input
+        # Should escape HTML entities - check that it's escaped not raw
         assert response.status_code == 200
-        assert b"<script>" not in response.data
+        # The string should be escaped in HTML
+        assert b"&lt;script&gt;" in response.data
+        # And should NOT contain the unescaped version that would execute as part of HTML tags
+        # Check it's not in an executable context (not as an actual script tag)
+        assert b"<script>alert" not in response.data
 
 
 @pytest.mark.integration
