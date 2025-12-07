@@ -1,6 +1,56 @@
 # GitHub MCP Integration Guide
 
-This document explains how to use the GitHub MCP integration for the EstimateX project.
+Complete guide for GitHub integration via Model Context Protocol in EstimateX.
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install GitHub CLI
+brew install gh  # macOS
+# or: https://cli.github.com/
+
+# 2. Authenticate
+gh auth login
+
+# 3. Run setup script
+./setup_github_mcp.sh
+
+# 4. Test the integration
+python examples/github_mcp_demo.py
+```
+
+## 📋 Quick Reference
+
+### Common Commands in Claude Desktop
+
+```
+"Create an issue for bug in PDF conversion"
+"List all open issues"
+"Show CI/CD workflow status"
+"Search for 'DSR matching' in code"
+"Show last 5 commits"
+"Create a release v2.0.0"
+"Check git status"
+```
+
+### Claude Desktop Configuration
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "github-mcp": {
+      "command": "/Users/rahulchaudhary/PDF2JSON/run_github_mcp_server.sh",
+      "args": []
+    }
+  }
+}
+```
+
+Restart Claude Desktop after configuration.
+
+---
 
 ## Overview
 
