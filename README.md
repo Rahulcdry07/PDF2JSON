@@ -555,11 +555,41 @@ See `requirements.txt` for complete dependency list.
 
 ## 🤝 Contributing
 
+### Development Workflow
+
+Before committing changes, always run:
+
+```bash
+# Run pre-commit checks (formatting + tests)
+./pre-commit-check.sh
+
+# Or manually:
+black .                    # Format code
+pytest tests/ -v          # Run all tests
+```
+
+**Git hook installed:** The repository includes a pre-commit hook that automatically checks code formatting before each commit.
+
+### Contributing Steps
+
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+4. Run pre-commit checks: `./pre-commit-check.sh`
+5. Commit with descriptive message: `git commit -m "feat: add amazing feature"`
+6. Push to your fork: `git push origin feature/amazing-feature`
+7. Submit a pull request
+
+### Commit Convention
+
+Follow conventional commits:
+- `feat:` New features
+- `fix:` Bug fixes
+- `docs:` Documentation changes
+- `style:` Code formatting (black)
+- `refactor:` Code refactoring
+- `test:` Adding or updating tests
+- `chore:` Maintenance tasks
 
 ## 📝 Legacy Features
 
