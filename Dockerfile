@@ -42,7 +42,7 @@ RUN mkdir -p uploads reference_files examples/input_files examples/output_report
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PATH=/root/.local/bin:$PATH
-ENV FLASK_APP=src.pdf2json.web
+ENV FLASK_APP=estimatex.web
 ENV FLASK_ENV=production
 
 # Expose ports
@@ -53,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
 # Default command (can be overridden)
-CMD ["python", "-m", "src.pdf2json.web"]
+CMD ["python", "-m", "estimatex.web"]

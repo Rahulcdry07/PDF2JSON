@@ -56,7 +56,7 @@ class TestHealthEndpoint:
         response = client.get("/health")
         data = json.loads(response.data)
         assert data["status"] == "healthy"
-        assert data["service"] == "pdf2json-dsr"
+        assert data["service"] == "estimatex"
 
 
 class TestHomePageIntegration:

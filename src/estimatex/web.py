@@ -30,7 +30,7 @@ UPLOADS.mkdir(parents=True, exist_ok=True)
 # Setup structured logging
 log_format = os.getenv("LOG_FORMAT", "human")  # 'json' for production
 log_level = os.getenv("LOG_LEVEL", "INFO")
-setup_logging(log_level=log_level, log_format=log_format, service_name="pdf2json-web")
+setup_logging(log_level=log_level, log_format=log_format, service_name="estimatex-web")
 logger = get_logger(__name__, component="web_interface")
 
 app = Flask(__name__, template_folder=str(APP_ROOT / "templates"))
@@ -655,7 +655,7 @@ def health_check():
             {
                 "status": "healthy",
                 "timestamp": datetime.now().isoformat(),
-                "service": "pdf2json-dsr",
+                "service": "estimatex",
             }
         ),
         200,
@@ -702,7 +702,7 @@ def create_app(config=None):
         Flask application instance
 
     Example:
-        >>> from pdf2json import create_app
+        >>> from estimatex.web import create_app
         >>> app = create_app({'SECRET_KEY': 'my-secret', 'DEBUG': False})
         >>> app.run()
     """

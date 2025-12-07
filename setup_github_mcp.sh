@@ -100,11 +100,11 @@ echo "   (Location: ~/Library/Application Support/Claude/claude_desktop_config.j
 echo ""
 echo '   {
      "mcpServers": {
-       "pdf2json-dsr": {
+       "estimatex": {
          "command": "python3",
          "args": ["'$(pwd)'/mcp_server.py"]
        },
-       "pdf2json-github": {
+       "estimatex-github": {
          "command": "python3",
          "args": ["'$(pwd)'/mcp_github_server.py"]
        }
