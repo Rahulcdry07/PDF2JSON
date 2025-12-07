@@ -447,59 +447,7 @@ def test_analytics_with_data(client):
 
 # =============================================================================
 # Tests for Excel API endpoints
-# =============================================================================
-# Tests for Excel API endpoints
-# =============================================================================
-
-
-def test_excel_converter_get(client):
-    """Test Excel converter GET request."""
-    response = client.get("/excel-converter")
-    assert response.status_code == 200
-
-
-def test_excel_sheets_api_no_file(client):
-    """Test /api/excel/sheets without file."""
-    response = client.post("/api/excel/sheets", data={})
-    assert response.status_code == 400
-    data = json.loads(response.data)
-    assert data["success"] is False
-
-
-def test_excel_sheets_api_empty_filename(client):
-    """Test /api/excel/sheets with empty filename."""
-    data = {"file": (io.BytesIO(b""), "")}
-    response = client.post("/api/excel/sheets", data=data, content_type="multipart/form-data")
-    assert response.status_code == 400
-
-
-def test_excel_sheets_api_invalid_file(client):
-    """Test /api/excel/sheets with invalid file type."""
-    data = {"file": (io.BytesIO(b"not excel"), "test.txt")}
-    response = client.post("/api/excel/sheets", data=data, content_type="multipart/form-data")
-    assert response.status_code == 400
-
-
-def test_excel_sheets_api_valid_excel(client, temp_dir):
-    """Test /api/excel/sheets with valid Excel file."""
-    import openpyxl
-
-    excel_file = temp_dir / "test.xlsx"
-    wb = openpyxl.Workbook()
-    wb.create_sheet("Sheet1")
-    wb.create_sheet("Sheet2")
-    wb.save(excel_file)
-
-    with open(excel_file, "rb") as f:
-        data = {"file": (f, "test.xlsx")}
-        response = client.post("/api/excel/sheets", data=data, content_type="multipart/form-data")
-        assert response.status_code == 200
-        result = json.loads(response.data)
-        assert result["success"] is True
-        assert len(result["sheets"]) >= 1
-
-
-# Excel conversion tests removed - excel_to_pdf functionality has been removed
+# Excel API endpoints and conversion tests removed - Excel functionality has been removed from the application
 
 
 # =============================================================================
