@@ -16,7 +16,7 @@ services:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     networks:
-      - pdf2json-network
+      - estimatex-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -26,7 +26,7 @@ services:
   # MCP web interface
   mcp-web:
     build: .
-    container_name: pdf2json-mcp-web
+    container_name: estimatex-mcp-web
     command: python mcp_web_interface.py
     ports:
       - "5001:5001"
@@ -37,14 +37,14 @@ services:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     networks:
-      - pdf2json-network
+      - estimatex-network
     depends_on:
       - web
 
   # MCP server (stdio mode for Claude Desktop)
   mcp-server:
     build: .
-    container_name: pdf2json-mcp-server
+    container_name: estimatex-mcp-server
     command: python mcp_server.py
     volumes:
       - ./reference_files:/app/reference_files
@@ -53,14 +53,14 @@ services:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     networks:
-      - pdf2json-network
+      - estimatex-network
     stdin_open: true
     tty: true
 
   # Database Manager
   db-manager:
     build: .
-    container_name: pdf2json-db-manager
+    container_name: estimatex-db-manager
     command: python database_manager.py
     ports:
       - "5002:5002"
@@ -71,12 +71,12 @@ services:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     networks:
-      - pdf2json-network
+      - estimatex-network
     depends_on:
       - web
 
 networks:
-  pdf2json-network:
+  estimatex-network:
     driver: bridge
 
 volumes:
