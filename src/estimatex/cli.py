@@ -1,4 +1,4 @@
-"""Command-line interface for PDF2JSON."""
+"""Command-line interface for EstimateX."""
 
 from pathlib import Path
 

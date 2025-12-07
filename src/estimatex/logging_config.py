@@ -1,4 +1,4 @@
-"""Structured logging configuration for pdf2json."""
+"""Structured logging configuration for EstimateX."""
 
 import logging
 import json
@@ -12,7 +12,7 @@ import traceback
 class StructuredFormatter(logging.Formatter):
     """JSON formatter for structured logging."""
 
-    def __init__(self, service_name: str = "pdf2json", include_trace: bool = True):
+    def __init__(self, service_name: str = "estimatex", include_trace: bool = True):
         super().__init__()
         self.service_name = service_name
         self.include_trace = include_trace
@@ -99,7 +99,7 @@ def setup_logging(
     log_level: str = "INFO",
     log_format: str = "json",
     log_file: Optional[Path] = None,
-    service_name: str = "pdf2json",
+    service_name: str = "estimatex",
 ) -> None:
     """
     Setup structured logging for the application.

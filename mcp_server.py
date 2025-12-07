@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP Server for PDF2JSON DSR Rate Matching System
+MCP Server for EstimateX DSR Rate Matching System
 
 This MCP server exposes the DSR rate matching functionality as tools that can be used
 by AI assistants through the Model Context Protocol.
@@ -51,7 +51,7 @@ from mcp.types import (
 )
 
 # Import project modules
-from pdf2json.converter import PDFToXMLConverter
+from estimatex.converter import PDFToXMLConverter
 from text_similarity import calculate_text_similarity
 
 # Server instance

@@ -1,6 +1,6 @@
 # Test Suite Documentation
 
-This directory contains the comprehensive test suite for the PDF2JSON DSR Rate Matching System.
+This directory contains the comprehensive test suite for the EstimateX DSR Rate Matching System.
 
 ## Test Structure
 

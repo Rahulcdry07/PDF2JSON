@@ -12,7 +12,7 @@ PROJECT_ROOT="/Users/rahulchaudhary/PDF2JSON"
 cd "$PROJECT_ROOT"
 
 echo "=========================================="
-echo "PDF2JSON - Path Migration Script"
+echo "EstimateX - Path Migration Script"
 echo "=========================================="
 echo ""
 

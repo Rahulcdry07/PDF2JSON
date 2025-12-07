@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-from pdf2json.converter import PDFToXMLConverter
+from estimatex.converter import PDFToXMLConverter
 from text_similarity import calculate_text_similarity
 
 app = Flask(__name__)
@@ -412,7 +412,7 @@ def download_file(filename):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("MCP Web Interface for PDF2JSON DSR System")
+    print("MCP Web Interface for EstimateX DSR System")
     print("=" * 60)
     print("\nStarting server on http://localhost:5001")
     print("\nAvailable endpoints:")

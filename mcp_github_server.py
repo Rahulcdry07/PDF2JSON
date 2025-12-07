@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GitHub MCP Server for PDF2JSON Project
+GitHub MCP Server for EstimateX Project
 
 This MCP server provides GitHub integration capabilities including:
 - Repository management (issues, PRs, commits)
@@ -9,7 +9,7 @@ This MCP server provides GitHub integration capabilities including:
 - Release management
 - Documentation updates
 
-Integrates with the main PDF2JSON MCP server for comprehensive project management.
+Integrates with the main EstimateX MCP server for comprehensive project management.
 """
 
 import asyncio
@@ -50,7 +50,7 @@ from mcp.types import (
 )
 
 # Server instance
-server = Server("pdf2json-github")
+server = Server("estimatex-github")
 
 # Constants
 GITHUB_OWNER = "Rahulcdry07"
@@ -100,7 +100,7 @@ async def list_resources() -> list[Resource]:
     return [
         Resource(
             uri=f"github://repo/{GITHUB_OWNER}/{GITHUB_REPO}",
-            name="PDF2JSON Repository",
+            name="EstimateX Repository",
             mimeType="application/json",
             description="Main repository information and statistics",
         ),

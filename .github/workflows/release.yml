@@ -74,7 +74,7 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/pdf2json:latest
-          ${{ secrets.DOCKER_USERNAME }}/pdf2json:${{ steps.version.outputs.VERSION }}
+          ${{ secrets.DOCKER_USERNAME }}/estimatex:latest
+          ${{ secrets.DOCKER_USERNAME }}/estimatex:${{ steps.version.outputs.VERSION }}
         cache-from: type=gha
         cache-to: type=gha,mode=max

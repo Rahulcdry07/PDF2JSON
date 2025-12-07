@@ -243,7 +243,7 @@ python3 match_dsr_rates_sqlite.py \
 ### Workflow A: Annual Update
 When new DSR volumes are released annually:
 1. Download new PDF files
-2. Convert PDFs to JSON (using pdf2json)
+2. Convert PDFs to JSON (using EstimateX)
 3. Run convert_to_structured_json.py with ALL volumes (old + new)
 4. Recreate database with all volumes
 5. Use updated database for new projects

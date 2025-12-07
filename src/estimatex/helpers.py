@@ -1,4 +1,4 @@
-"""Helper functions and utilities for pdf2json library."""
+"""Helper functions and utilities for EstimateX library."""
 
 import logging
 from pathlib import Path

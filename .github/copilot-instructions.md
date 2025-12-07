@@ -1,4 +1,4 @@
-# PDF2JSON Project Instructions
+# EstimateX Project Instructions
 
 This is a Python CLI application that converts PDF files to JSON format using PyMuPDF (fitz).
 

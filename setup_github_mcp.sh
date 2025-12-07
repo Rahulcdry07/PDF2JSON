@@ -1,6 +1,6 @@
 #!/bin/bash
 # GitHub MCP Integration Setup Script
-# This script helps set up the GitHub MCP integration for PDF2JSON
+# This script helps set up the GitHub MCP integration for EstimateX
 
 set -e
 

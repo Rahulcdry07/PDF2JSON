@@ -1,9 +1,9 @@
 #!/bin/bash
-# Test runner script for PDF2JSON project
+# Test runner script for EstimateX project
 
 set -e
 
-echo "🧪 PDF2JSON Test Suite"
+echo "🧪 EstimateX Test Suite"
 echo "======================"
 echo ""
 

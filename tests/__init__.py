@@ -1,1 +1,1 @@
-"""Tests for PDF2JSON."""
+"""Tests for EstimateX."""

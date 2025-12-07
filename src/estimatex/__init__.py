@@ -1,4 +1,4 @@
-"""PDF2JSON - Convert PDF files to JSON format and DSR rate matching."""
+"""EstimateX - Convert PDF files to JSON format and DSR rate matching."""
 
 import sys
 from pathlib import Path

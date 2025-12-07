@@ -1,11 +1,11 @@
 """
-OpenAPI/Swagger specification for PDF2JSON API
+OpenAPI/Swagger specification for EstimateX API
 """
 
 API_SPEC = {
     "openapi": "3.0.0",
     "info": {
-        "title": "PDF2JSON API",
+        "title": "EstimateX API",
         "description": "PDF conversion and DSR rate matching API for construction cost estimation",
         "version": "1.0.0",
         "contact": {"name": "API Support", "url": "https://github.com/Rahulcdry07/PDF2JSON"},
