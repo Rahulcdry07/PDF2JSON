@@ -12,7 +12,6 @@ import sys
 from typing import Dict, List, Tuple, Optional
 from difflib import SequenceMatcher
 from collections import defaultdict, deque
-import openpyxl
 import zipfile
 import io
 import time
@@ -689,37 +688,6 @@ def api_docs():
     Display interactive API documentation
     """
     return render_template("api_docs.html")
-
-
-@app.route("/excel-converter")
-def excel_converter():
-    """Excel to PDF converter page."""
-    return render_template("excel_converter.html")
-
-
-@app.route("/api/excel/sheets", methods=["POST"])
-def get_excel_sheets():
-    """Get list of sheets from uploaded Excel file."""
-    try:
-        if "file" not in request.files:
-            return jsonify({"success": False, "error": "No file uploaded"}), 400
-
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"success": False, "error": "No file selected"}), 400
-
-        if not file.filename.lower().endswith((".xlsx", ".xls")):
-            return jsonify({"success": False, "error": "Invalid file type"}), 400
-
-        # Load workbook
-        workbook = openpyxl.load_workbook(file, read_only=True, data_only=True)
-        sheets = workbook.sheetnames
-        workbook.close()
-
-        return jsonify({"success": True, "sheets": sheets})
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
 
 def create_app(config=None):

@@ -150,20 +150,6 @@ class TestDatabaseSearchWorkflow:
         assert response.status_code == 200
 
 
-class TestExcelConverterWorkflow:
-    """Test the Excel converter workflow."""
-
-    def test_excel_converter_page_loads(self, client):
-        """Test that Excel converter page loads."""
-        response = client.get("/excel-converter")
-        assert response.status_code == 200
-
-    def test_excel_conversion_without_file(self, client):
-        """Test Excel conversion page loads."""
-        response = client.get("/excel-converter")
-        assert response.status_code == 200
-
-
 class TestAnalyticsWorkflow:
     """Test the analytics and monitoring workflow."""
 
