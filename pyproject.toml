@@ -45,7 +45,8 @@ dev = [
 ]
 
 [project.scripts]
-estimatex = "src.estimatex.cli:main"
+estimatex = "estimatex.cli:main"
+estimatex-web = "estimatex.web:main"
 
 [tool.black]
 line-length = 100
