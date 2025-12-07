@@ -1,6 +1,6 @@
 # GitHub MCP Integration Guide
 
-This document explains how to use the GitHub MCP integration for the PDF2JSON project.
+This document explains how to use the GitHub MCP integration for the EstimateX project.
 
 ## Overview
 
@@ -90,7 +90,7 @@ Follow the prompts to authenticate using your GitHub account.
 
 ```bash
 gh --version
-gh repo view Rahulcdry07/PDF2JSON
+gh repo view Rahulcdry07/EstimateX
 ```
 
 ## Running the GitHub MCP Server
@@ -108,9 +108,9 @@ Add to your Claude Desktop MCP configuration (`~/Library/Application Support/Cla
 ```json
 {
   "mcpServers": {
-    "pdf2json-github": {
+    "estimatex-github": {
       "command": "python",
-      "args": ["/path/to/PDF2JSON/mcp_github_server.py"],
+      "args": ["/path/to/EstimateX/mcp_github_server.py"],
       "env": {}
     }
   }
@@ -236,23 +236,23 @@ Get local git repository status (no parameters required).
 ## Available Resources
 
 ### Repository Information
-- URI: `github://repo/Rahulcdry07/PDF2JSON`
+- URI: `github://repo/Rahulcdry07/EstimateX`
 - Description: Main repository stats and metadata
 
 ### Issues
-- URI: `github://repo/Rahulcdry07/PDF2JSON/issues`
+- URI: `github://repo/Rahulcdry07/EstimateX/issues`
 - Description: All repository issues
 
 ### Pull Requests
-- URI: `github://repo/Rahulcdry07/PDF2JSON/pulls`
+- URI: `github://repo/Rahulcdry07/EstimateX/pulls`
 - Description: All pull requests
 
 ### Actions
-- URI: `github://repo/Rahulcdry07/PDF2JSON/actions`
+- URI: `github://repo/Rahulcdry07/EstimateX/actions`
 - Description: CI/CD workflow runs
 
 ### Releases
-- URI: `github://repo/Rahulcdry07/PDF2JSON/releases`
+- URI: `github://repo/Rahulcdry07/EstimateX/releases`
 - Description: All project releases
 
 ## Usage Examples
@@ -322,20 +322,20 @@ release = await call_tool("create_release", {
 
 ## Integration with Main MCP Server
 
-The GitHub MCP server complements the main PDF2JSON MCP server. You can run both servers simultaneously for complete project management:
+The GitHub MCP server complements the main EstimateX MCP server. You can run both servers simultaneously for complete project management:
 
 ### Combined Configuration
 
 ```json
 {
   "mcpServers": {
-    "pdf2json-dsr": {
+    "estimatex-dsr": {
       "command": "python",
-      "args": ["/path/to/PDF2JSON/mcp_server.py"]
+      "args": ["/path/to/EstimateX/mcp_server.py"]
     },
-    "pdf2json-github": {
+    "estimatex-github": {
       "command": "python",
-      "args": ["/path/to/PDF2JSON/mcp_github_server.py"]
+      "args": ["/path/to/EstimateX/mcp_github_server.py"]
     }
   }
 }
@@ -430,5 +430,5 @@ For issues or questions:
 
 1. Check [GitHub CLI documentation](https://cli.github.com/manual/)
 2. Review [MCP specification](https://modelcontextprotocol.io/)
-3. Create an issue on [GitHub](https://github.com/Rahulcdry07/PDF2JSON/issues)
+3. Create an issue on [GitHub](https://github.com/Rahulcdry07/EstimateX/issues)
 4. Consult the main project [README](../README.md)

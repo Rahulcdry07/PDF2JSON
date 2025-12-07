@@ -17,7 +17,7 @@ from unittest.mock import patch, MagicMock
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pdf2json.web import app, analytics, allowed_file, AnalyticsTracker
+from estimatex.web import app, analytics, allowed_file, AnalyticsTracker
 
 
 @pytest.fixture
@@ -108,7 +108,7 @@ def test_error_handler_413(client):
     # The 413 error is handled automatically by Flask
     # We test that the handler is registered by checking the route exists
     # Actual triggering requires >500MB upload which is impractical
-    from pdf2json.web import app
+    from estimatex.web import app
 
     # Check error handler is registered
     assert 413 in app.error_handler_spec.get(None, {})
@@ -174,7 +174,7 @@ def test_upload_exception_handling(client, sample_pdf, monkeypatch):
         raise Exception("Test exception")
 
     with open(sample_pdf, "rb") as f:
-        with patch("pdf2json.web.PDFToXMLConverter.save_json", side_effect=Exception("Test error")):
+        with patch("estimatex.web.PDFToXMLConverter.save_json", side_effect=Exception("Test error")):
             data = {"pdf": (f, "test.pdf")}
             response = client.post("/upload", data=data, content_type="multipart/form-data")
             assert response.status_code == 302
@@ -188,7 +188,7 @@ def test_upload_exception_handling(client, sample_pdf, monkeypatch):
 def test_view_csv_file(client, sample_csv, monkeypatch):
     """Test viewing CSV file."""
     # Mock the path resolution
-    from pdf2json import web
+    from estimatex import web
 
     def mock_exists():
         return True
@@ -320,7 +320,7 @@ def test_cost_estimation_post_valid(client):
 
 def test_process_cost_estimation_script_not_found():
     """Test process_cost_estimation when script is missing."""
-    from pdf2json.web import process_cost_estimation
+    from estimatex.web import process_cost_estimation
 
     with patch("pathlib.Path.exists", return_value=False):
         result = process_cost_estimation("input.json", ["ref.json"])
@@ -330,7 +330,7 @@ def test_process_cost_estimation_script_not_found():
 
 def test_process_cost_estimation_database_not_found():
     """Test process_cost_estimation when database is missing."""
-    from pdf2json.web import process_cost_estimation
+    from estimatex.web import process_cost_estimation
 
     def selective_exists(self):
         # Script exists but database doesn't
@@ -346,7 +346,7 @@ def test_process_cost_estimation_database_not_found():
 
 def test_process_cost_estimation_input_not_found():
     """Test process_cost_estimation when input file is missing."""
-    from pdf2json.web import process_cost_estimation
+    from estimatex.web import process_cost_estimation
 
     with patch("pathlib.Path.exists", side_effect=[True, True, False]):
         result = process_cost_estimation("nonexistent.json", ["ref.json"])
@@ -356,7 +356,7 @@ def test_process_cost_estimation_input_not_found():
 
 def test_process_cost_estimation_script_failure():
     """Test process_cost_estimation when script fails."""
-    from pdf2json.web import process_cost_estimation
+    from estimatex.web import process_cost_estimation
     import subprocess
 
     mock_result = MagicMock()
@@ -373,7 +373,7 @@ def test_process_cost_estimation_script_failure():
 
 def test_process_cost_estimation_success():
     """Test successful process_cost_estimation."""
-    from pdf2json.web import process_cost_estimation
+    from estimatex.web import process_cost_estimation
     import subprocess
 
     mock_result = MagicMock()
@@ -507,7 +507,7 @@ def test_excel_sheets_api_valid_excel(client, temp_dir):
 
 def test_get_input_files():
     """Test get_input_files helper function."""
-    from pdf2json.web import get_input_files
+    from estimatex.web import get_input_files
 
     files = get_input_files()
     assert isinstance(files, list)
@@ -515,7 +515,7 @@ def test_get_input_files():
 
 def test_get_reference_files():
     """Test get_reference_files helper function."""
-    from pdf2json.web import get_reference_files
+    from estimatex.web import get_reference_files
 
     files = get_reference_files()
     assert isinstance(files, list)

@@ -1,8 +1,8 @@
-# MCP Integration for PDF2JSON DSR System
+# MCP Integration for EstimateX DSR System
 
 ## Overview
 
-The PDF2JSON DSR Rate Matching System now includes a **Model Context Protocol (MCP)** server that exposes its functionality to AI assistants like Claude Desktop.
+The EstimateX DSR Rate Matching System now includes a **Model Context Protocol (MCP)** server that exposes its functionality to AI assistants like Claude Desktop.
 
 ## What is MCP?
 
@@ -61,7 +61,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```json
 {
   "mcpServers": {
-    "pdf2json-dsr": {
+    "estimatex-dsr": {
       "command": "python",
 ### 5. Restart Claude Desktop
 
@@ -145,7 +145,7 @@ npx @modelcontextprotocol/inspector python mcp_server.py
 npm install -g @modelcontextprotocol/cli
 
 # Test the server
-mcp-cli call pdf2json-dsr search_dsr_code --code "15.12.2" --category "civil"
+mcp-cli call estimatex-dsr search_dsr_code --code "15.12.2" --category "civil"
 ```
 
 ## Available Tools Reference
@@ -296,7 +296,7 @@ The server exposes DSR databases as resources:
     ┌────┴──────┬──────────┬───────────┐
     │           │          │           │
 ┌───▼────┐ ┌───▼────┐ ┌──▼─────┐ ┌───▼────┐
-│PDF2JSON│ │Scripts │ │Database│ │  Web   │
+│EstimateX│ │Scripts │ │Database│ │  Web   │
 │Converter│ │(DSR)   │ │(SQLite)│ │Interface│
 └────────┘ └────────┘ └────────┘ └────────┘
 ```
@@ -360,7 +360,7 @@ async def read_resource(uri: str) -> str:
 
 ### Claude can't find tools
 - Restart Claude Desktop after config changes
-- Check logs: `~/Library/Logs/Claude/mcp-server-pdf2json-dsr.log`
+- Check logs: `~/Library/Logs/Claude/mcp-server-estimatex-dsr.log`
 - Verify server path is absolute
 
 ### Database not found errors
@@ -401,4 +401,4 @@ For issues or questions:
 
 ## License
 
-Same as parent project (PDF2JSON DSR System)
+Same as parent project (EstimateX DSR System)

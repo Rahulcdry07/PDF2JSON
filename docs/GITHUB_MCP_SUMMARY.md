@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully integrated GitHub MCP (Model Context Protocol) server into the PDF2JSON project, enabling AI assistants to interact with GitHub repositories through natural language.
+Successfully integrated GitHub MCP (Model Context Protocol) server into the EstimateX project, enabling AI assistants to interact with GitHub repositories through natural language.
 
 ## What Was Added
 
@@ -185,7 +185,7 @@ except Exception as e:
 User: "Create an issue for adding PDF encryption support"
 
 Response: Created issue #15: "Add PDF encryption support"
-URL: https://github.com/Rahulcdry07/PDF2JSON/issues/15
+URL: https://github.com/Rahulcdry07/EstimateX/issues/15
 ```
 
 ### Programmatic Usage
@@ -298,9 +298,9 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "pdf2json-github": {
+    "estimatex-github": {
       "command": "python3",
-      "args": ["/path/to/PDF2JSON/mcp_github_server.py"]
+      "args": ["/path/to/EstimateX/mcp_github_server.py"]
     }
   }
 }
@@ -311,13 +311,13 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "pdf2json-dsr": {
+    "estimatex-dsr": {
       "command": "python3",
-      "args": ["/path/to/PDF2JSON/mcp_server.py"]
+      "args": ["/path/to/EstimateX/mcp_server.py"]
     },
-    "pdf2json-github": {
+    "estimatex-github": {
       "command": "python3",
-      "args": ["/path/to/PDF2JSON/mcp_github_server.py"]
+      "args": ["/path/to/EstimateX/mcp_github_server.py"]
     }
   }
 }
@@ -339,7 +339,7 @@ Add to `claude_desktop_config.json`:
 
 ## Conclusion
 
-The GitHub MCP integration successfully extends the PDF2JSON project with comprehensive GitHub repository management capabilities. It provides a natural language interface for common GitHub operations, integrates seamlessly with the existing DSR MCP server, and enables AI assistants to manage the entire development workflow from code to deployment.
+The GitHub MCP integration successfully extends the EstimateX project with comprehensive GitHub repository management capabilities. It provides a natural language interface for common GitHub operations, integrates seamlessly with the existing DSR MCP server, and enables AI assistants to manage the entire development workflow from code to deployment.
 
 The implementation is production-ready, well-documented, and includes all necessary tooling for setup and testing. It represents a significant enhancement to the project's AI capabilities and developer experience.
 

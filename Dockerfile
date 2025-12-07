@@ -1,4 +1,4 @@
-# Multi-stage build for PDF2JSON DSR System
+# Multi-stage build for EstimateX - AI-Powered Construction Cost Estimation
 FROM python:3.11-slim as builder
 
 # Set working directory

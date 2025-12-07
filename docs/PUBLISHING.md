@@ -1,6 +1,6 @@
 # Publishing to PyPI Guide
 
-This guide explains how to build, test, and publish the `pdf2json-dsr` package to PyPI.
+This guide explains how to build, test, and publish the `estimatex-dsr` package to PyPI.
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ We follow [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
    version = "1.0.0"  # Update this
    ```
 
-2. **Edit `src/pdf2json/__init__.py`**
+2. **Edit `src/estimatex/__init__.py`**
    ```python
    __version__ = "1.0.0"  # Update this
    ```
@@ -66,16 +66,16 @@ python -m build
 ```
 
 This creates:
-- `dist/pdf2json_dsr-1.0.0-py3-none-any.whl` (wheel)
-- `dist/pdf2json-dsr-1.0.0.tar.gz` (source)
+- `dist/estimatex_dsr-1.0.0-py3-none-any.whl` (wheel)
+- `dist/estimatex-dsr-1.0.0.tar.gz` (source)
 
 ### 3. Verify Build
 ```bash
 # Check package contents
-tar -tzf dist/pdf2json-dsr-1.0.0.tar.gz
+tar -tzf dist/estimatex-dsr-1.0.0.tar.gz
 
 # Verify wheel
-unzip -l dist/pdf2json_dsr-1.0.0-py3-none-any.whl
+unzip -l dist/estimatex_dsr-1.0.0-py3-none-any.whl
 ```
 
 ## Testing Before Publishing
@@ -87,15 +87,15 @@ python -m venv test_env
 source test_env/bin/activate
 
 # Install from local wheel
-pip install dist/pdf2json_dsr-1.0.0-py3-none-any.whl
+pip install dist/estimatex_dsr-1.0.0-py3-none-any.whl
 
 # Test imports
-python -c "from pdf2json import PDFToXMLConverter; print('✅ Import successful')"
-python -c "from pdf2json import app, create_app; print('✅ Web app import successful')"
-python -c "from pdf2json import match_with_database; print('✅ DSR matching import successful')"
+python -c "from estimatex import PDFToXMLConverter; print('✅ Import successful')"
+python -c "from estimatex import app, create_app; print('✅ Web app import successful')"
+python -c "from estimatex import match_with_database; print('✅ DSR matching import successful')"
 
 # Test CLI
-pdf2json --help
+estimatex --help
 
 # Deactivate and clean up
 deactivate
@@ -147,10 +147,10 @@ source test_testpypi/bin/activate
 # Install from Test PyPI
 pip install --index-url https://test.pypi.org/simple/ \
     --extra-index-url https://pypi.org/simple/ \
-    pdf2json-dsr
+    estimatex-dsr
 
 # Test functionality
-python -c "from pdf2json import PDFToXMLConverter"
+python -c "from estimatex import PDFToXMLConverter"
 
 # Clean up
 deactivate
@@ -175,13 +175,13 @@ twine upload dist/*
 ### 3. Verify Publication
 ```bash
 # Check on PyPI
-open https://pypi.org/project/pdf2json-dsr/
+open https://pypi.org/project/estimatex-dsr/
 
 # Install from PyPI
-pip install pdf2json-dsr
+pip install estimatex-dsr
 
 # Test installation
-python -c "from pdf2json import PDFToXMLConverter; print('✅ Published successfully!')"
+python -c "from estimatex import PDFToXMLConverter; print('✅ Published successfully!')"
 ```
 
 ### 4. Create Git Tag
@@ -239,40 +239,40 @@ jobs:
 ### Installation
 ```bash
 # Basic installation
-pip install pdf2json-dsr
+pip install estimatex-dsr
 
 # With development dependencies
-pip install pdf2json-dsr[dev]
+pip install estimatex-dsr[dev]
 ```
 
 ### Import Examples
 ```python
 # Core converter
-from pdf2json import PDFToXMLConverter
+from estimatex import PDFToXMLConverter
 
 # Web application
-from pdf2json import app, create_app
+from estimatex import app, create_app
 
 # DSR matching
-from pdf2json import match_with_database, load_dsr_database
+from estimatex import match_with_database, load_dsr_database
 
 # Utilities
-from pdf2json import calculate_text_similarity, ExcelToPDFConverter
+from estimatex import calculate_text_similarity, ExcelToPDFConverter
 ```
 
 ## Troubleshooting
 
 ### Package Name Already Taken
-If `pdf2json-dsr` is taken, modify in `pyproject.toml`:
+If `estimatex-dsr` is taken, modify in `pyproject.toml`:
 ```toml
-name = "pdf2json-dsr-yourname"
+name = "estimatex-dsr-yourname"
 ```
 
 ### Import Errors After Installation
 Check that `src/` directory structure is correct:
 ```
 src/
-└── pdf2json/
+└── estimatex/
     ├── __init__.py  # Must export all public APIs
     ├── converter.py
     └── web.py
@@ -290,7 +290,7 @@ dependencies = [
 ### Large Package Size
 Check what's being included:
 ```bash
-tar -tzf dist/pdf2json-dsr-1.0.0.tar.gz | grep -E '\.(db|pdf|xlsx)$'
+tar -tzf dist/estimatex-dsr-1.0.0.tar.gz | grep -E '\.(db|pdf|xlsx)$'
 ```
 
 Exclude large files in `.gitignore` and ensure they're not in `dist/`.

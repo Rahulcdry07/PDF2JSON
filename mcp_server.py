@@ -55,7 +55,7 @@ from pdf2json.converter import PDFToXMLConverter
 from text_similarity import calculate_text_similarity
 
 # Server instance
-server = Server("pdf2json-dsr")
+server = Server("estimatex")
 
 # Constants
 REFERENCE_FILES = PROJECT_ROOT / "reference_files"

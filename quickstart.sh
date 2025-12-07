@@ -1,10 +1,10 @@
 #!/bin/bash
-# Quick start script for PDF2JSON DSR System
+# Quick start script for EstimateX DSR System
 
 set -e
 
 echo "======================================"
-echo "PDF2JSON DSR System - Quick Start"
+echo "EstimateX DSR System - Quick Start"
 echo "======================================"
 echo ""
 
@@ -78,7 +78,7 @@ echo "✓ Setup complete!"
 echo ""
 echo "To start the application:"
 echo "  1. Activate environment: source .venv/bin/activate"
-echo "  2. Start main web:    python -m src.pdf2json.web"
+echo "  2. Start main web:    python -m src.estimatex.web"
 echo "  3. Start MCP web:     python mcp_web_interface.py"
 echo "  4. Start DB manager:  python database_manager.py"
 echo ""

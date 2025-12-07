@@ -1,4 +1,4 @@
-# Contributing to PDF2JSON DSR System
+# Contributing to EstimateX DSR System
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to the project.
 
@@ -14,8 +14,8 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/PDF2JSON.git
-   cd PDF2JSON
+   git clone https://github.com/YOUR-USERNAME/EstimateX.git
+   cd EstimateX
    ```
 
 2. **Create a virtual environment**

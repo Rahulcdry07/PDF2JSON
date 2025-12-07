@@ -1,4 +1,4 @@
-# Test Suite for PDF2JSON DSR Rate Matching System
+# Test Suite for EstimateX DSR Rate Matching System
 
 ## Overview
 Comprehensive test suite with **44 passing tests** covering all major functionality.

@@ -2,7 +2,7 @@
 
 import pytest
 import logging
-from src.pdf2json.logging_config import (
+from src.estimatex.logging_config import (
     setup_logging,
     get_logger,
     StructuredFormatter,
@@ -13,7 +13,7 @@ from src.pdf2json.logging_config import (
 def test_setup_logging_default():
     """Test default logging setup."""
     setup_logging()
-    logger = logging.getLogger("pdf2json")
+    logger = logging.getLogger("estimatex")
     # Logger level might be NOTSET (0) if inherited
     assert logger.level >= 0
 
@@ -21,7 +21,7 @@ def test_setup_logging_default():
 def test_setup_logging_debug_level():
     """Test logging setup with DEBUG level."""
     setup_logging(log_level="DEBUG")
-    logger = logging.getLogger("pdf2json")
+    logger = logging.getLogger("estimatex")
     # Level might be inherited, check effective level
     assert logger.level <= logging.DEBUG or logger.getEffectiveLevel() <= logging.DEBUG
 
@@ -29,7 +29,7 @@ def test_setup_logging_debug_level():
 def test_setup_logging_json_format():
     """Test logging setup with JSON format."""
     setup_logging(log_format="json", service_name="test-service")
-    logger = logging.getLogger("pdf2json")
+    logger = logging.getLogger("estimatex")
     # Handlers might be on root logger
     assert len(logger.handlers) >= 0
 
@@ -37,7 +37,7 @@ def test_setup_logging_json_format():
 def test_setup_logging_human_format():
     """Test logging setup with human-readable format."""
     setup_logging(log_format="human")
-    logger = logging.getLogger("pdf2json")
+    logger = logging.getLogger("estimatex")
     # Handlers might be on root logger
     assert len(logger.handlers) >= 0
 

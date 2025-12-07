@@ -14,7 +14,7 @@ import shutil
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pdf2json.helpers import (
+from estimatex.helpers import (
     DSRMatcherHelper,
     quick_convert,
     quick_match,
@@ -579,7 +579,7 @@ class TestGetVersionInfo:
         """Test that version info has correct structure."""
         info = get_version_info()
 
-        assert "pdf2json" in info
+        assert "estimatex" in info
         assert "python" in info
         assert "pymupdf" in info
         assert "flask" in info
@@ -600,10 +600,10 @@ class TestGetVersionInfo:
         # PyMuPDF should be installed in test environment
         assert info["pymupdf"] != "unknown"
 
-    def test_get_version_info_pdf2json_version(self):
-        """Test that pdf2json version is reported."""
+    def test_get_version_info_estimatex_version(self):
+        """Test that estimatex version is reported."""
         info = get_version_info()
 
         # Should have either detected version or fallback
-        assert isinstance(info["pdf2json"], str)
-        assert len(info["pdf2json"]) > 0
+        assert isinstance(info["estimatex"], str)
+        assert len(info["estimatex"]) > 0

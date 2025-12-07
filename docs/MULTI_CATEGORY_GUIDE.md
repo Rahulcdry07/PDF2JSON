@@ -92,7 +92,7 @@ mv ../reference_files/DSR_Vol_*_Civil* ../reference_files/civil/
 mv ../reference_files/civil/DSR_Civil_combined.db ../reference_files/civil/
 
 # When you get Electrical PDFs, process them:
-python3 ../src/pdf2json/cli.py DSR_Electrical.pdf -o DSR_Electrical.json
+python3 ../src/estimatex/cli.py DSR_Electrical.pdf -o DSR_Electrical.json
 python3 convert_to_structured_json.py -v DSR_Electrical.json -o ../reference_files/electrical/
 python3 create_alternative_formats.py -v ../reference_files/electrical/DSR_*_structured.json
 ```

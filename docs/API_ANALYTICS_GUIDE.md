@@ -2,7 +2,7 @@
 
 ## 📖 Overview
 
-PDF2JSON now includes comprehensive API documentation and a real-time analytics dashboard to monitor usage, performance, and system health.
+EstimateX now includes comprehensive API documentation and a real-time analytics dashboard to monitor usage, performance, and system health.
 
 ## 🎯 Features
 
@@ -59,7 +59,7 @@ GET /health
 {
   "status": "healthy",
   "timestamp": "2025-12-04T10:30:00Z",
-  "service": "pdf2json-dsr"
+  "service": "estimatex-dsr"
 }
 ```
 
@@ -460,7 +460,7 @@ def export_stats_json():
 For issues or questions:
 - Check the troubleshooting section above
 - Review logs: `data/logs/`
-- Open an issue on GitHub: https://github.com/Rahulcdry07/PDF2JSON
+- Open an issue on GitHub: https://github.com/Rahulcdry07/EstimateX
 
 ---
 

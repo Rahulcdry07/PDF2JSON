@@ -1,13 +1,13 @@
-# PDF2JSON - PDF Conversion & DSR Rate Matching System
+# EstimateX - AI-Powered Construction Cost Estimation Platform
 
-[![CI/CD Pipeline](https://github.com/Rahulcdry07/PDF2JSON/actions/workflows/ci.yml/badge.svg)](https://github.com/Rahulcdry07/PDF2JSON/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/Rahulcdry07/EstimateX/actions/workflows/ci.yml/badge.svg)](https://github.com/Rahulcdry07/EstimateX/actions/workflows/ci.yml)
 [![Python Versions](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Tests](https://img.shields.io/badge/tests-78%20passing-brightgreen)](https://github.com/Rahulcdry07/PDF2JSON/tree/main/tests)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Rahulcdry07/PDF2JSON/blob/main/docs/CONTRIBUTING.md)
+[![Tests](https://img.shields.io/badge/tests-78%20passing-brightgreen)](https://github.com/Rahulcdry07/EstimateX/tree/main/tests)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Rahulcdry07/EstimateX/blob/main/docs/CONTRIBUTING.md)
 
-A comprehensive Python application that converts PDF files to JSON format and provides advanced DSR (Detailed Schedule of Rates) rate matching capabilities for construction project cost estimation.
+A next-generation construction cost estimation platform with AI-powered DSR (Detailed Schedule of Rates) rate matching, document processing, and intelligent project cost analysis.
 
 ## 🏗️ Features
 
@@ -99,7 +99,7 @@ See [docs/TESTING.md](docs/TESTING.md) for comprehensive test documentation.
 ## 📁 Project Structure
 
 ```
-PDF2JSON/
+EstimateX/
 ├── config/                # Configuration files
 │   └── env.example        # Environment variables template
 ├── data/                  # All data files (organized)
@@ -140,8 +140,8 @@ See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for complete details.
 
 ```bash
 # Clone the repository
-git clone https://github.com/Rahulcdry07/PDF2JSON.git
-cd PDF2JSON
+git clone https://github.com/Rahulcdry07/EstimateX.git
+cd EstimateX
 
 # Run quick start script
 chmod +x quickstart.sh
@@ -152,8 +152,8 @@ chmod +x quickstart.sh
 
 ```bash
 # Clone and configure
-git clone https://github.com/Rahulcdry07/PDF2JSON.git
-cd PDF2JSON
+git clone https://github.com/Rahulcdry07/EstimateX.git
+cd EstimateX
 cp .env.example .env
 
 # Start with Docker Compose
@@ -173,8 +173,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment options.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Rahulcdry07/PDF2JSON.git
-   cd PDF2JSON
+   git clone https://github.com/Rahulcdry07/EstimateX.git
+   cd EstimateX
    ```
 
 2. **Create virtual environment**
@@ -191,7 +191,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment options.
 
 4. **Verify installation**
    ```bash
-   python -m src.pdf2json.cli --help
+   python -m src.estimatex.cli --help
    pytest tests/ -v  # Run tests
    ```
 
@@ -201,7 +201,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment options.
 
 Start the web server:
 ```bash
-python -m src.pdf2json.web
+python -m src.estimatex.web
 ```
 
 Then open **http://localhost:8000** in your browser to:
@@ -249,12 +249,12 @@ python3 match_dsr_rates_sqlite.py -i items.json -d DSR_combined.db
 
 Convert a single PDF:
 ```bash
-python -m src.pdf2json.cli input.pdf --output output.json
+python -m src.estimatex.cli input.pdf --output output.json
 ```
 
 Convert with metadata:
 ```bash
-python -m src.pdf2json.cli input.pdf --include-metadata
+python -m src.estimatex.cli input.pdf --include-metadata
 ```
 
 ## 📊 DSR Matching Performance
@@ -319,7 +319,7 @@ pytest tests/
 ### Adding Custom DSR Volumes
 ```bash
 # 1. Convert your PDFs to JSON first (if needed)
-python -m src.pdf2json.cli DSR_Vol_3.pdf
+python -m src.estimatex.cli DSR_Vol_3.pdf
 
 # 2. Convert to structured format
 python3 scripts/convert_to_structured_json.py -v DSR_Vol_3.json
@@ -379,7 +379,7 @@ MIT License - See LICENSE file for details
 ## 📁 Project Structure
 
 ```
-PDF2JSON/
+EstimateX/
 ├── src/pdf2json/           # Core application modules
 │   ├── cli.py             # Command-line interface
 │   ├── converter.py       # PDF conversion logic
@@ -403,7 +403,7 @@ PDF2JSON/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd PDF2JSON
+   cd EstimateX
    ```
 
 2. **Install Python dependencies**
@@ -413,7 +413,7 @@ PDF2JSON/
 
 3. **Verify installation**
    ```bash
-   python -m src.pdf2json.cli --help
+   python -m src.estimatex.cli --help
    ```
 
 ## 💻 Usage
@@ -422,7 +422,7 @@ PDF2JSON/
 
 Start the web server:
 ```bash
-python -m src.pdf2json.web
+python -m src.estimatex.web
 ```
 
 Then open http://localhost:5000 in your browser to:
@@ -435,7 +435,7 @@ Then open http://localhost:5000 in your browser to:
 
 Convert a single PDF:
 ```bash
-python -m src.pdf2json.cli input.pdf --output output.json
+python -m src.estimatex.cli input.pdf --output output.json
 ```
 
 ### 3. DSR Rate Matching
@@ -563,7 +563,7 @@ See `requirements.txt` for complete dependency list.
 
 ## 📝 Legacy Features
 
-The original PDF2JSON functionality remains fully intact:
+The original EstimateX functionality remains fully intact:
 - Extract text and structure from PDF files
 - Generate readable JSON output with text blocks and positions
 - Search functionality within JSON files (CLI and Web UI)

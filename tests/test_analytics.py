@@ -3,7 +3,7 @@ Tests for analytics and API documentation endpoints
 """
 
 import pytest
-from src.pdf2json.web import app, analytics_tracker
+from src.estimatex.web import app, analytics_tracker
 import json
 import time
 

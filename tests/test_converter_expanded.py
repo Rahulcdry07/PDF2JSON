@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pdf2json.converter import PDFToXMLConverter, PDFConversionError
+from estimatex.converter import PDFToXMLConverter, PDFConversionError
 
 
 @pytest.fixture

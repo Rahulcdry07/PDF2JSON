@@ -1,9 +1,9 @@
 # Project Structure
 
-PDF2JSON follows a clean, organized directory structure:
+EstimateX follows a clean, organized directory structure:
 
 ```
-PDF2JSON/
+EstimateX/
 ├── .github/              # GitHub Actions workflows
 │   └── workflows/        # CI/CD pipelines
 │
@@ -43,7 +43,7 @@ PDF2JSON/
 │   └── ...                        # Other utilities
 │
 ├── src/                  # Source code
-│   └── pdf2json/         # Main package
+│   └── estimatex/         # Main package
 │       ├── __init__.py
 │       ├── converter.py  # PDF to JSON converter
 │       └── web.py        # Flask web application

@@ -1,6 +1,6 @@
 # Integration Examples
 
-This document provides practical examples for integrating `pdf2json-dsr` into other projects.
+This document provides practical examples for integrating `estimatex-dsr` into other projects.
 
 ## Table of Contents
 
@@ -19,13 +19,13 @@ This document provides practical examples for integrating `pdf2json-dsr` into ot
 
 ### From PyPI (after publishing)
 ```bash
-pip install pdf2json-dsr
+pip install estimatex-dsr
 ```
 
 ### From Source
 ```bash
-git clone https://github.com/Rahulcdry07/PDF2JSON.git
-cd PDF2JSON
+git clone https://github.com/Rahulcdry07/EstimateX.git
+cd EstimateX
 pip install -e .
 ```
 
@@ -35,7 +35,7 @@ pip install -e .
 
 ### Example 1: PDF Conversion
 ```python
-from pdf2json import PDFToXMLConverter
+from estimatex import PDFToXMLConverter
 from pathlib import Path
 
 # Initialize converter
@@ -57,7 +57,7 @@ with open(output_json) as f:
 
 ### Example 2: DSR Rate Matching
 ```python
-from pdf2json import (
+from estimatex import (
     load_dsr_database,
     match_with_database,
     load_input_file
@@ -92,7 +92,7 @@ db_conn.close()
 
 ### Example 3: Text Similarity
 ```python
-from pdf2json import calculate_text_similarity
+from estimatex import calculate_text_similarity
 
 text1 = "Excavation of earth for foundation"
 text2 = "Earth excavation for building foundation"
@@ -103,7 +103,7 @@ print(f"Similarity: {similarity:.2%}")  # e.g., 85%
 
 ### Example 4: Excel to PDF Conversion
 ```python
-from pdf2json import ExcelToPDFConverter
+from estimatex import ExcelToPDFConverter
 from pathlib import Path
 
 # Initialize converter
@@ -135,7 +135,7 @@ converter.close()
 ### Example 1: Embed in Existing Flask App
 ```python
 from flask import Flask
-from pdf2json import create_app as create_pdf2json_app
+from estimatex import create_app as create_estimatex_app
 
 # Your main application
 app = Flask(__name__)
@@ -144,13 +144,13 @@ app = Flask(__name__)
 def home():
     return "Main Application"
 
-# Mount PDF2JSON as a blueprint
-pdf_app = create_pdf2json_app()
+# Mount EstimateX as a blueprint
+pdf_app = create_estimatex_app()
 
-# Register routes under /pdf2json prefix
+# Register routes under /estimatex prefix
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
-    '/pdf2json': pdf_app
+    '/estimatex': pdf_app
 })
 
 if __name__ == '__main__':
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
 ### Example 2: Custom Configuration
 ```python
-from pdf2json import create_app
+from estimatex import create_app
 
 # Create app with custom config
 app = create_app({
@@ -175,21 +175,21 @@ if __name__ == '__main__':
 
 ### Example 3: Add Custom Routes
 ```python
-from pdf2json import app
+from estimatex import app
 from flask import jsonify
 
 @app.route('/api/health')
 def health_check():
     return jsonify({
         'status': 'healthy',
-        'service': 'pdf2json-dsr',
+        'service': 'estimatex-dsr',
         'version': '1.0.0'
     })
 
 @app.route('/api/custom-endpoint')
 def custom_endpoint():
-    # Your custom logic using pdf2json functions
-    from pdf2json import calculate_text_similarity
+    # Your custom logic using estimatex functions
+    from estimatex import calculate_text_similarity
     
     result = calculate_text_similarity("text1", "text2")
     return jsonify({'similarity': result})
@@ -215,13 +215,13 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - pdf2json
+      - estimatex
     environment:
-      - PDF_SERVICE_URL=http://pdf2json:8000
+      - PDF_SERVICE_URL=http://estimatex:8000
 
-  # PDF2JSON service
-  pdf2json:
-    image: ghcr.io/rahulcdry07/pdf2json:latest
+  # EstimateX service
+  estimatex:
+    image: ghcr.io/rahulcdry07/estimatex:latest
     ports:
       - "8000:8000"
     volumes:
@@ -251,8 +251,8 @@ import requests
 
 # Your application code
 def convert_pdf_via_microservice(pdf_path):
-    """Call PDF2JSON microservice"""
-    url = "http://pdf2json:8000/upload"
+    """Call EstimateX microservice"""
+    url = "http://estimatex:8000/upload"
     
     with open(pdf_path, 'rb') as f:
         files = {'file': f}
@@ -277,7 +277,7 @@ print(result)
 import requests
 from pathlib import Path
 
-class PDF2JSONClient:
+class EstimateXClient:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
     
@@ -309,7 +309,7 @@ class PDF2JSONClient:
         return response.json()
 
 # Usage
-client = PDF2JSONClient()
+client = EstimateXClient()
 result = client.upload_pdf("project.pdf")
 print(result)
 ```
@@ -320,7 +320,7 @@ const FormData = require('form-data');
 const fs = require('fs');
 const axios = require('axios');
 
-class PDF2JSONClient {
+class EstimateXClient {
     constructor(baseUrl = 'http://localhost:8000') {
         this.baseUrl = baseUrl;
     }
@@ -357,7 +357,7 @@ class PDF2JSONClient {
 }
 
 // Usage
-const client = new PDF2JSONClient();
+const client = new EstimateXClient();
 client.uploadPDF('project.pdf')
     .then(result => console.log(result))
     .catch(err => console.error(err));
@@ -372,7 +372,7 @@ client.uploadPDF('project.pdf')
 # views.py
 from django.shortcuts import render
 from django.http import JsonResponse
-from pdf2json import PDFToXMLConverter, match_with_database, load_dsr_database
+from estimatex import PDFToXMLConverter, match_with_database, load_dsr_database
 from pathlib import Path
 
 def convert_pdf_view(request):
@@ -437,12 +437,12 @@ urlpatterns = [
 ```python
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
-from pdf2json import PDFToXMLConverter, match_with_database, load_dsr_database
+from estimatex import PDFToXMLConverter, match_with_database, load_dsr_database
 from pathlib import Path
 import json
 import tempfile
 
-app = FastAPI(title="PDF2JSON API Service")
+app = FastAPI(title="EstimateX API Service")
 
 # Initialize converter
 converter = PDFToXMLConverter()
@@ -498,7 +498,7 @@ async def cost_estimation(items: list):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "pdf2json-dsr"}
+    return {"status": "healthy", "service": "estimatex-dsr"}
 
 if __name__ == "__main__":
     import uvicorn
@@ -513,7 +513,7 @@ if __name__ == "__main__":
 ```python
 import json
 import boto3
-from pdf2json import PDFToXMLConverter
+from estimatex import PDFToXMLConverter
 from pathlib import Path
 import tempfile
 
@@ -572,7 +572,7 @@ def lambda_handler(event, context):
 ### Requirements for Lambda
 ```txt
 # requirements.txt for Lambda layer
-pdf2json-dsr
+estimatex-dsr
 PyMuPDF
 boto3
 ```
@@ -593,6 +593,6 @@ boto3
 ## Support
 
 For more examples and support:
-- GitHub Issues: https://github.com/Rahulcdry07/PDF2JSON/issues
+- GitHub Issues: https://github.com/Rahulcdry07/EstimateX/issues
 - Documentation: See `docs/` directory
 - API Docs: http://localhost:8000/api/docs (when running)

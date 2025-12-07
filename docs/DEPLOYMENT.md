@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers multiple deployment options for the PDF2JSON DSR Rate Matching System.
+This guide covers multiple deployment options for the EstimateX DSR Rate Matching System.
 
 ## 🐳 Docker Deployment (Recommended)
 
@@ -13,7 +13,7 @@ This guide covers multiple deployment options for the PDF2JSON DSR Rate Matching
 1. **Clone and configure**
    ```bash
    git clone <repository-url>
-   cd PDF2JSON
+   cd EstimateX
    cp .env.example .env
    # Edit .env with your configuration
    ```
@@ -91,7 +91,7 @@ docker-compose down -v
 4. **Run the application**
    ```bash
    # Main web interface
-   python -m src.pdf2json.web
+   python -m src.estimatex.web
 
    # MCP web interface
    python mcp_web_interface.py
@@ -111,12 +111,12 @@ docker-compose down -v
 
 2. **Initialize EB**
    ```bash
-   eb init -p python-3.11 pdf2json-dsr
+   eb init -p python-3.11 estimatex-dsr
    ```
 
 3. **Create environment**
    ```bash
-   eb create pdf2json-prod
+   eb create estimatex-prod
    ```
 
 4. **Deploy**
@@ -133,12 +133,12 @@ docker-compose down -v
 
 2. **Create Procfile**
    ```bash
-   echo "web: python -m src.pdf2json.web" > Procfile
+   echo "web: python -m src.estimatex.web" > Procfile
    ```
 
 3. **Deploy**
    ```bash
-   heroku create pdf2json-dsr
+   heroku create estimatex-dsr
    git push heroku main
    ```
 
@@ -146,13 +146,13 @@ docker-compose down -v
 
 1. **Build container**
    ```bash
-   gcloud builds submit --tag gcr.io/PROJECT-ID/pdf2json
+   gcloud builds submit --tag gcr.io/PROJECT-ID/estimatex
    ```
 
 2. **Deploy**
    ```bash
-   gcloud run deploy pdf2json \
-     --image gcr.io/PROJECT-ID/pdf2json \
+   gcloud run deploy estimatex \
+     --image gcr.io/PROJECT-ID/estimatex \
      --platform managed \
      --region us-central1 \
      --allow-unauthenticated
@@ -198,7 +198,7 @@ FLASK_DEBUG=0
 1. **Use production WSGI server**
    ```bash
    pip install gunicorn
-   gunicorn -w 4 -b 0.0.0.0:8000 "src.pdf2json.web:app"
+   gunicorn -w 4 -b 0.0.0.0:8000 "src.estimatex.web:app"
    ```
 
 2. **Enable caching**
@@ -256,8 +256,8 @@ docker-compose pull
 docker-compose up -d
 
 # Kubernetes
-kubectl set image deployment/pdf2json pdf2json=pdf2json:v1.1.0
-kubectl rollout status deployment/pdf2json
+kubectl set image deployment/estimatex estimatex=estimatex:v1.1.0
+kubectl rollout status deployment/estimatex
 ```
 
 ### Database Migrations
@@ -278,7 +278,7 @@ docker-compose down
 docker-compose up -d --force-recreate
 
 # Kubernetes
-kubectl rollout undo deployment/pdf2json
+kubectl rollout undo deployment/estimatex
 ```
 
 ## 🆘 Troubleshooting

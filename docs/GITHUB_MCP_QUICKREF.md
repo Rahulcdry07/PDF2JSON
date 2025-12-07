@@ -24,9 +24,9 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "pdf2json-github": {
+    "estimatex-github": {
       "command": "python3",
-      "args": ["/path/to/PDF2JSON/mcp_github_server.py"]
+      "args": ["/path/to/EstimateX/mcp_github_server.py"]
     }
   }
 }
@@ -88,7 +88,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 | Resource | URI | Description |
 |----------|-----|-------------|
-| Repository | `github://repo/Rahulcdry07/PDF2JSON` | Main repo info |
+| Repository | `github://repo/Rahulcdry07/EstimateX` | Main repo info |
 | Issues | `github://repo/.../issues` | All issues |
 | PRs | `github://repo/.../pulls` | All PRs |
 | Actions | `github://repo/.../actions` | Workflow runs |
@@ -167,8 +167,8 @@ python mcp_github_server.py
 
 - GitHub CLI: https://cli.github.com/
 - MCP Spec: https://modelcontextprotocol.io/
-- Repository: https://github.com/Rahulcdry07/PDF2JSON
-- Issues: https://github.com/Rahulcdry07/PDF2JSON/issues
+- Repository: https://github.com/Rahulcdry07/EstimateX
+- Issues: https://github.com/Rahulcdry07/EstimateX/issues
 
 ---
 

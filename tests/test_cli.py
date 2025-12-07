@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 from click.testing import CliRunner
-from src.pdf2json.cli import main
+from src.estimatex.cli import main
 
 
 @pytest.fixture

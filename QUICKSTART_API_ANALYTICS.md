@@ -2,7 +2,7 @@
 
 ## Overview
 
-Your PDF2JSON project now includes comprehensive API documentation and real-time analytics!
+Your EstimateX project now includes comprehensive API documentation and real-time analytics!
 
 ## 🎯 What You Get
 
@@ -45,7 +45,7 @@ Get statistics programmatically for integration with monitoring tools.
 
 ```bash
 # From project root
-python -m src.pdf2json.web
+python -m src.estimatex.web
 ```
 
 Or with the web interface script:
@@ -153,7 +153,7 @@ For detailed information, see:
 Default: 1000 requests
 
 ```python
-# In src/pdf2json/web.py
+# In src/estimatex/web.py
 analytics_tracker.max_history = 500  # Keep last 500 requests
 ```
 
