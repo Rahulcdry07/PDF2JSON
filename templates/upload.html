@@ -1,25 +1,85 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Upload PDF</title>
-  </head>
-  <body>
-    <h1>Upload PDF</h1>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div style="color: red; margin: 10px 0;">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    <p><strong>Maximum file size:</strong> 100 MB</p>
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="pdf" accept="application/pdf" required />
-      <button type="submit">Upload & Convert</button>
-    </form>
-    <p><a href="/">Back</a></p>
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Upload PDF - EstimateX{% endblock %}
+
+{% block breadcrumb %}
+<nav class="breadcrumb">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li class="current">Upload PDF</li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>📄 Upload & Convert PDF</h1>
+        <p>Upload a PDF file to convert it to structured JSON format</p>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px dashed #007bff; margin-bottom: 20px;">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <div style="margin-bottom: 20px;">
+                <label for="pdf" style="display: block; margin-bottom: 10px; font-weight: bold; color: #333;">
+                    Select PDF File:
+                </label>
+                <input type="file" 
+                       id="pdf" 
+                       name="pdf" 
+                       accept="application/pdf" 
+                       required 
+                       style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; max-width: 500px; background: white;" />
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="include_metadata" value="on" style="width: 18px; height: 18px;" />
+                    <span>Include PDF metadata in output</span>
+                </label>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="extract_tables" value="on" style="width: 18px; height: 18px;" />
+                    <span>Extract and structure tables</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">
+                📤 Upload & Convert
+            </button>
+        </form>
+    </div>
+
+    <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
+        <h3 style="margin-bottom: 15px; color: #0056b3;">ℹ Information:</h3>
+        <ul style="line-height: 1.8; color: #333;">
+            <li><strong>Maximum file size:</strong> 100 MB</li>
+            <li><strong>Supported format:</strong> PDF (.pdf)</li>
+            <li><strong>Processing time:</strong> Depends on file size (typically 5-30 seconds)</li>
+            <li><strong>Output format:</strong> JSON with structured content, metadata, and optional tables</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
+        <h3 style="margin-bottom: 15px; color: #333;">📋 What happens after upload?</h3>
+        <ol style="line-height: 2; color: #555;">
+            <li>Your PDF file is securely uploaded to the server</li>
+            <li>The system extracts text, structure, and metadata</li>
+            <li>Content is converted to structured JSON format</li>
+            <li>You can download the JSON file or view it online</li>
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add loading indicator on form submit
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        showLoading('Uploading and converting PDF...');
+    });
+</script>
+{% endblock %}

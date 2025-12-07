@@ -1,240 +1,184 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>EstimateX - File Manager</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
-      .container {
-        background-color: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      h1 {
-        color: #333;
-        border-bottom: 3px solid #007bff;
-        padding-bottom: 10px;
-        margin-bottom: 30px;
-      }
-      .upload-section {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 6px;
-        margin-bottom: 30px;
-        border: 2px dashed #007bff;
-      }
-      .upload-section h2 {
-        margin-top: 0;
-        color: #007bff;
-      }
-      .file-input {
-        margin: 10px 0;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 300px;
-      }
-      .submit-btn {
-        background-color: #007bff;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        margin-left: 10px;
-      }
-      .submit-btn:hover {
-        background-color: #0056b3;
-      }
-      .files-section {
-        margin-top: 30px;
-      }
-      .file-category {
-        margin-bottom: 25px;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        overflow: hidden;
-      }
-      .category-header {
-        background-color: #007bff;
-        color: white;
-        padding: 12px 20px;
-        margin: 0;
-        font-size: 18px;
-        font-weight: bold;
-      }
-      .category-header.input { background-color: #28a745; }
-      .category-header.output { background-color: #fd7e14; }
-      .category-header.reference { background-color: #6f42c1; }
-      .file-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      .file-item {
-        border-bottom: 1px solid #dee2e6;
-        padding: 0;
-      }
-      .file-item:last-child {
-        border-bottom: none;
-      }
-      .file-link {
-        display: block;
-        padding: 12px 20px;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.3s;
-      }
-      .file-link:hover {
-        background-color: #f8f9fa;
-        color: #007bff;
-      }
-      .file-icon {
-        margin-right: 8px;
-        font-weight: bold;
-      }
-      .json-icon { color: #ffc107; }
-      .csv-icon { color: #28a745; }
-      .md-icon { color: #17a2b8; }
-      .pdf-icon { color: #dc3545; }
-      .empty-message {
-        padding: 20px;
-        text-align: center;
-        color: #6c757d;
-        font-style: italic;
-      }
-      .flash-messages {
-        margin-bottom: 20px;
-      }
-      .flash-message {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        border-radius: 4px;
-        padding: 12px;
-        margin-bottom: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>EstimateX - File Manager</h1>
-      
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <div class="flash-messages">
-            {% for message in messages %}
-              <div class="flash-message">{{ message }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-      
-      <div class="upload-section">
-        <h2>📄 Upload New PDF</h2>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-          <input type="file" name="pdf" accept=".pdf" class="file-input" required />
-          <input type="submit" value="Convert to JSON" class="submit-btn" />
-        </form>
-      </div>
+{% extends "base.html" %}
 
-      <div class="upload-section" style="border-color: #28a745;">
-        <h2 style="color: #28a745;">🔍 Search Files</h2>
-        <form action="/search" method="post">
-          <input type="text" name="search_term" placeholder="Enter search term..." class="file-input" required />
-          <input type="submit" value="Search" class="submit-btn" style="background-color: #28a745;" />
-        </form>
-      </div>
+{% block title %}Home - EstimateX{% endblock %}
 
-      <div class="upload-section" style="border-color: #fd7e14;">
-        <h2 style="color: #fd7e14;">💰 DSR Cost Estimation</h2>
-        <p>Match DSR items with reference rates and calculate project cost estimation</p>
-        <a href="/cost-estimation" class="submit-btn" style="background-color: #fd7e14; text-decoration: none; display: inline-block;">
-          Calculate Cost Estimation
-        </a>
-      </div>
-
-      <div class="upload-section" style="border-color: #6f42c1;">
-        <h2 style="color: #6f42c1;">📊 Excel to PDF Converter</h2>
-        <p>Extract individual sheets from Excel files and convert them to PDF format</p>
-        <a href="/excel-converter" class="submit-btn" style="background-color: #6f42c1; text-decoration: none; display: inline-block;">
-          Convert Excel to PDF
-        </a>
-      </div>
-
-      <div class="files-section">
-        {% if files.input or files.output or files.reference %}
-          
-          {% if files.input %}
-          <div class="file-category">
-            <h3 class="category-header input">📥 Input Files ({{ files.input|length }})</h3>
-            <ul class="file-list">
-              {% for file in files.input %}
-              <li class="file-item">
-                <a href="/view/input_files/{{ file.name }}" class="file-link">
-                  <span class="file-icon {{ file.type }}-icon">
-                    {% if file.type == 'json' %}📋{% elif file.type == 'pdf' %}📄{% else %}📎{% endif %}
-                  </span>
-                  {{ file.name }}
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
-
-          {% if files.output %}
-          <div class="file-category">
-            <h3 class="category-header output">📤 Output Reports ({{ files.output|length }})</h3>
-            <ul class="file-list">
-              {% for file in files.output %}
-              <li class="file-item">
-                <a href="/view/output_reports/{{ file.name }}" class="file-link">
-                  <span class="file-icon {{ file.type }}-icon">
-                    {% if file.type == 'json' %}📋{% elif file.type == 'csv' %}📊{% elif file.type == 'md' %}📝{% else %}📎{% endif %}
-                  </span>
-                  {{ file.name }}
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
-
-          {% if files.reference %}
-          <div class="file-category">
-            <h3 class="category-header reference">📚 Reference Files ({{ files.reference|length }})</h3>
-            <ul class="file-list">
-              {% for file in files.reference %}
-              <li class="file-item">
-                <a href="/view/reference_files/{{ file.name }}" class="file-link">
-                  <span class="file-icon {{ file.type }}-icon">
-                    {% if file.type == 'json' %}📋{% elif file.type == 'xml' %}🔖{% else %}📎{% endif %}
-                  </span>
-                  {{ file.name }}
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
-
-        {% else %}
-          <div class="file-category">
-            <div class="empty-message">
-              No files found. Upload a PDF to get started!
-            </div>
-          </div>
-        {% endif %}
-      </div>
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Welcome to EstimateX</h1>
+        <p>AI-Powered Construction Cost Estimation Platform with DSR Rate Matching</p>
     </div>
-  </body>
-</html>
+
+    <!-- Quick Action Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <a href="/upload" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,123,255,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📄</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Upload PDF</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">Convert PDF files to structured JSON format with metadata extraction</p>
+            </div>
+        </a>
+
+        <a href="/cost-estimation" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(40,167,69,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">💰</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Cost Estimation</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">Match items with DSR rates and calculate project costs automatically</p>
+            </div>
+        </a>
+
+        <a href="/search" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(23,162,184,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">🔍</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Search DSR</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">Search through DSR database for construction rates and specifications</p>
+            </div>
+        </a>
+
+        <a href="/excel-converter" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(111,66,193,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📊</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Excel Converter</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">Convert and analyze Excel files for cost estimation workflows</p>
+            </div>
+        </a>
+
+        <a href="/analytics" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #fd7e14 0%, #e36209 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(253,126,20,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📈</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Analytics</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">View usage statistics and performance metrics dashboard</p>
+            </div>
+        </a>
+
+        <a href="/api/docs" style="text-decoration: none;">
+            <div style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(108,117,125,0.3); transition: transform 0.3s ease; cursor: pointer;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📚</div>
+                <h3 style="margin-bottom: 10px; font-size: 1.5rem;">API Docs</h3>
+                <p style="opacity: 0.9; line-height: 1.6;">Explore REST API documentation and integration examples</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Features Section -->
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+        <h2 style="color: #333; margin-bottom: 25px; text-align: center;">✨ Key Features</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px;">
+            <div>
+                <h4 style="color: #007bff; margin-bottom: 10px;">🚀 Fast Processing</h4>
+                <p style="color: #555; line-height: 1.7;">Lightning-fast PDF conversion and DSR matching with optimized algorithms</p>
+            </div>
+            <div>
+                <h4 style="color: #28a745; margin-bottom: 10px;">🎯 High Accuracy</h4>
+                <p style="color: #555; line-height: 1.7;">AI-powered matching with 85%+ accuracy for DSR rate identification</p>
+            </div>
+            <div>
+                <h4 style="color: #17a2b8; margin-bottom: 10px;">📊 Rich Analytics</h4>
+                <p style="color: #555; line-height: 1.7;">Comprehensive dashboards and reports for tracking usage and performance</p>
+            </div>
+            <div>
+                <h4 style="color: #6f42c1; margin-bottom: 10px;">🔌 RESTful API</h4>
+                <p style="color: #555; line-height: 1.7;">Well-documented API for easy integration with your existing systems</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Files Section -->
+    {% if has_files %}
+    <div style="margin-top: 40px;">
+        <h2 style="color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #007bff;">📁 Quick Access</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- Input Files -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                <div style="background: #28a745; color: white; padding: 15px; font-weight: bold;">
+                    📥 Input Files
+                </div>
+                <div style="padding: 15px;">
+                    {% if input_files %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for file in input_files[:5] %}
+                            <li style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                                <a href="/view/{{ file }}" style="color: #007bff; text-decoration: none;">
+                                    📄 {{ file | basename }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #6c757d; text-align: center; padding: 20px;">No files yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Output Files -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                <div style="background: #fd7e14; color: white; padding: 15px; font-weight: bold;">
+                    📤 Output Files
+                </div>
+                <div style="padding: 15px;">
+                    {% if output_files %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for file in output_files[:5] %}
+                            <li style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                                <a href="/view/{{ file }}" style="color: #007bff; text-decoration: none;">
+                                    📊 {{ file | basename }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #6c757d; text-align: center; padding: 20px;">No files yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reference Files -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                <div style="background: #6f42c1; color: white; padding: 15px; font-weight: bold;">
+                    📚 Reference Files
+                </div>
+                <div style="padding: 15px;">
+                    {% if reference_files %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for file in reference_files[:5] %}
+                            <li style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                                <a href="/view/{{ file }}" style="color: #007bff; text-decoration: none;">
+                                    📖 {{ file | basename }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #6c757d; text-align: center; padding: 20px;">No files yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Getting Started -->
+    <div style="margin-top: 40px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 30px; border-radius: 12px; border: 1px solid #90caf9;">
+        <h2 style="color: #0d47a1; margin-bottom: 20px;">🚀 Getting Started</h2>
+        <ol style="color: #1565c0; line-height: 2; font-size: 1.05rem;">
+            <li><strong>Upload a PDF:</strong> Click on "Upload PDF" to convert construction documents to JSON</li>
+            <li><strong>Prepare your data:</strong> Create a CSV file with item descriptions and quantities</li>
+            <li><strong>Run Cost Estimation:</strong> Upload your CSV to match with DSR rates and calculate costs</li>
+            <li><strong>Review Results:</strong> Analyze matched items, confidence scores, and total estimates</li>
+            <li><strong>Export Reports:</strong> Download results in various formats for further analysis</li>
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hover effects for action cards */
+    .container a > div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+    }
+</style>
+{% endblock %}

@@ -271,61 +271,38 @@ def index():
     # Input files (original converted PDFs)
     if INPUT_FILES.exists():
         for json_file in sorted(INPUT_FILES.glob("*.json")):
-            files["input"].append(
-                {
-                    "name": json_file.name,
-                    "type": "json",
-                    "description": "Input file with items to be priced",
-                }
-            )
+            files["input"].append(str(json_file.relative_to(APP_ROOT)))
 
     # Output reports (DSR matching results)
     if OUTPUT_REPORTS.exists():
         for json_file in sorted(OUTPUT_REPORTS.glob("*.json")):
-            files["output"].append(
-                {
-                    "name": json_file.name,
-                    "type": "json",
-                    "description": "DSR matching analysis report",
-                }
-            )
+            files["output"].append(str(json_file.relative_to(APP_ROOT)))
 
         # Also include CSV and markdown reports
         for report_file in sorted(OUTPUT_REPORTS.glob("*.csv")):
-            files["output"].append(
-                {
-                    "name": report_file.name,
-                    "type": "csv",
-                    "description": "Excel-compatible rate report",
-                }
-            )
+            files["output"].append(str(report_file.relative_to(APP_ROOT)))
 
         for report_file in sorted(OUTPUT_REPORTS.glob("*.md")):
-            files["output"].append(
-                {
-                    "name": report_file.name,
-                    "type": "md",
-                    "description": "Human-readable summary report",
-                }
-            )
+            files["output"].append(str(report_file.relative_to(APP_ROOT)))
 
     # Reference files (DSR databases)
     reference_dir = REFERENCE_FILES
     if reference_dir.exists():
         for ref_file in sorted(reference_dir.glob("*.json")):
-            files["reference"].append(
-                {"name": ref_file.name, "type": "json", "description": "DSR reference database"}
-            )
+            files["reference"].append(str(ref_file.relative_to(APP_ROOT)))
         for ref_file in sorted(reference_dir.glob("*.xml")):
-            files["reference"].append(
-                {
-                    "name": ref_file.name,
-                    "type": "xml",
-                    "description": "DSR reference database (XML)",
-                }
-            )
+            files["reference"].append(str(ref_file.relative_to(APP_ROOT)))
 
-    return render_template("index.html", files=files)
+    # Check if any files exist
+    has_files = any(files.values())
+
+    return render_template(
+        "index.html",
+        input_files=files["input"],
+        output_files=files["output"],
+        reference_files=files["reference"],
+        has_files=has_files,
+    )
 
 
 @app.errorhandler(413)
@@ -763,6 +740,44 @@ def create_app(config=None):
     if config:
         app.config.update(config)
     return app
+
+
+# Error Handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 Not Found errors."""
+    logger.warning(f"404 Error: {request.url}")
+    return render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 Internal Server errors."""
+    logger.error(f"500 Error: {error}", exc_info=True)
+    error_details = str(error) if app.debug else None
+    return render_template("500.html", error_details=error_details), 500
+
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """Handle uncaught exceptions."""
+    logger.error(f"Unhandled exception: {error}", exc_info=True)
+
+    # Return JSON for API requests
+    if request.path.startswith("/api/"):
+        return (
+            jsonify(
+                {
+                    "error": "Internal server error",
+                    "message": str(error) if app.debug else "An unexpected error occurred",
+                }
+            ),
+            500,
+        )
+
+    # Return HTML for web requests
+    error_details = str(error) if app.debug else None
+    return render_template("500.html", error_details=error_details), 500
 
 
 if __name__ == "__main__":

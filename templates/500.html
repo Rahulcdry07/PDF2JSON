@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - EstimateX{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 60px 20px;">
+    <div style="font-size: 120px; color: #dc3545; margin-bottom: 20px;">500</div>
+    <h1 style="font-size: 2.5rem; margin-bottom: 20px;">Internal Server Error</h1>
+    <p style="font-size: 1.2rem; color: #6c757d; margin-bottom: 40px;">
+        Oops! Something went wrong on our end. We're working to fix it.
+    </p>
+    
+    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <a href="/" class="btn btn-primary">Go to Home</a>
+        <a href="javascript:location.reload()" class="btn btn-secondary">Reload Page</a>
+        <a href="https://github.com/Rahulcdry07/PDF2JSON/issues" target="_blank" class="btn btn-danger">Report Issue</a>
+    </div>
+    
+    <div style="margin-top: 60px; padding: 30px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107; text-align: left; max-width: 700px; margin-left: auto; margin-right: auto;">
+        <h3 style="margin-bottom: 15px; color: #856404;">⚠ What you can do:</h3>
+        <ul style="color: #856404; line-height: 1.8;">
+            <li>Try refreshing the page</li>
+            <li>Go back to the <a href="/" style="color: #007bff;">homepage</a> and try again</li>
+            <li>Check your internet connection</li>
+            <li>Clear your browser cache and cookies</li>
+            <li>If the problem persists, please <a href="https://github.com/Rahulcdry07/PDF2JSON/issues" target="_blank" style="color: #007bff;">report this issue</a></li>
+        </ul>
+    </div>
+    
+    {% if error_details %}
+    <details style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <summary style="cursor: pointer; font-weight: bold; color: #dc3545;">Technical Details (for developers)</summary>
+        <pre style="margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; overflow-x: auto; font-size: 0.875rem;">{{ error_details }}</pre>
+    </details>
+    {% endif %}
+</div>
+{% endblock %}
