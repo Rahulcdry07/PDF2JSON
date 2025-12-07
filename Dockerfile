@@ -12,9 +12,13 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Copy requirements and pyproject.toml for package installation
+COPY requirements.txt pyproject.toml ./
+COPY src ./src
+
+# Install Python dependencies and the estimatex package
+RUN pip install --no-cache-dir --user -r requirements.txt && \
+    pip install --no-cache-dir --user -e .
 
 # Final stage
 FROM python:3.11-slim
